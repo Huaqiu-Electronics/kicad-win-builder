@@ -243,8 +243,7 @@ copystuff() {
     cp "$MSYSDIR/ssl/certs/ca-bundle.crt" "$TARGETDIR/ssl/certs/"
 
     echo Copying python...
-    cp $MSYSDIR/bin/python.exe $TARGETDIR/bin
-    cp $MSYSDIR/bin/python2w.exe $TARGETDIR/bin/pythonw.exe
+    cp $MSYSDIR/bin/python2.exe $TARGETDIR/bin/python.exe
 
     echo Copying Tk for python...
     cp $MSYSDIR/bin/tk86.dll $TARGETDIR/bin
