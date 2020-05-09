@@ -533,6 +533,7 @@ SectionEnd
 Section $(TITLE_SEC_FILE_ASSOC) SEC08
   ${CreateFileAssociation} "kicad_pcb" "pcbnew.exe" $(FILE_DESC_KICAD_PCB) "icon_pcbnew"
   ${CreateFileAssociation} "sch" "eeschema.exe" $(FILE_DESC_SCH) "icon_eeschema"
+  ${CreateFileAssociation} "kicad_sch" "eeschema.exe" $(FILE_DESC_SCH) "icon_eeschema"
   ${CreateFileAssociation} "pro" "kicad.exe" $(FILE_DESC_PRO) "icon_kicad"
   ${CreateFileAssociation} "kicad_wks" "pl_editor.exe" $(FILE_DESC_KICAD_WKS) "icon_pagelayout_editor"
 
