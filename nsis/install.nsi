@@ -702,6 +702,7 @@ Section Uninstall
   ;delete file associations
   ${DeleteFileAssociation} "kicad_pcb"
   ${DeleteFileAssociation} "sch"
+  ${DeleteFileAssociation} "kicad_sch"
   ${DeleteFileAssociation} "pro"
   ${DeleteFileAssociation} "kicad_wks"
 
