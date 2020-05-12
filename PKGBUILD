@@ -30,8 +30,8 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-cmake"
              "${MINGW_PACKAGE_PREFIX}-glm"
              "git"
              "unzip")
-source=("${_realname}"::"git+https://git.launchpad.net/kicad"
-        "${_realname}-i18n"::"git+https://github.com/KiCad/kicad-i18n.git"
+source=("${_realname}"::"git+https://gitlab.com/kicad/code/kicad.git
+        "${_realname}-i18n"::"git+https://gitlab.com/kicad/code/kicad-i18n.git"
         "git://github.com/KiCad/kicad-symbols.git"
         "git://github.com/KiCad/kicad-footprints.git"
         "git://github.com/KiCad/kicad-packages3D.git"
