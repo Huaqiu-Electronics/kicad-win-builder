@@ -535,6 +535,7 @@ Section $(TITLE_SEC_FILE_ASSOC) SEC08
   ${CreateFileAssociation} "sch" "eeschema.exe" $(FILE_DESC_SCH) "icon_eeschema"
   ${CreateFileAssociation} "kicad_sch" "eeschema.exe" $(FILE_DESC_SCH) "icon_eeschema"
   ${CreateFileAssociation} "pro" "kicad.exe" $(FILE_DESC_PRO) "icon_kicad"
+  ${CreateFileAssociation} "kicad_pro" "kicad.exe" $(FILE_DESC_PRO) "icon_kicad"
   ${CreateFileAssociation} "kicad_wks" "pl_editor.exe" $(FILE_DESC_KICAD_WKS) "icon_pagelayout_editor"
 
   WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "FileAssocInstalled" "1"
@@ -704,6 +705,7 @@ Section Uninstall
   ${DeleteFileAssociation} "sch"
   ${DeleteFileAssociation} "kicad_sch"
   ${DeleteFileAssociation} "pro"
+  ${DeleteFileAssociation} "kicad_pro"
   ${DeleteFileAssociation} "kicad_wks"
 
   FinishUninstall:
