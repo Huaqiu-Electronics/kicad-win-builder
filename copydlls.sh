@@ -9,7 +9,7 @@ display_help() {
     echo "Usage: copydlls.sh [OPTION]"
     echo "  -h, --help           This help message"
     echo "  -a, --arch=ARCH      Determine arch for packaging"
-    echo "  -p, --pkgpath=PATH   Path to pkg.tar.xz package"
+    echo "  -p, --pkgpath=PATH   Path to pkg.tar.zst package"
     echo "  -d, --dirpath=PATH   Path to make install location (DESTDIR)"
     echo "  -m, --makensis=PATH  Path to makensis.exe"
     echo "  -s, --nsispath=PATH  Path to the NSIS packaging scripts"
@@ -37,7 +37,7 @@ decode_ver() {
 }
 
 # This function expects a basename as:
-# mingw-w64-x86_64-kicad-git-r5464.25b9a42-1-any.pkg.tar.xz
+# mingw-w64-x86_64-kicad-git-r5464.25b9a42-1-any.pkg.tar.zst
 decode_pkg() {
     decode_arch $1
     decode_ver $1
@@ -47,7 +47,7 @@ extract_pkg() {
     pwd
     echo ======================
 
-    # Extract the pkg.tar.xz
+    # Extract the pkg.tar.zst
     bsdtar xf $1 --strip-components 1 -C $2
 }
 
@@ -329,7 +329,7 @@ fi
 if [ ! -z $PKGPATH ]; then
     # This loop looks for package files in the PKGPATH
     for entry in "$PKGPATH"/*; do
-    if [[ $entry == *"pkg.tar.xz"* ]]; then
+    if [[ $entry == *"pkg.tar.zst"* ]]; then
         decode_pkg $(basename $entry)
         echo "Decoded pkg is $ARCH and $VERSION"
         handle_arch
