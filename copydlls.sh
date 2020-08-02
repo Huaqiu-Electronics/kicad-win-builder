@@ -211,7 +211,8 @@ copystuff() {
         "libtermcap-0.dll" \
         "libpsl-5.dll" \
         "libcrypto-1_1*.dll" \
-        "libzstd.dll" )
+        "libzstd.dll" \
+        "libssp-0.dll" )
 
     #echo Copying kicad binaries and stuff...
     #cp -r $MSYSDIR/bin/* $TARGETDIR/bin
