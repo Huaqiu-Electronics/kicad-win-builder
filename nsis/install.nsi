@@ -357,7 +357,7 @@ FunctionEnd
   IfFileExists "$EXEDIR\${File}" unzip download
 
   download:
-  DetailPrint "Downloading ${Url}"
+  !insertmacro ExclusiveDetailPrint "Downloading ${Url}"
   inetc::get /caption "Downloading ${What}" /popup "" ${Url} "$EXEDIR\${File}" /end
   Pop $R0
   StrCmp $R0 "OK" complete
@@ -366,7 +366,7 @@ FunctionEnd
       Return
 
   complete:
-  DetailPrint "Downloaded ${What} archive to $EXEDIR\${File}"
+  !insertmacro ExclusiveDetailPrint "Downloaded ${What} archive to $EXEDIR\${File}"
 
   unzip:
   nsisunz::UnzipToLog "$EXEDIR\${File}" "${DestinationBase}"
@@ -378,10 +378,16 @@ FunctionEnd
       Delete "$EXEDIR\${File}"
     ${EndIf}
   ${Else}
-    DetailPrint "Extracting ${What} failed: $R0"
+    !insertmacro ExclusiveDetailPrint "Extracting ${What} failed: $R0"
     MessageBox MB_ICONEXCLAMATION|MB_OK "Extracting ${What} failed: $R0"
     Abort "Installation aborted."
   ${EndIf}
+!macroend
+
+!macro ExclusiveDetailPrint Msg
+	SetDetailsPrint textonly
+	DetailPrint "${Msg}"
+	SetDetailsPrint listonly
 !macroend
 
 Function onDirectoryPageLeave
@@ -394,6 +400,7 @@ Section $(TITLE_SEC_MAIN) SEC01
   SectionIn RO
   SetOverwrite try
   SetOutPath "$INSTDIR"
+  !insertmacro ExclusiveDetailPrint $(INSTALLING_APPS)
   File /nonfatal "..\AUTHORS.txt"
   File /nonfatal "..\COPYRIGHT.txt"
   File /nonfatal "..\license_for_documentation.txt"
@@ -418,6 +425,7 @@ SectionGroup /e $(TITLE_SEC_LIBRARIES) SEC03
   !ifndef LIBRARIES_TAG
   Section $(TITLE_SEC_SCHLIB) SEC03_SCHLIB
     SetOverwrite try
+	!insertmacro ExclusiveDetailPrint $(INSTALLING_SCH_LIBS)
     SetOutPath "$INSTDIR\share\kicad\library"
     File /nonfatal /r "..\share\kicad\library\*"
   SectionEnd
@@ -431,6 +439,7 @@ SectionGroup /e $(TITLE_SEC_LIBRARIES) SEC03
   !ifndef LIBRARIES_TAG
   Section $(TITLE_SEC_FPLIB) SEC03_MODULES
     SetOverwrite try
+	!insertmacro ExclusiveDetailPrint $(INSTALLING_PCB_LIBS)
     SetOutPath "$INSTDIR\share\kicad\modules"
     File /nonfatal /r /x "packages3d" "..\share\kicad\modules\*"
   SectionEnd
@@ -444,6 +453,7 @@ SectionGroup /e $(TITLE_SEC_LIBRARIES) SEC03
   !ifndef LIBRARIES_TAG
   Section $(TITLE_SEC_PACKAGES3D) SEC03_PACKAGES3D
     SetOverwrite try
+	!insertmacro ExclusiveDetailPrint $(INSTALLING_3D_MODELS)
     SetOutPath "$INSTDIR\share\kicad\modules\packages3d"
     File /nonfatal /r "..\share\kicad\modules\packages3d\*"
   SectionEnd
@@ -457,6 +467,7 @@ SectionGroupEnd
 
 Section $(TITLE_SEC_FPWIZ) SEC04
   SetOverwrite try
+  !insertmacro ExclusiveDetailPrint $(INSTALLING_FOOTPRINT_WIZARDS)
   SetOutPath "$INSTDIR\share\kicad\scripting\kicad_pyshell"
   File /nonfatal /r "..\share\kicad\scripting\kicad_pyshell\*"
   SetOutPath "$INSTDIR\share\kicad\scripting\plugins"
@@ -465,6 +476,7 @@ SectionEnd
 
 Section $(TITLE_SEC_DEMOS) SEC05
   SetOverwrite try
+  !insertmacro ExclusiveDetailPrint $(INSTALLING_DEMOS)
   SetOutPath "$INSTDIR\share\kicad\demos"
   File /nonfatal /r "..\share\kicad\demos\*"
   SetOutPath "$INSTDIR\share\doc\kicad\tutorials"
@@ -473,46 +485,55 @@ SectionEnd
 
 SectionGroup $(TITLE_SEC_DOCS) SEC06
   Section $(LANGUAGE_NAME_EN) SEC06_EN
+	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\en"
     File /nonfatal /r "..\share\doc\kicad\help\en\*"
   SectionEnd
   Section $(LANGUAGE_NAME_DE) SEC06_DE
+	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\de"
     File /nonfatal /r "..\share\doc\kicad\help\de\*"
   SectionEnd
   Section $(LANGUAGE_NAME_ES) SEC06_ES
+	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\es"
     File /nonfatal /r "..\share\doc\kicad\help\es\*"
   SectionEnd
   Section $(LANGUAGE_NAME_FR) SEC06_FR
+	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\fr"
     File /nonfatal /r "..\share\doc\kicad\help\fr\*"
   SectionEnd
   Section $(LANGUAGE_NAME_IT) SEC06_IT
+	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\it"
     File /nonfatal /r "..\share\doc\kicad\help\it\*"
   SectionEnd
   Section $(LANGUAGE_NAME_JA) SEC06_JA
+	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\ja"
     File /nonfatal /r "..\share\doc\kicad\help\ja\*"
   SectionEnd
   Section $(LANGUAGE_NAME_NL) SEC06_NL
+	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\nl"
     File /nonfatal /r "..\share\doc\kicad\help\nl\*"
   SectionEnd
   Section $(LANGUAGE_NAME_PL) SEC06_PL
+	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\pl"
     File /nonfatal /r "..\share\doc\kicad\help\pl\*"
   SectionEnd
   Section $(LANGUAGE_NAME_ZH) SEC06_ZH
+	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\zh"
     File /nonfatal /r "..\share\doc\kicad\help\zh\*"
@@ -520,6 +541,7 @@ SectionGroup $(TITLE_SEC_DOCS) SEC06
 SectionGroupEnd
 
 Section $(TITLE_SEC_ENV) SEC07
+  !insertmacro ExclusiveDetailPrint $(SETTING_ENV_VARS)
   WriteRegExpandStr ${ENV_HKLM} KICAD_TEMPLATE_DIR "$INSTDIR\share\kicad\template"
   WriteRegExpandStr ${ENV_HKLM} KISYS3DMOD "$INSTDIR\share\kicad\modules\packages3d"
   WriteRegExpandStr ${ENV_HKLM} KISYSMOD "$INSTDIR\share\kicad\modules"
@@ -531,6 +553,7 @@ Section $(TITLE_SEC_ENV) SEC07
 SectionEnd
 
 Section $(TITLE_SEC_FILE_ASSOC) SEC08
+  !insertmacro ExclusiveDetailPrint $(SETTING_FILE_ASSOCS)
   ${CreateFileAssociation} "kicad_pcb" "pcbnew.exe" $(FILE_DESC_KICAD_PCB) "icon_pcbnew"
   ${CreateFileAssociation} "sch" "eeschema.exe" $(FILE_DESC_SCH) "icon_eeschema"
   ${CreateFileAssociation} "kicad_sch" "eeschema.exe" $(FILE_DESC_SCH) "icon_eeschema"
@@ -542,6 +565,7 @@ Section $(TITLE_SEC_FILE_ASSOC) SEC08
 SectionEnd
 
 Section -CreateShortcuts
+  !insertmacro ExclusiveDetailPrint $(CREATING_SHORTCUTS)
   SetOutPath $INSTDIR
   WriteIniStr "$INSTDIR\HomePage.url"     "InternetShortcut" "URL" "${KICAD_MAIN_SITE}"
   WriteIniStr "$INSTDIR\UserForum.url"    "InternetShortcut" "URL" "${KICAD_USER_FORUM}"
@@ -565,6 +589,7 @@ Section -CreateShortcuts
 SectionEnd
 
 Section -CreateAddRemoveEntry
+  !insertmacro ExclusiveDetailPrint $(CREATING_PROGRAM_ENTRY)
   WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
   WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
   WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "Publisher" "${COMPANY_NAME}"
@@ -632,6 +657,7 @@ Section Uninstall
 
   ;remove start menu shortcuts and web page links
   SetShellVarContext all
+  !insertmacro ExclusiveDetailPrint $(REMOVING_SHORTCUTS)
   Delete "$SMPROGRAMS\KiCad\Home Page.lnk"
   Delete "$SMPROGRAMS\KiCad\KiCad Libraries.lnk"
   Delete "$SMPROGRAMS\KiCad\KiCad Alternate Download.lnk"
@@ -654,6 +680,7 @@ Section Uninstall
   RMDir "$SMPROGRAMS\KiCad"
 
   ;remove all program files now
+  !insertmacro ExclusiveDetailPrint $(REMOVING_APP)
   RMDir /r "$INSTDIR\bin"
   RMDir /r "$INSTDIR\lib"
   RMDir /r "$INSTDIR\library"
@@ -663,18 +690,22 @@ Section Uninstall
   RMDir /r "$INSTDIR\demos"
   RMDir /r "$INSTDIR\tutorials"
   RMDir /r "$INSTDIR\help"
+  RMDir /r "$INSTDIR\ssl\certs"
+  RMDir /r "$INSTDIR\ssl"
+  
+  !insertmacro ExclusiveDetailPrint $(REMOVING_LIBRARIES)
   RMDir /r "$INSTDIR\share\library"
   RMDir /r "$INSTDIR\share\modules"
   RMDir /r "$INSTDIR\share\kicad\template"
   RMDir /r "$INSTDIR\share\kicad\internat"
   RMDir /r "$INSTDIR\share\kicad\demos"
+  
+  !insertmacro ExclusiveDetailPrint $(REMOVING_DOCS)
   RMDir /r "$INSTDIR\share\doc\kicad\tutorials"
   RMDir /r "$INSTDIR\share\doc\kicad\help"
   RMDir /r "$INSTDIR\share\doc\kicad"
   RMDir /r "$INSTDIR\share\doc"
   RMDir /r "$INSTDIR\share"
-  RMDir /r "$INSTDIR\ssl\certs"
-  RMDir /r "$INSTDIR\ssl"
   ;don't remove $INSTDIR recursively just in case the user has installed it in c:\ or
   ;c:\program files as this would attempt to delete a lot more than just this package
   Delete "$INSTDIR\*.txt"
@@ -687,6 +718,7 @@ Section Uninstall
 
   IntCmp $0 1 0 FinishUninstall FinishUninstall
 
+  !insertmacro ExclusiveDetailPrint $(REMOVING_ENV_VARS)
   DeleteRegValue ${ENV_HKLM} KICAD_TEMPLATE_DIR
   DeleteRegValue ${ENV_HKLM} KISYS3DMOD
   DeleteRegValue ${ENV_HKLM} KISYSMOD
@@ -701,6 +733,7 @@ Section Uninstall
   IntCmp $0 1 0 FinishUninstall FinishUninstall
 
   ;delete file associations
+  !insertmacro ExclusiveDetailPrint $(REMOVING_FILE_ASSOC)
   ${DeleteFileAssociation} "kicad_pcb"
   ${DeleteFileAssociation} "sch"
   ${DeleteFileAssociation} "kicad_sch"
