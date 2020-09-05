@@ -100,8 +100,8 @@ RequestExecutionLevel admin
   InstallDir "$PROGRAMFILES\KiCad"
 !endif
 
-ShowInstDetails show
-ShowUnInstDetails show
+ShowInstDetails hide
+ShowUnInstDetails hide
 BrandingText "KiCad installer for Windows"
 
 ; MUI 2 compatible ------
