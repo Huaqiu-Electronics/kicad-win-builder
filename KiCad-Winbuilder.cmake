@@ -244,10 +244,10 @@ endif()
 
 # ------------------------------------------------------------------------------
 
-set( NSIS_URL https://sourceforge.net/projects/nsis/files/NSIS%203/3.03/nsis-3.03.zip/download )
-set( NSIS_MD5 d4919dc089ec256a7264e97ada299b64 )
-set( NSIS_FN nsis-3.03.zip )
-set( NSIS_MAKE_COMMAND "${SUPPORT_DIR}/nsis-3.03/Bin/makensis.exe" )
+set( NSIS_URL https://sourceforge.net/projects/nsis/files/NSIS%203/3.06.1/nsis-3.06.1.zip/download )
+set( NSIS_MD5 15a0bb6e74be90ef4f11fa7befd0399a )
+set( NSIS_FN nsis-3.06.1.zip )
+set( NSIS_MAKE_COMMAND "${SUPPORT_DIR}/nsis-3.06.1/Bin/makensis.exe" )
 
 if( NOT EXISTS "${NSIS_MAKE_COMMAND}" )
     download_and_install( "${NSIS_URL}" "${NSIS_MD5}" "${NSIS_FN}" "${SUPPORT_DIR}" )
