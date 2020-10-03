@@ -15,6 +15,7 @@ display_help() {
     echo "  -s, --nsispath=PATH  Path to the NSIS packaging scripts"
     echo "  -o, --outdir=PATH    Path to output directory"
     echo "  -v, --version=VERSTR Version string"
+    echo "  -l, --liteonly       Build only lite installer"
     exit 1
 }
 
@@ -124,6 +125,11 @@ case $i in
     -v=*|--version=*)
     VERSION="${i#*=}"
     echo "\$VERSION=$VERSION"
+    shift
+    ;;
+    -l=*|--liteonly)
+    echo "Building lite installer only..."
+    LITE_ONLY=1
     shift
     ;;
     *)
@@ -286,13 +292,14 @@ makensis() {
       GIT_TAG="master"
     fi
 
+    if [ -z $LITE_ONLY ]; then
     echo Generating full installer...
     "$MAKENSIS" \
         //DPRODUCT_VERSION=$VERSION \
         //DOUTFILE="..\kicad-$VERSION-$ARCH.exe" \
         //DARCH="$ARCH" \
         install.nsi
-
+    fi
     echo Generating light installer...
     "$MAKENSIS" \
         //DPRODUCT_VERSION=$VERSION \
