@@ -127,7 +127,7 @@ case $i in
     echo "\$VERSION=$VERSION"
     shift
     ;;
-    -l=*|--liteonly)
+    -l|--liteonly)
     echo "Building lite installer only..."
     LITE_ONLY=1
     shift
