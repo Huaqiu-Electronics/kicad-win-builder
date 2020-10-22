@@ -52,13 +52,17 @@
 !define SOFTWARE_CLASSES_ROOT_KEY 'HKLM'
 
 !define gflag ;Needed to use ifdef and such
-;Define on command line //DPRODUCT_VERSION=42
-!ifndef PRODUCT_VERSION
-  !define PRODUCT_VERSION "unknown"
+;Define on command line //DPACKAGE_VERSION=42
+!ifndef PACKAGE_VERSION
+  !define PACKAGE_VERSION "unknown"
 !endif
 
 !ifndef OPTION_STRING
   !define OPTION_STRING "unknown"
+!endif
+
+!ifndef KICAD_VERSION
+  !define KICAD_VERSION "unknown"
 !endif
 
 ;Define libraries download urls
@@ -83,10 +87,10 @@ Unicode true
 
 CRCCheck force
 ;XPStyle on
-Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
+Name "${PRODUCT_NAME} ${PACKAGE_VERSION}"
 
 !ifndef OUTFILE
-  !define OUTFILE "kicad-${PRODUCT_VERSION}-${OPTION_STRING}.exe"
+  !define OUTFILE "kicad-${PACKAGE_VERSION}-${OPTION_STRING}.exe"
 !endif
 OutFile ${OUTFILE}
 
@@ -95,9 +99,9 @@ OutFile ${OUTFILE}
 RequestExecutionLevel admin
 
 !if ${ARCH} == 'x86_64'
-  InstallDir "$PROGRAMFILES64\KiCad"
+  InstallDir "$PROGRAMFILES64}\KiCad\${KICAD_VERSION}"
 !else
-  InstallDir "$PROGRAMFILES\KiCad"
+  InstallDir "$PROGRAMFILES\KiCad\${KICAD_VERSION}"
 !endif
 
 ShowInstDetails hide
@@ -165,8 +169,8 @@ VIAddVersionKey "ProductName" "${COMPANY_NAME}"
 VIAddVersionKey "CompanyName" "${COMPANY_NAME}"
 VIAddVersionKey "LegalCopyright" "${COMPANY_NAME}"
 VIAddVersionKey "FileDescription" "Installer for the KiCad EDA Suite"
-VIAddVersionKey "ProductVersion" "${PRODUCT_VERSION}"
-VIAddVersionKey "FileVersion" "${PRODUCT_VERSION}"
+VIAddVersionKey "ProductVersion" "${PACKAGE_VERSION}"
+VIAddVersionKey "FileVersion" "${PACKAGE_VERSION}"
 
 ;--------------------------------
 ;Reserve Files
@@ -579,7 +583,7 @@ SectionEnd
 Section -CreateAddRemoveEntry
   !insertmacro ExclusiveDetailPrint $(CREATING_PROGRAM_ENTRY)
   WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
-  WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
+  WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PACKAGE_VERSION}"
   WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "Publisher" "${COMPANY_NAME}"
   WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\uninstaller.exe"
   WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${KICAD_MAIN_SITE}"

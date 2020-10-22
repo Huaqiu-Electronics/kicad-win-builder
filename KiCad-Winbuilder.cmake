@@ -328,6 +328,24 @@ file( COPY "${CMAKE_SOURCE_DIR}/PKGBUILD" DESTINATION "${HOME_DIR}/MINGW-package
 # Actually build KiCad
 execute_msys2_bash( "cd \"${HOME_DIR}/MINGW-packages/mingw-w64-kicad-git\" && ${EXPORT_CARCH} TERM=vt220 makepkg-mingw -s --noconfirm" "${LOG_DIR}/makepkg" )
 
+# Grab the kicad version from the source
+include( ${KICAD_PACKAGE_SOURCE_DIR}/src/kicad/CmakeModules/KiCadVersion.cmake )
+
+# Extract the major and minor build version as a string
+string( REGEX MATCH
+        "([0-9]+)\\.([0-9]+)\\..*"
+        KICAD_MAJOR_MINOR_VERSION
+        "${KICAD_SEMANTIC_VERSION}"
+    )
+
+if( CMAKE_MATCH_COUNT EQUAL 2 )
+    # Match slot 0 is the full string, so we want slots 1 & 2
+    set( KICAD_MAJOR_MINOR_VERSION "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}" )
+else()
+    message( FATAL_ERROR "Unable to extract major and minor version string" )
+endif()
+
+
 # Copy the runtime helper script to the MSYS2 system
 file( COPY "${CMAKE_SOURCE_DIR}/copydlls.sh" DESTINATION "${HOME_DIR}/" )
 
@@ -342,6 +360,7 @@ if( EXISTS "${KICAD_PACKAGE_SOURCE_DIR}/pkg/mingw-w64-i686-kicad-git/mingw32" AN
                          --arch=i686 \
                          --pkgpath=$HOME/MINGW-packages/mingw-w64-kicad-git \
                          --nsispath=$HOME/nsis \
+                         --kicadversion=${KICAD_MAJOR_MINOR_VERSION} \
                          --makensis=${NSIS_MAKE_COMMAND}"
                          "${LOG_DIR}/copydlls_mingw32" )
 endif()
@@ -356,6 +375,7 @@ if( EXISTS "${KICAD_PACKAGE_SOURCE_DIR}/pkg/mingw-w64-x86_64-kicad-git/mingw64" 
                          --arch=x86_64 \
                          --pkgpath=\$HOME/MINGW-packages/mingw-w64-kicad-git \
                          --nsispath=$HOME/nsis \
+                         --kicadversion=${KICAD_MAJOR_MINOR_VERSION} \
                          --makensis=${NSIS_MAKE_COMMAND}"
                          "${LOG_DIR}/copydlls_mingw64" )
 endif()

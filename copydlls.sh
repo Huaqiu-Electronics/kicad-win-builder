@@ -14,8 +14,9 @@ display_help() {
     echo "  -m, --makensis=PATH  Path to makensis.exe"
     echo "  -s, --nsispath=PATH  Path to the NSIS packaging scripts"
     echo "  -o, --outdir=PATH    Path to output directory"
-    echo "  -v, --version=VERSTR Version string"
     echo "  -l, --liteonly       Build only lite installer"
+    echo "  -v, --packageversion=VERSTR  Package Version string"
+    echo "  -k, --kicadversion=VERSTR 	  Kicad Version string"
     exit 1
 }
 
@@ -34,7 +35,7 @@ decode_ver() {
     tmp=${tmp#*-}
     tmp=${tmp#*-}
     tmp=${tmp%%-*}
-    VERSION=$tmp
+    PACKAGE_VERSION=$tmp
 }
 
 # This function expects a basename as:
@@ -122,9 +123,14 @@ case $i in
     echo "\$OUTDIR=$OUTDIR"
     shift
     ;;
-    -v=*|--version=*)
-    VERSION="${i#*=}"
-    echo "\$VERSION=$VERSION"
+    -v=*|--packversion=*)
+    PACKAGE_VERSION="${i#*=}"
+    echo "\$PACKAGE_VERSION=$PACKAGE_VERSION"
+    shift
+    ;;
+    -k=*|--kicadversion=*)
+    KICAD_VERSION="${i#*=}"
+    echo "\$KICAD_VERSION=$KICAD_VERSION"
     shift
     ;;
     -l|--liteonly)
@@ -289,7 +295,7 @@ makensis() {
     echo "This is still a work in progress... but GPL..." > ../COPYRIGHT.txt
     # Extract git tag from version string. If it's of the form N.N.N-xxxx then the
     # first part is considered to be the tag, otherwise use master.
-    GIT_TAG=$(echo "$VERSION" | grep -Po '^\d+\.\d+\.\d+')
+    GIT_TAG=$(echo "$PACKAGE_VERSION" | grep -Po '^\d+\.\d+\.\d+')
     if [ -z $GIT_TAG ]; then
       GIT_TAG="master"
     fi
@@ -297,15 +303,17 @@ makensis() {
     if [ -z $LITE_ONLY ]; then
     echo Generating full installer...
     "$MAKENSIS" \
-        //DPRODUCT_VERSION=$VERSION \
-        //DOUTFILE="..\kicad-$VERSION-$ARCH.exe" \
+        //DPACKAGE_VERSION=$PACKAGE_VERSION \
+        //DKICAD_VERSION=$KICAD_VERSION \
+        //DOUTFILE="..\kicad-$PACKAGE_VERSION-$ARCH.exe" \
         //DARCH="$ARCH" \
         install.nsi
     fi
     echo Generating light installer...
     "$MAKENSIS" \
-        //DPRODUCT_VERSION=$VERSION \
-        //DOUTFILE="..\kicad-$VERSION-$ARCH-lite.exe" \
+        //DPACKAGE_VERSION=$PACKAGE_VERSION \
+        //DKICAD_VERSION=$KICAD_VERSION \
+        //DOUTFILE="..\kicad-$PACKAGE_VERSION-$ARCH-lite.exe" \
         //DARCH="$ARCH" \
         //DLIBRARIES_TAG="$GIT_TAG" \
         install.nsi
@@ -316,7 +324,7 @@ if [ ! -z $DIRPATH ]; then
     echo DIRPATH=$DIRPATH
     echo ARCH=$ARCH
     echo MINGWBIN=$MINGWBIN
-    echo VERSION=$VERSION
+    echo PACKAGE_VERSION=$PACKAGE_VERSION
 
     TARGETDIR="$OUTDIR/pack-$ARCH"
     MSYSDIR="/$MINGWBIN"
@@ -341,7 +349,7 @@ if [ ! -z $PKGPATH ]; then
     for entry in "$PKGPATH"/*; do
     if [[ $entry == *"pkg.tar.zst"* ]]; then
         decode_pkg $(basename $entry)
-        echo "Decoded pkg is $ARCH and $VERSION"
+        echo "Decoded pkg is $ARCH and $PACKAGE_VERSION"
         handle_arch
         echo $ARCH $ARCH
 
