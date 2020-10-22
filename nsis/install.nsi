@@ -99,7 +99,7 @@ OutFile ${OUTFILE}
 RequestExecutionLevel admin
 
 !if ${ARCH} == 'x86_64'
-  InstallDir "$PROGRAMFILES64}\KiCad\${KICAD_VERSION}"
+  InstallDir "$PROGRAMFILES64\KiCad\${KICAD_VERSION}"
 !else
   InstallDir "$PROGRAMFILES\KiCad\${KICAD_VERSION}"
 !endif
