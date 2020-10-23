@@ -7,16 +7,16 @@
 
 display_help() {
     echo "Usage: copydlls.sh [OPTION]"
-    echo "  -h, --help           This help message"
-    echo "  -a, --arch=ARCH      Determine arch for packaging"
-    echo "  -p, --pkgpath=PATH   Path to pkg.tar.zst package"
-    echo "  -d, --dirpath=PATH   Path to make install location (DESTDIR)"
-    echo "  -m, --makensis=PATH  Path to makensis.exe"
-    echo "  -s, --nsispath=PATH  Path to the NSIS packaging scripts"
-    echo "  -o, --outdir=PATH    Path to output directory"
-    echo "  -l, --liteonly       Build only lite installer"
-    echo "  -v, --packageversion=VERSTR  Package Version string"
-    echo "  -k, --kicadversion=VERSTR 	  Kicad Version string"
+    echo "  -h, --help            This help message"
+    echo "  -a, --arch=ARCH       Determine arch for packaging"
+    echo "  -p, --pkgpath=PATH    Path to pkg.tar.zst package"
+    echo "  -d, --dirpath=PATH    Path to make install location (DESTDIR)"
+    echo "  -m, --makensis=PATH   Path to makensis.exe"
+    echo "  -s, --nsispath=PATH   Path to the NSIS packaging scripts"
+    echo "  -o, --outdir=PATH     Path to output directory"
+    echo "  -l, --liteonly        Build only lite installer"
+    echo "  -v, --pkgver=VERSTR   Package Version string"
+    echo "  -k, --kicadver=VERSTR Kicad Version string"
     exit 1
 }
 
@@ -123,12 +123,12 @@ case $i in
     echo "\$OUTDIR=$OUTDIR"
     shift
     ;;
-    -v=*|--packversion=*)
+    -v=*|--pkgver=*)
     PACKAGE_VERSION="${i#*=}"
     echo "\$PACKAGE_VERSION=$PACKAGE_VERSION"
     shift
     ;;
-    -k=*|--kicadversion=*)
+    -k=*|--kicadver=*)
     KICAD_VERSION="${i#*=}"
     echo "\$KICAD_VERSION=$KICAD_VERSION"
     shift

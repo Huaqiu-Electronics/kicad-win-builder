@@ -341,6 +341,7 @@ string( REGEX MATCH
 if( CMAKE_MATCH_COUNT EQUAL 2 )
     # Match slot 0 is the full string, so we want slots 1 & 2
     set( KICAD_MAJOR_MINOR_VERSION "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}" )
+	message( STATUS "Extracted version from source KiCadVersion.cmake: ${KICAD_MAJOR_MINOR_VERSION}" )
 else()
     message( FATAL_ERROR "Unable to extract major and minor version string" )
 endif()
@@ -360,7 +361,7 @@ if( EXISTS "${KICAD_PACKAGE_SOURCE_DIR}/pkg/mingw-w64-i686-kicad-git/mingw32" AN
                          --arch=i686 \
                          --pkgpath=$HOME/MINGW-packages/mingw-w64-kicad-git \
                          --nsispath=$HOME/nsis \
-                         --kicadversion=${KICAD_MAJOR_MINOR_VERSION} \
+                         --kicadver=${KICAD_MAJOR_MINOR_VERSION} \
                          --makensis=${NSIS_MAKE_COMMAND}"
                          "${LOG_DIR}/copydlls_mingw32" )
 endif()
@@ -375,7 +376,7 @@ if( EXISTS "${KICAD_PACKAGE_SOURCE_DIR}/pkg/mingw-w64-x86_64-kicad-git/mingw64" 
                          --arch=x86_64 \
                          --pkgpath=\$HOME/MINGW-packages/mingw-w64-kicad-git \
                          --nsispath=$HOME/nsis \
-                         --kicadversion=${KICAD_MAJOR_MINOR_VERSION} \
+                         --kicadver=${KICAD_MAJOR_MINOR_VERSION} \
                          --makensis=${NSIS_MAKE_COMMAND}"
                          "${LOG_DIR}/copydlls_mingw64" )
 endif()
