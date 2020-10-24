@@ -341,7 +341,7 @@ string( REGEX MATCH
 if( CMAKE_MATCH_COUNT EQUAL 2 )
     # Match slot 0 is the full string, so we want slots 1 & 2
     set( KICAD_MAJOR_MINOR_VERSION "${CMAKE_MATCH_1}.${CMAKE_MATCH_2}" )
-	message( STATUS "Extracted version from source KiCadVersion.cmake: ${KICAD_MAJOR_MINOR_VERSION}" )
+    message( STATUS "Extracted version from source KiCadVersion.cmake: ${KICAD_MAJOR_MINOR_VERSION}" )
 else()
     message( FATAL_ERROR "Unable to extract major and minor version string" )
 endif()
