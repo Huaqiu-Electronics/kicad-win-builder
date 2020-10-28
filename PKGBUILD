@@ -33,10 +33,10 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-cmake"
              "unzip")
 source=("${_realname}"::"git+https://gitlab.com/kicad/code/kicad.git"
         "${_realname}-i18n"::"git+https://gitlab.com/kicad/code/kicad-i18n.git"
-        "git://github.com/KiCad/kicad-symbols.git"
-        "git://github.com/KiCad/kicad-footprints.git"
-        "git://github.com/KiCad/kicad-packages3D.git"
-        "git://github.com/KiCad/kicad-templates.git")
+        "git+https://gitlab.com/kicad/libraries/kicad-symbols.git"
+        "git+https://gitlab.com/kicad/libraries/icad-footprints.git"
+        "git+https://gitlab.com/kicad/libraries/kicad-packages3D.git"
+        "git+https://gitlab.com/kicad/libraries/kicad-templates.git")
 md5sums=('SKIP'
          'SKIP'
          'SKIP'

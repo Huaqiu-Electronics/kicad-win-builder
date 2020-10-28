@@ -2,9 +2,9 @@
 
 _realname=kicad
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}-git"
-pkgver=5.1.7_1
+pkgver=5.1.8_1
 _upver=`echo ${pkgver} | sed -e 's/_.*//g'`
-_basever=5.1.7
+_basever=5.1.8
 _rcver=`echo ${pkgver} | sed -e 's/.*_//g'`
 pkgrel=1
 pkgdesc="Software for the creation of electronic schematic diagrams and printed circuit board artwork (mingw-w64)"
@@ -35,19 +35,19 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-cmake"
 source=("${_realname}::git+https://gitlab.com/kicad/code/kicad.git#tag=${_upver}"
 #source=("${_realname}::git+https://gitlab.com/kicad/code/kicad.git#branch=4.0"
         "${_realname}-i18n-${_upver}.tar.gz"::"https://gitlab.com/kicad/code/kicad-i18n/-/archive/${_upver}/kicad-i18n-${_upver}.tar.gz"
-        "${_realname}-symbols-${_basever}.tar.gz"::"https://github.com/KiCad/kicad-symbols/archive/${_basever}.tar.gz"
-        "${_realname}-footprints-${_basever}.tar.gz"::"https://github.com/KiCad/kicad-footprints/archive/${_basever}.tar.gz"
-        "${_realname}-packages3D-${_basever}.tar.gz"::"https://github.com/KiCad/kicad-packages3D/archive/${_basever}.tar.gz"
-        "${_realname}-templates-${_basever}.tar.gz"::"https://github.com/KiCad/kicad-templates/archive/${_basever}.tar.gz"
+        "${_realname}-symbols-${_basever}.tar.gz"::"https://gitlab.com/kicad/libraries/kicad-symbols/-/archive/${_basever}/kicad-symbols-${_basever}.tar.gz"
+        "${_realname}-footprints-${_basever}.tar.gz"::"https://gitlab.com/kicad/libraries/kicad-footprints/-/archive/${_basever}/kicad-footprints-${_basever}.tar.gz"
+        "${_realname}-packages3D-${_basever}.tar.gz"::"https://gitlab.com/kicad/libraries/kicad-packages3D/-/archive/${_basever}/kicad-packages3D-${_basever}.tar.gz"
+        "${_realname}-templates-${_basever}.tar.gz"::"https://gitlab.com/kicad/libraries/kicad-templates/-/archive/${_basever}/kicad-templates-${_basever}.tar.gz"
         "${_realname}-doc-${_upver}.tar.gz"::"https://kicad-downloads.s3.cern.ch/docs/kicad-doc-${_basever}.tar.gz"
        )
 md5sums=('SKIP'
-         'be7e0537b46c1f04a49b9880de2d5580'
-         'd3dc2533796564a216d80aad19fa08cd'
-         '0b2bb98f7e4dd936b93ce089d81b4e5d'
-         'fb5a643646867fd92e49928b647dc3eb'
-         '9671deb824df089a7f48978a639d4ecf'
-         'c9ec9d8ecc6b86549c6447c4d7f18acb')
+         '792388e3a74410786085314d4069d408'
+         '0b188320767cbdff54936b8f80f4f34f'
+         '80a148bf8cfd42d8e3397b728f8fc5c9'
+         'ab5de837c10736b83a5d141399db2ea0'
+         '79e2fd6ccd0f44127777353f704ae62a'
+         'ab0e3b7125531640781af6ff336cdcff')
 
 prepare() {
   # Hack to get UTF8 support for paths with mingw
