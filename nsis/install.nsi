@@ -441,7 +441,7 @@ SectionGroup /e $(TITLE_SEC_LIBRARIES) SEC03
     SetOverwrite try
 	!insertmacro ExclusiveDetailPrint $(INSTALLING_PCB_LIBS)
     SetOutPath "$INSTDIR\share\kicad\modules"
-    File /nonfatal /r "..\share\kicad\modules\*"
+    File /nonfatal /r /x "packages3d" "..\share\kicad\modules\*"
   SectionEnd
   !else
   Section /o $(TITLE_SEC_FPLIB) SEC03_MODULES
@@ -454,13 +454,13 @@ SectionGroup /e $(TITLE_SEC_LIBRARIES) SEC03
   Section $(TITLE_SEC_PACKAGES3D) SEC03_PACKAGES3D
     SetOverwrite try
 	!insertmacro ExclusiveDetailPrint $(INSTALLING_3D_MODELS)
-    SetOutPath "$INSTDIR\share\kicad\3dmodels"
-    File /nonfatal /r "..\share\kicad\3dmodels\*"
+    SetOutPath "$INSTDIR\share\kicad\modules\packages3d"
+    File /nonfatal /r "..\share\kicad\modules\packages3d\*"
   SectionEnd
   !else
   Section /o $(TITLE_SEC_PACKAGES3D) SEC03_PACKAGES3D
     AddSize 5767168 ; 5.5GB
-    !insertmacro DownloadAndExtract "${KICAD_PACKAGES3D_FILE}" "${KICAD_PACKAGES3D_URL}" "3d models" "${KICAD_PACKAGES3D_FOLDER}" "$INSTDIR\share\kicad\" "3dmodels"
+    !insertmacro DownloadAndExtract "${KICAD_PACKAGES3D_FILE}" "${KICAD_PACKAGES3D_URL}" "3d models" "${KICAD_PACKAGES3D_FOLDER}" "$INSTDIR\share\kicad\modules\" "packages3d"
   SectionEnd
   !endif
 SectionGroupEnd
@@ -543,7 +543,7 @@ SectionGroupEnd
 Section $(TITLE_SEC_ENV) SEC07
   !insertmacro ExclusiveDetailPrint $(SETTING_ENV_VARS)
   WriteRegExpandStr ${ENV_HKLM} KICAD_TEMPLATE_DIR "$INSTDIR\share\kicad\template"
-  WriteRegExpandStr ${ENV_HKLM} KISYS3DMOD "$INSTDIR\share\kicad\3dmodels"
+  WriteRegExpandStr ${ENV_HKLM} KISYS3DMOD "$INSTDIR\share\kicad\modules\packages3d"
   WriteRegExpandStr ${ENV_HKLM} KISYSMOD "$INSTDIR\share\kicad\modules"
   WriteRegExpandStr ${ENV_HKLM} KICAD_SYMBOL_DIR "$INSTDIR\share\kicad\library"
 
