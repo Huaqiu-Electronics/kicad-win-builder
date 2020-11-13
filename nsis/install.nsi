@@ -66,13 +66,13 @@
 Var DELETE_DOWNLOADED_FILES
 !define KICAD_SYMBOLS_FILE "kicad-symbols-${LIBRARIES_TAG}.zip"
 !define KICAD_SYMBOLS_FOLDER "kicad-symbols-${LIBRARIES_TAG}"
-!define KICAD_SYMBOLS_URL "https://github.com/KiCad/kicad-symbols/archive/${LIBRARIES_TAG}.zip"
+!define KICAD_SYMBOLS_URL "https://gitlab.com/kicad/libraries/kicad-symbols/-/archive/${LIBRARIES_TAG}/kicad-footprints-${LIBRARIES_TAG}.zip"
 !define KICAD_FOOTPRINTS_FILE "kicad-footprints-${LIBRARIES_TAG}.zip"
 !define KICAD_FOOTPRINTS_FOLDER "kicad-footprints-${LIBRARIES_TAG}"
-!define KICAD_FOOTPRINTS_URL "https://github.com/KiCad/kicad-footprints/archive/${LIBRARIES_TAG}.zip"
+!define KICAD_FOOTPRINTS_URL "https://gitlab.com/kicad/libraries/kicad-footprints/-/archive/${LIBRARIES_TAG}/kicad-footprints-${LIBRARIES_TAG}.zip"
 !define KICAD_PACKAGES3D_FILE "kicad-packages3D-${LIBRARIES_TAG}.zip"
 !define KICAD_PACKAGES3D_FOLDER "kicad-packages3D-${LIBRARIES_TAG}"
-!define KICAD_PACKAGES3D_URL "https://github.com/KiCad/kicad-packages3D/archive/${LIBRARIES_TAG}.zip"
+!define KICAD_PACKAGES3D_URL "https://gitlab.com/kicad/libraries/kicad-packages3D/-/archive/${LIBRARIES_TAG}/kicad-packages3D-${LIBRARIES_TAG}.zip"
 !endif
 
 ;Properly display all languages (Installer will not work on Windows 95, 98 or ME!)
