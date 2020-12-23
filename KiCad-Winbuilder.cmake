@@ -58,7 +58,7 @@
 #
 # Minimum cmake version required for this script
 
-cmake_minimum_required( VERSION 2.8.8 )
+cmake_minimum_required( VERSION 2.8.12 )
 
 # We need a temporary directory for somewhere to download files to
 set( DOWNLOADS_DIR "${CMAKE_SOURCE_DIR}/.downloads" )
