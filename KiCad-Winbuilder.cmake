@@ -226,7 +226,7 @@ endmacro()
 # ------------------------------------------------------------------------------
 
 # We need 7-zip in order to extract MSYS2 packages without requiring 7z to be required.
-set( SEVENZ_URL     http://downloads.sourceforge.net/sevenzip/7za920.zip )
+set( SEVENZ_URL     https://downloads.sourceforge.net/sevenzip/7za920.zip )
 set( SEVENZ_MD5     2fac454a90ae96021f4ffc607d4c00f8 )
 set( SEVENZ_FN      7za920.zip )
 set( SEVENZ_COMMAND "${BIN_DIR}/7za.exe" )
