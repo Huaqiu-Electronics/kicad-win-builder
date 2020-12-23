@@ -83,17 +83,10 @@ endif()
 
 # Discover if we're on Windows 64-bit or 32-bit to determine which msys to use
 set( WINDOWS_DIR $ENV{WINDIR} )
-if( EXISTS "${WINDOWS_DIR}/SysWOW64" )
-    set( MSYS2 msys64 )
-    set( MSYS2_PACKAGE msys2-base-x86_64-20200720.tar.xz )
-    set( MSYS2_MD5 1c1896b664aa16a45a86fd713a08326d )
-    set( HOST_ARCH x86_64 )
-else()
-    set( MSYS2 msys32 )
-    set( MSYS2_PACKAGE msys2-base-i686-20200517.tar.xz )
-    set( MSYS2_MD5 fb3c07e752a225da882c017b9ec36f9c )
-    set( HOST_ARCH i686 )
-endif()
+set( MSYS2 msys64 )
+set( MSYS2_PACKAGE msys2-base-x86_64-20201109.tar.xz )
+set( MSYS2_MD5 b55e3a3419f2a16abaa21a422eb7fd03 )
+set( HOST_ARCH x86_64 )
 
 # Select the target architecture(s) specified from cmake command...
 set( TOOLCHAIN_PACKAGES "" )
@@ -132,7 +125,7 @@ macro( download_msys2mingw_base_package PACKAGE MD5 )
     test_file( TEST "${DOWNLOADS_DIR}/${PACKAGE}" ${MD5} )
     if( NOT ${TEST} )
 
-        set( _PKG_URL "http://repo.msys2.org/distrib/${HOST_ARCH}/${PACKAGE}" )
+        set( _PKG_URL "https://repo.msys2.org/distrib/${HOST_ARCH}/${PACKAGE}" )
 
         message( STATUS "Downloading ${PACKAGE}" )
         file( DOWNLOAD "${_PKG_URL}" "${DOWNLOADS_DIR}/${PACKAGE}"
