@@ -85,7 +85,7 @@ endif()
 set( WINDOWS_DIR $ENV{WINDIR} )
 set( MSYS2 msys64 )
 set( MSYS2_PACKAGE msys2-base-x86_64-20201109.tar.xz )
-set( MSYS2_MD5 b55e3a3419f2a16abaa21a422eb7fd03 )
+set( MSYS2_MD5 3f8e58c4ac1162ffb97fddf1b2b89900 )
 set( HOST_ARCH x86_64 )
 
 # Select the target architecture(s) specified from cmake command...
@@ -99,7 +99,7 @@ if( x86_64 )
     set( TOOLCHAIN_PACKAGES "${TOOLCHAIN_PACKAGES} mingw-w64-x86_64-toolchain mingw-w64-x86_64-boost mingw-w64-x86_64-cairo mingw-w64-x86_64-curl mingw-w64-x86_64-glew mingw-w64-x86_64-openssl mingw-w64-x86_64-wxPython mingw-w64-x86_64-wxWidgets mingw-w64-x86_64-cmake mingw-w64-x86_64-gcc mingw-w64-x86_64-python2 mingw-w64-x86_64-python2-pip mingw-w64-x86_64-pkg-config mingw-w64-x86_64-swig mingw-w64-x86_64-libxslt git doxygen" )
 endif()
 
-# Test the existence of a file and verifiy its MD5 against a supplied one. 
+# Test the existence of a file and verifiy its MD5 against a supplied one.
 #    Success signalled by setting variable, name passed as TEST, to TRUE
 #    Upon MD5 failure delete file that fails hash.
 function( test_file TEST FILE_PATH MD5 )
@@ -261,7 +261,7 @@ macro( execute_msys2_bash CMD LOG )
 
     file( WRITE "${CMAKE_SOURCE_DIR}/${MSYS2}/tmp/last_error" "${CMD}\n" )
     execute_process(
-        COMMAND "${CMAKE_SOURCE_DIR}/${MSYS2}/usr/bin/bash.exe" -l -c "set -o pipefail; ${CMD} 2>&1 | tee -a /tmp/last_error" 
+        COMMAND "${CMAKE_SOURCE_DIR}/${MSYS2}/usr/bin/bash.exe" -l -c "set -o pipefail; ${CMD} 2>&1 | tee -a /tmp/last_error"
 	RESULT_VARIABLE RESULT )
 
     # UNIX commands return 0 on success while CMake treats 0 as a fail. So test for 0 success!
