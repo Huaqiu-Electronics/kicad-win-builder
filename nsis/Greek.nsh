@@ -33,7 +33,6 @@ LangString TITLE_SEC_PACKAGES3D ${LANG_GREEK} "Footprint 3d models"
 LangString TITLE_SEC_FPWIZ ${LANG_GREEK} "Οδηγοί αποτυπωμάτων"
 LangString TITLE_SEC_DEMOS ${LANG_GREEK} "Έργα επίδειξης"
 LangString TITLE_SEC_DOCS ${LANG_GREEK} "Αρχεία βοήθειας"
-LangString TITLE_SEC_ENV ${LANG_GREEK} "Μεταβλητές περιβάλλοντος"
 LangString TITLE_SEC_FILE_ASSOC ${LANG_GREEK} "File associations"
 
 ;Component option descriptions
@@ -56,7 +55,6 @@ LangString DESC_SEC_DOCS_JA ${LANG_GREEK} "$(LANGUAGE_NAME_JA) $(TITLE_SEC_DOCS)
 LangString DESC_SEC_DOCS_NL ${LANG_GREEK} "$(LANGUAGE_NAME_NL) $(TITLE_SEC_DOCS)"
 LangString DESC_SEC_DOCS_PL ${LANG_GREEK} "$(LANGUAGE_NAME_PL) $(TITLE_SEC_DOCS)"
 LangString DESC_SEC_DOCS_ZH ${LANG_GREEK} "$(LANGUAGE_NAME_ZH) $(TITLE_SEC_DOCS)"
-LangString DESC_SEC_ENV ${LANG_GREEK} "Θέτει τις μεταβλητές περιβάλλοντος KISYSMOD, KISYS3DMOD και KICAD_TEMPLATE_DIR στις προκαθορισμένες διαδρομές εγκατάστασης."
 LangString DESC_SEC_FILE_ASSOC ${LANG_GREEK} "Creates file associations for KiCad related files"
 
 ;File association descriptions (show in Windows Explorer)
@@ -104,7 +102,6 @@ LangString INSTALLING_3D_MODELS ${LANG_GREEK} "Installing 3D models..."
 LangString INSTALLING_FOOTPRINT_WIZARDS ${LANG_GREEK} "Installing footprint wizards..."
 LangString INSTALLING_DEMOS ${LANG_GREEK} "Installing demos..."
 LangString INSTALLING_DOCUMENTATION ${LANG_GREEK} "Installing documentation..."
-LangString SETTING_ENV_VARS ${LANG_GREEK} "Setting environment variables..."
 LangString SETTING_FILE_ASSOCS ${LANG_GREEK} "Setting file associations..."
 LangString CREATING_SHORTCUTS ${LANG_GREEK} "Creating shortcuts..."
 LangString CREATING_PROGRAM_ENTRY ${LANG_GREEK} "Creating Program entry..."

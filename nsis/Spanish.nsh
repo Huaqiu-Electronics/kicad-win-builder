@@ -33,7 +33,6 @@ LangString TITLE_SEC_PACKAGES3D ${LANG_SPANISH} "Footprint 3d models"
 LangString TITLE_SEC_FPWIZ ${LANG_SPANISH} "Asistentes de huellas"
 LangString TITLE_SEC_DEMOS ${LANG_SPANISH} "Proyectos de demostración"
 LangString TITLE_SEC_DOCS ${LANG_SPANISH} "Archivos de ayuda"
-LangString TITLE_SEC_ENV ${LANG_SPANISH} "Variables de entorno"
 LangString TITLE_SEC_FILE_ASSOC ${LANG_SPANISH} "File associations"
 
 ;Component option descriptions
@@ -56,7 +55,6 @@ LangString DESC_SEC_DOCS_JA ${LANG_SPANISH} "$(LANGUAGE_NAME_JA) $(TITLE_SEC_DOC
 LangString DESC_SEC_DOCS_NL ${LANG_SPANISH} "$(LANGUAGE_NAME_NL) $(TITLE_SEC_DOCS)"
 LangString DESC_SEC_DOCS_PL ${LANG_SPANISH} "$(LANGUAGE_NAME_PL) $(TITLE_SEC_DOCS)"
 LangString DESC_SEC_DOCS_ZH ${LANG_SPANISH} "$(LANGUAGE_NAME_ZH) $(TITLE_SEC_DOCS)"
-LangString DESC_SEC_ENV ${LANG_SPANISH} "Ajusta las variables de entorno KISYSMOD, KISYS3DMOD y KICAD_TEMPLATE_DIR a las rutas por defecto."
 LangString DESC_SEC_FILE_ASSOC ${LANG_SPANISH} "Creates file associations for KiCad related files"
 
 ;File association descriptions (show in Windows Explorer)
@@ -104,7 +102,6 @@ LangString INSTALLING_3D_MODELS ${LANG_SPANISH} "Installing 3D models..."
 LangString INSTALLING_FOOTPRINT_WIZARDS ${LANG_SPANISH} "Installing footprint wizards..."
 LangString INSTALLING_DEMOS ${LANG_SPANISH} "Installing demos..."
 LangString INSTALLING_DOCUMENTATION ${LANG_SPANISH} "Installing documentation..."
-LangString SETTING_ENV_VARS ${LANG_SPANISH} "Setting environment variables..."
 LangString SETTING_FILE_ASSOCS ${LANG_SPANISH} "Setting file associations..."
 LangString CREATING_SHORTCUTS ${LANG_SPANISH} "Creating shortcuts..."
 LangString CREATING_PROGRAM_ENTRY ${LANG_SPANISH} "Creating Program entry..."

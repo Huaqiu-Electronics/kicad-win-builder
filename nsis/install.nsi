@@ -540,19 +540,7 @@ SectionGroup $(TITLE_SEC_DOCS) SEC06
   SectionEnd
 SectionGroupEnd
 
-Section $(TITLE_SEC_ENV) SEC07
-  !insertmacro ExclusiveDetailPrint $(SETTING_ENV_VARS)
-  WriteRegExpandStr ${ENV_HKLM} KICAD_TEMPLATE_DIR "$INSTDIR\share\kicad\template"
-  WriteRegExpandStr ${ENV_HKLM} KISYS3DMOD "$INSTDIR\share\kicad\3dmodels"
-  WriteRegExpandStr ${ENV_HKLM} KISYSMOD "$INSTDIR\share\kicad\modules"
-  WriteRegExpandStr ${ENV_HKLM} KICAD_SYMBOL_DIR "$INSTDIR\share\kicad\library"
-
-  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "EnvInstalled" "1"
-
-  SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
-SectionEnd
-
-Section $(TITLE_SEC_FILE_ASSOC) SEC08
+Section $(TITLE_SEC_FILE_ASSOC) SEC07
   !insertmacro ExclusiveDetailPrint $(SETTING_FILE_ASSOCS)
   ${CreateFileAssociation} "kicad_pcb" "pcbnew.exe" $(FILE_DESC_KICAD_PCB) "icon_pcbnew"
   ${CreateFileAssociation} "sch" "eeschema.exe" $(FILE_DESC_SCH) "icon_eeschema"
@@ -629,8 +617,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC06_NL} $(DESC_SEC_DOCS_NL)
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC06_PL} $(DESC_SEC_DOCS_PL)
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC06_ZH} $(DESC_SEC_DOCS_ZH)
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC07} $(DESC_SEC_ENV)
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC08} $(DESC_SEC_FILE_ASSOC)
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC07} $(DESC_SEC_FILE_ASSOC)
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 Function un.onInit
@@ -819,7 +806,4 @@ Function EnableLiteMode
     !insertmacro SetSectionFlag ${SEC06_ZH} ${SF_RO}
     !insertmacro UnselectSection ${SEC06_ZH}
   !endif
-
-  ; Make the envvar install not be default
-  !insertmacro UnselectSection ${SEC07}
 FunctionEnd

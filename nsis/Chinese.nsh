@@ -33,7 +33,6 @@ LangString TITLE_SEC_PACKAGES3D ${LANG_SIMPCHINESE} "封装 3D 模型"
 LangString TITLE_SEC_FPWIZ ${LANG_SIMPCHINESE} "封装向导"
 LangString TITLE_SEC_DEMOS ${LANG_SIMPCHINESE} "示范工程"
 LangString TITLE_SEC_DOCS ${LANG_SIMPCHINESE} "帮助文件"
-LangString TITLE_SEC_ENV ${LANG_SIMPCHINESE} "环境变量"
 LangString TITLE_SEC_FILE_ASSOC ${LANG_SIMPCHINESE} "文件关联"
 
 ;Component option descriptions
@@ -56,7 +55,6 @@ LangString DESC_SEC_DOCS_JA ${LANG_SIMPCHINESE} "$(LANGUAGE_NAME_JA) $(TITLE_SEC
 LangString DESC_SEC_DOCS_NL ${LANG_SIMPCHINESE} "$(LANGUAGE_NAME_NL) $(TITLE_SEC_DOCS)"
 LangString DESC_SEC_DOCS_PL ${LANG_SIMPCHINESE} "$(LANGUAGE_NAME_PL) $(TITLE_SEC_DOCS)"
 LangString DESC_SEC_DOCS_ZH ${LANG_SIMPCHINESE} "$(LANGUAGE_NAME_ZH) $(TITLE_SEC_DOCS)"
-LangString DESC_SEC_ENV ${LANG_SIMPCHINESE} "将 KISYSMOD，KISYS3DMOD 和 KICAD_TEMPLATE_DIR 环境变量设置为默认安装路径。"
 LangString DESC_SEC_FILE_ASSOC ${LANG_SIMPCHINESE} "为 KiCad 相关文件创建文件关联"
 
 ;File association descriptions (show in Windows Explorer)
@@ -104,7 +102,6 @@ LangString INSTALLING_3D_MODELS ${LANG_SIMPCHINESE} "Installing 3D models..."
 LangString INSTALLING_FOOTPRINT_WIZARDS ${LANG_SIMPCHINESE} "Installing footprint wizards..."
 LangString INSTALLING_DEMOS ${LANG_SIMPCHINESE} "Installing demos..."
 LangString INSTALLING_DOCUMENTATION ${LANG_SIMPCHINESE} "Installing documentation..."
-LangString SETTING_ENV_VARS ${LANG_SIMPCHINESE} "Setting environment variables..."
 LangString SETTING_FILE_ASSOCS ${LANG_SIMPCHINESE} "Setting file associations..."
 LangString CREATING_SHORTCUTS ${LANG_SIMPCHINESE} "Creating shortcuts..."
 LangString CREATING_PROGRAM_ENTRY ${LANG_SIMPCHINESE} "Creating Program entry..."

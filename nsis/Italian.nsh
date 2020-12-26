@@ -33,7 +33,6 @@ LangString TITLE_SEC_PACKAGES3D ${LANG_ITALIAN} "Footprint 3d models"
 LangString TITLE_SEC_FPWIZ ${LANG_ITALIAN} "Assistenti per le impronte di circuiti stampati"
 LangString TITLE_SEC_DEMOS ${LANG_ITALIAN} "Progetti dimostrativi"
 LangString TITLE_SEC_DOCS ${LANG_ITALIAN} "File di aiuto"
-LangString TITLE_SEC_ENV ${LANG_ITALIAN} "Variabili ambiente"
 LangString TITLE_SEC_FILE_ASSOC ${LANG_ITALIAN} "File associations"
 
 ;Component option descriptions
@@ -56,7 +55,6 @@ LangString DESC_SEC_DOCS_JA ${LANG_ITALIAN} "$(LANGUAGE_NAME_JA) $(TITLE_SEC_DOC
 LangString DESC_SEC_DOCS_NL ${LANG_ITALIAN} "$(LANGUAGE_NAME_NL) $(TITLE_SEC_DOCS)"
 LangString DESC_SEC_DOCS_PL ${LANG_ITALIAN} "$(LANGUAGE_NAME_PL) $(TITLE_SEC_DOCS)"
 LangString DESC_SEC_DOCS_ZH ${LANG_ITALIAN} "$(LANGUAGE_NAME_ZH) $(TITLE_SEC_DOCS)"
-LangString DESC_SEC_ENV ${LANG_ITALIAN} "Imposta le variabili ambiente KISYSMOD, KISYS3DMOD e KICAD_TEMPLATE_DIR ai percorsi di installazione predefiniti."
 LangString DESC_SEC_FILE_ASSOC ${LANG_ITALIAN} "Creates file associations for KiCad related files"
 
 ;File association descriptions (show in Windows Explorer)
@@ -104,7 +102,6 @@ LangString INSTALLING_3D_MODELS ${LANG_ITALIAN} "Installing 3D models..."
 LangString INSTALLING_FOOTPRINT_WIZARDS ${LANG_ITALIAN} "Installing footprint wizards..."
 LangString INSTALLING_DEMOS ${LANG_ITALIAN} "Installing demos..."
 LangString INSTALLING_DOCUMENTATION ${LANG_ITALIAN} "Installing documentation..."
-LangString SETTING_ENV_VARS ${LANG_ITALIAN} "Setting environment variables..."
 LangString SETTING_FILE_ASSOCS ${LANG_ITALIAN} "Setting file associations..."
 LangString CREATING_SHORTCUTS ${LANG_ITALIAN} "Creating shortcuts..."
 LangString CREATING_PROGRAM_ENTRY ${LANG_ITALIAN} "Creating Program entry..."
