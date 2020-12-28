@@ -48,7 +48,7 @@
 
 !define ENV_HKLM 'HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"'
 
-!define REG_VALUE_NAME	"KiCad"
+!define FILE_ASSOC_PREFIX	"KiCad"
 !define SOFTWARE_CLASSES_ROOT_KEY 'HKLM'
 
 !define gflag ;Needed to use ifdef and such
@@ -190,10 +190,10 @@ VIAddVersionKey "FileVersion" "${PACKAGE_VERSION}"
 ; File Association Helpers
 
 !macro _DeleteFileAssociationFunc EXT
-  ;be sure to only delete the specific kicad.extension entry
-  DeleteRegValue ${SOFTWARE_CLASSES_ROOT_KEY} "Software\Classes\.${EXT}\OpenWithProgids\" "${REG_VALUE_NAME}.${EXT}"
-  ;delete the entire kicad.extension key set
-  DeleteRegKey ${SOFTWARE_CLASSES_ROOT_KEY} "Software\Classes\${REG_VALUE_NAME}.${EXT}"
+  ;be sure to only delete the specific kicad.extension.version entry
+  DeleteRegValue ${SOFTWARE_CLASSES_ROOT_KEY} "Software\Classes\.${EXT}\OpenWithProgids\" "${FILE_ASSOC_PREFIX}.${EXT}.${KICAD_VERSION}"
+  ;delete the entire kicad.extension.version key set
+  DeleteRegKey ${SOFTWARE_CLASSES_ROOT_KEY} "Software\Classes\${FILE_ASSOC_PREFIX}.${EXT}.${KICAD_VERSION}"
 !macroend
 
 !macro _CreateFileAssociationFunc
@@ -208,12 +208,12 @@ VIAddVersionKey "FileVersion" "${PACKAGE_VERSION}"
   Exch $R3 ;ICON_RESOURCE_NAME
 
   ;global extension reference to program
-  WriteRegExpandStr ${SOFTWARE_CLASSES_ROOT_KEY} "Software\Classes\.$R0\OpenWithProgids\" "${REG_VALUE_NAME}.$R0" ""
+  WriteRegExpandStr ${SOFTWARE_CLASSES_ROOT_KEY} "Software\Classes\.$R0\OpenWithProgids\" "${FILE_ASSOC_PREFIX}.$R0.${KICAD_VERSION}" ""
 
   ;program level extension entry
-  WriteRegExpandStr ${SOFTWARE_CLASSES_ROOT_KEY} "Software\Classes\${REG_VALUE_NAME}.$R0" "" "$R2"
-  WriteRegExpandStr ${SOFTWARE_CLASSES_ROOT_KEY} "Software\Classes\${REG_VALUE_NAME}.$R0\" "DefaultIcon" "$INSTDIR\bin\$R1,$R3"
-  WriteRegExpandStr ${SOFTWARE_CLASSES_ROOT_KEY} "Software\Classes\${REG_VALUE_NAME}.$R0\shell\open\command" "" '$INSTDIR\bin\$R1 "%1"'
+  WriteRegExpandStr ${SOFTWARE_CLASSES_ROOT_KEY} "Software\Classes\${FILE_ASSOC_PREFIX}.$R0.${KICAD_VERSION}" "" "$R2"
+  WriteRegExpandStr ${SOFTWARE_CLASSES_ROOT_KEY} "Software\Classes\${FILE_ASSOC_PREFIX}.$R0.${KICAD_VERSION}\" "DefaultIcon" "$INSTDIR\bin\$R1,$R3"
+  WriteRegExpandStr ${SOFTWARE_CLASSES_ROOT_KEY} "Software\Classes\${FILE_ASSOC_PREFIX}.$R0.${KICAD_VERSION}\shell\open\command" "" '$INSTDIR\bin\$R1 "%1"'
 
   Pop $R3
   Pop $R2
