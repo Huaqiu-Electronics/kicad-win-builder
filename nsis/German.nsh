@@ -4,7 +4,7 @@
 LicenseLangString MUILicense ${LANG_GERMAN} "..\COPYRIGHT.txt"
 
 ;Welcome page
-LangString WELCOME_PAGE_TEXT ${LANG_GERMAN} "Dieser Installer wird Sie durch die Installation von KiCad ${PRODUCT_VERSION} führen.$\r$\n$\r$\n\
+LangString WELCOME_PAGE_TEXT ${LANG_GERMAN} "Dieser Installer wird Sie durch die Installation von KiCad ${PACKAGE_VERSION} führen.$\r$\n$\r$\n\
 Zur Installation von KiCad ist es nicht notwendig andere Applikationen zu schließen oder den PC nach der Installation neu zu starten.$\r$\n$\r$\n\
 KiCad ist freie Quelloffene Software lizenziert unter den Bestimmungen der GPL.$\r$\n$\r$\n\
 Klicken Sie auf Weiter um fortzufahren."

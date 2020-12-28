@@ -4,7 +4,7 @@
 LicenseLangString MUILicense ${LANG_SPANISH} "..\COPYRIGHT.txt"
 
 ;Welcome page
-LangString WELCOME_PAGE_TEXT ${LANG_SPANISH} "Este asistente le guiará durante la instalación de KiCad ${PRODUCT_VERSION}.$\r$\n$\r$\n\
+LangString WELCOME_PAGE_TEXT ${LANG_SPANISH} "Este asistente le guiará durante la instalación de KiCad ${PACKAGE_VERSION}.$\r$\n$\r$\n\
 No es necesario que cierre ninguna aplicación antes de comenzar la instalación ni es necesario reiniciar el sistema.$\r$\n$\r$\n\
 Este es un software libre de código abierto licenciado bajo GPL.$\r$\n$\r$\n\
 Pulse Siguiente para continuar."

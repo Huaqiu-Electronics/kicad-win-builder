@@ -4,7 +4,7 @@
 LicenseLangString MUILicense ${LANG_SIMPCHINESE} "..\COPYRIGHT.txt"
 
 ;Welcome page
-LangString WELCOME_PAGE_TEXT ${LANG_SIMPCHINESE} "此安装程序将指导您完成 KiCad ${PRODUCT_VERSION} 的安装。$\r$\n$\r$\n\
+LangString WELCOME_PAGE_TEXT ${LANG_SIMPCHINESE} "此安装程序将指导您完成 KiCad ${PACKAGE_VERSION} 的安装。$\r$\n$\r$\n\
 在启动安装程序之前，不需要关闭任何其他应用程序，也不需要重新启动计算机。$\r$\n$\r$\n\
 这是在 GPL 下获得许可的免费开源软件。$\r$\n$\r$\n\
 单击“下一步”继续。"

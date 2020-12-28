@@ -4,7 +4,7 @@
 LicenseLangString MUILicense ${LANG_GREEK} "..\COPYRIGHT.txt"
 
 ;Welcome page
-LangString WELCOME_PAGE_TEXT ${LANG_GREEK} "Αυτό το πρόγραμμα εγκατάστασης θα σας καθοδηγήσει κατά την εγκατάσταση του KiCad ${PRODUCT_VERSION}.$\r$\n$\r$\n\
+LangString WELCOME_PAGE_TEXT ${LANG_GREEK} "Αυτό το πρόγραμμα εγκατάστασης θα σας καθοδηγήσει κατά την εγκατάσταση του KiCad ${PACKAGE_VERSION}.$\r$\n$\r$\n\
 Δεν χρειάζεται να κλείσετε άλλες εφαρμογές κατά την εγκατάσταση, ούτε χρειάζεται να επανεκκινήσετε τον υπολογιστή.$\r$\n$\r$\n\
 Αυτό το λογισμικό είναι ελεύθερο, ανοιχτού κώδικα, με άδεια χρήσης GPL.$\r$\n$\r$\n\
 Κάντε κλικ στο Επόμενο για να συνεχίσετε."
