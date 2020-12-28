@@ -104,6 +104,9 @@ RequestExecutionLevel admin
   InstallDir "$PROGRAMFILES\KiCad\${KICAD_VERSION}"
 !endif
 
+; Define a variable with start menu path for later use
+!define SMPATH "$SMPROGRAMS\KiCad ${KICAD_VERSION}"
+
 ShowInstDetails hide
 ShowUnInstDetails hide
 BrandingText "KiCad installer for Windows"
@@ -564,20 +567,21 @@ Section -CreateShortcuts
   WriteIniStr "$INSTDIR\DevelGroup.url"   "InternetShortcut" "URL" "${DEVEL_WEB_SITE}"
   WriteIniStr "$INSTDIR\LibrariesGroup.url" "InternetShortcut" "URL" "${LIBRARIES_WEB_SITE}"
   SetShellVarContext all
-  CreateDirectory "$SMPROGRAMS\KiCad"
-  CreateShortCut "$SMPROGRAMS\KiCad\Home Page.lnk" "$INSTDIR\HomePage.url"
-  CreateShortCut "$SMPROGRAMS\KiCad\KiCad Libraries.lnk" "$INSTDIR\LibrariesGroup.url"
-  CreateShortCut "$SMPROGRAMS\KiCad\KiCad User Forum.lnk" "$INSTDIR\UserForum.url"
-  CreateShortCut "$SMPROGRAMS\KiCad\KiCad Devel Group.lnk" "$INSTDIR\DevelGroup.url"
-  CreateShortCut "$SMPROGRAMS\KiCad\Uninstall.lnk" "$INSTDIR\uninstaller.exe"
-  CreateShortCut "$SMPROGRAMS\KiCad\KiCad.lnk" "$INSTDIR\bin\kicad.exe"
-  CreateShortCut "$SMPROGRAMS\KiCad\Eeschema.lnk" "$INSTDIR\bin\eeschema.exe"
-  CreateShortCut "$SMPROGRAMS\KiCad\Pcbnew.lnk" "$INSTDIR\bin\pcbnew.exe"
-  CreateShortCut "$SMPROGRAMS\KiCad\Gerbview.lnk" "$INSTDIR\bin\gerbview.exe"
-  CreateShortCut "$SMPROGRAMS\KiCad\Bitmap2component.lnk" "$INSTDIR\bin\bitmap2component.exe"
-  CreateShortCut "$SMPROGRAMS\KiCad\PCB calculator.lnk" "$INSTDIR\bin\pcb_calculator.exe"
-  CreateShortCut "$SMPROGRAMS\KiCad\Pagelayout editor.lnk" "$INSTDIR\bin\pl_editor.exe"
-  CreateShortCut "$DESKTOP\KiCad.lnk" "$INSTDIR\bin\kicad.exe"
+
+  CreateDirectory "${SMPATH}"
+  CreateShortCut "${SMPATH}\Home Page.lnk" "$INSTDIR\HomePage.url"
+  CreateShortCut "${SMPATH}\KiCad Libraries.lnk" "$INSTDIR\LibrariesGroup.url"
+  CreateShortCut "${SMPATH}\KiCad User Forum.lnk" "$INSTDIR\UserForum.url"
+  CreateShortCut "${SMPATH}\KiCad Devel Group.lnk" "$INSTDIR\DevelGroup.url"
+  CreateShortCut "${SMPATH}\Uninstall.lnk" "$INSTDIR\uninstaller.exe"
+  CreateShortCut "${SMPATH}\KiCad.lnk" "$INSTDIR\bin\kicad.exe"
+  CreateShortCut "${SMPATH}\Eeschema.lnk" "$INSTDIR\bin\eeschema.exe"
+  CreateShortCut "${SMPATH}\Pcbnew.lnk" "$INSTDIR\bin\pcbnew.exe"
+  CreateShortCut "${SMPATH}\Gerbview.lnk" "$INSTDIR\bin\gerbview.exe"
+  CreateShortCut "${SMPATH}\Bitmap2component.lnk" "$INSTDIR\bin\bitmap2component.exe"
+  CreateShortCut "${SMPATH}\PCB calculator.lnk" "$INSTDIR\bin\pcb_calculator.exe"
+  CreateShortCut "${SMPATH}\Pagelayout editor.lnk" "$INSTDIR\bin\pl_editor.exe"
+  CreateShortCut "$DESKTOP\KiCad ${KICAD_VERSION}.lnk" "$INSTDIR\bin\kicad.exe"
 SectionEnd
 
 Section -CreateAddRemoveEntry
@@ -649,19 +653,19 @@ Section Uninstall
   ;remove start menu shortcuts and web page links
   SetShellVarContext all
   !insertmacro ExclusiveDetailPrint $(REMOVING_SHORTCUTS)
-  Delete "$SMPROGRAMS\KiCad\Home Page.lnk"
-  Delete "$SMPROGRAMS\KiCad\KiCad Libraries.lnk"
-  Delete "$SMPROGRAMS\KiCad\KiCad Alternate Download.lnk"
-  Delete "$SMPROGRAMS\KiCad\KiCad Devel Group.lnk"
-  Delete "$SMPROGRAMS\KiCad\KiCad User Forum.lnk"
-  Delete "$SMPROGRAMS\KiCad\Uninstall.lnk"
-  Delete "$SMPROGRAMS\KiCad\KiCad.lnk"
-  Delete "$SMPROGRAMS\KiCad\Eeschema.lnk"
-  Delete "$SMPROGRAMS\KiCad\Pcbnew.lnk"
-  Delete "$SMPROGRAMS\KiCad\Gerbview.lnk"
-  Delete "$SMPROGRAMS\KiCad\Bitmap2component.lnk"
-  Delete "$SMPROGRAMS\KiCad\PCB calculator.lnk"
-  Delete "$SMPROGRAMS\KiCad\Pagelayout editor.lnk"
+  Delete "${SMPATH}\Home Page.lnk"
+  Delete "${SMPATH}\KiCad Libraries.lnk"
+  Delete "${SMPATH}\KiCad Alternate Download.lnk"
+  Delete "${SMPATH}\KiCad Devel Group.lnk"
+  Delete "${SMPATH}\KiCad User Forum.lnk"
+  Delete "${SMPATH}\Uninstall.lnk"
+  Delete "${SMPATH}\KiCad ${KICAD_VERSION}.lnk"
+  Delete "${SMPATH}\Eeschema.lnk"
+  Delete "${SMPATH}\Pcbnew.lnk"
+  Delete "${SMPATH}\Gerbview.lnk"
+  Delete "${SMPATH}\Bitmap2component.lnk"
+  Delete "${SMPATH}\PCB calculator.lnk"
+  Delete "${SMPATH}\Pagelayout editor.lnk"
   Delete "$DESKTOP\KiCad.lnk"
   Delete "$INSTDIR\HomePage.url"
   Delete "$INSTDIR\UserForum.url"
