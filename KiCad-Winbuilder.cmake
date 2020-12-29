@@ -283,6 +283,7 @@ if( NOT EXISTS "${LOG_DIR}/pacman_initial" )
     execute_msys2_bash( "pacman --noconfirm --needed -S bash pacman pacman-mirrors msys2-runtime" "${LOG_DIR}/pacman_bash" )
     execute_msys2_bash( "pacman --noconfirm --needed -S p11-kit" "${LOG_DIR}/pacman_bash_p11-kit" )
     execute_msys2_bash( "pacman --noconfirm --needed -S ca-certificates" "${LOG_DIR}/pacman_bash2" )
+    execute_msys2_bash( "pacman --noconfirm --needed -S mintty" "${LOG_DIR}/pacman_mintty" )
 
     # Final update and then we're ready to use msys2...
     execute_msys2_bash( "pacman --noconfirm -Su" "${LOG_DIR}/pacman_update" )
