@@ -284,13 +284,6 @@ if( NOT EXISTS "${LOG_DIR}/pacman_initial" )
     execute_msys2_bash( "pacman --noconfirm --needed -S p11-kit" "${LOG_DIR}/pacman_bash_p11-kit" )
     execute_msys2_bash( "pacman --noconfirm --needed -S ca-certificates" "${LOG_DIR}/pacman_bash2" )
 
-    # if using msys 32-bit (apparently not required for 64-bit)
-    if( "${MSYS2}" STREQUAL "msys32" )
-        execute_process(
-            COMMAND "${CMAKE_SOURCE_DIR}/${MSYS2}/autorebase.bat" 2>&1
-            COMMAND "${TEE_COMMAND}" "${LOGDIR}/autorebase" )
-    endif()
-
     # Final update and then we're ready to use msys2...
     execute_msys2_bash( "pacman --noconfirm -Su" "${LOG_DIR}/pacman_update" )
 endif()
