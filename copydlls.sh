@@ -167,6 +167,7 @@ fi
 if [ -z "$KICAD_VERSION" ]; then
     KICAD_VERSION=$(grep -Po '(?<=KICAD_SEMANTIC_VERSION\s")([0-9]+).([0-9])+' "$PKGPATH/src/kicad/CMakeModules/KiCadVersion.cmake")
     echo "info: extracting kicad version from source"
+    echo "\$KICAD_VERSION=$KICAD_VERSION"
 fi
 
 copystuff() {
