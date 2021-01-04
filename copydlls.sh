@@ -165,7 +165,7 @@ if [ -z "$MAKENSIS" ]; then
 fi
 
 if [ -z "$KICAD_VERSION" ]; then
-	KICAD_VERSION=$(grep -Po '(?<=KICAD_SEMANTIC_VERSION\s")([0-9]+).([0-9])+' "$PKGPATH/src/kicad/CMakeModules/KiCadVersion.cmake")
+    KICAD_VERSION=$(grep -Po '(?<=KICAD_SEMANTIC_VERSION\s")([0-9]+).([0-9])+' "$PKGPATH/src/kicad/CMakeModules/KiCadVersion.cmake")
     echo "info: extracting kicad version from source"
 fi
 
