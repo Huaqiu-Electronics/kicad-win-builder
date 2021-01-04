@@ -361,7 +361,6 @@ if( EXISTS "${KICAD_PACKAGE_SOURCE_DIR}/pkg/mingw-w64-i686-kicad-git/mingw32" AN
                          --arch=i686 \
                          --pkgpath=$HOME/MINGW-packages/mingw-w64-kicad-git \
                          --nsispath=$HOME/nsis \
-                         --kicadver=${KICAD_MAJOR_MINOR_VERSION} \
                          --makensis=${NSIS_MAKE_COMMAND}"
                          "${LOG_DIR}/copydlls_mingw32" )
 endif()
@@ -376,7 +375,6 @@ if( EXISTS "${KICAD_PACKAGE_SOURCE_DIR}/pkg/mingw-w64-x86_64-kicad-git/mingw64" 
                          --arch=x86_64 \
                          --pkgpath=\$HOME/MINGW-packages/mingw-w64-kicad-git \
                          --nsispath=$HOME/nsis \
-                         --kicadver=${KICAD_MAJOR_MINOR_VERSION} \
                          --makensis=${NSIS_MAKE_COMMAND}"
                          "${LOG_DIR}/copydlls_mingw64" )
 endif()

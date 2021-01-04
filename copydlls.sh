@@ -164,6 +164,11 @@ if [ -z "$MAKENSIS" ]; then
     echo "warning: using hardcoded makensis path"
 fi
 
+if [ -z "$KICAD_VERSION" ]; then
+	KICAD_VERSION=$(grep -Po '(?<=KICAD_SEMANTIC_VERSION\s")([0-9]+).([0-9])+' "$PKGPATH/src/kicad/CMakeModules/KiCadVersion.cmake")
+    echo "info: extracting kicad version from source"
+fi
+
 copystuff() {
     SEARCHLIST=( \
         "*wx*.dll" \
