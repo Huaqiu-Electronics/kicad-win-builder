@@ -43,9 +43,6 @@
 !define DEVEL_WEB_SITE "https://launchpad.net/kicad/"
 !define FREECAD_WEB_SITE "https://www.freecadweb.org/"
 
-!define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
-!define UNINST_ROOT "HKLM"
-
 !define ENV_HKLM 'HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"'
 
 !define FILE_ASSOC_PREFIX	"KiCad"
@@ -64,6 +61,9 @@
 !ifndef KICAD_VERSION
   !define KICAD_VERSION "unknown"
 !endif
+
+!define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME} ${KICAD_VERSION}"
+!define UNINST_ROOT "HKLM"
 
 ;Define libraries download urls
 !ifdef LIBRARIES_TAG
