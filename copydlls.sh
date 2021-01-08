@@ -306,9 +306,9 @@ makensis() {
       GIT_TAG="master"
     fi
 	
-	NSIS_SCRIPT = "install.nsi"
+	NSIS_SCRIPT="install.nsi"
 	if [[ "$KICAD_VERSION" == "5.1" ]]; then
-		NSIS_SCRIPT = "install-5.1.nsi"
+		NSIS_SCRIPT="install-5.1.nsi"
 	fi
 
     if [ -z $LITE_ONLY ]; then
@@ -318,7 +318,7 @@ makensis() {
         //DKICAD_VERSION=$KICAD_VERSION \
         //DOUTFILE="..\kicad-$PACKAGE_VERSION-$ARCH.exe" \
         //DARCH="$ARCH" \
-        $NSIS_SCRIPT
+        "$NSIS_SCRIPT"
     fi
     echo Generating light installer...
     "$MAKENSIS" \
@@ -327,7 +327,7 @@ makensis() {
         //DOUTFILE="..\kicad-$PACKAGE_VERSION-$ARCH-lite.exe" \
         //DARCH="$ARCH" \
         //DLIBRARIES_TAG="$GIT_TAG" \
-        $NSIS_SCRIPT
+        "$NSIS_SCRIPT"
     cd -
 }
 
