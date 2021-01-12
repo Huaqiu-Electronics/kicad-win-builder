@@ -55,6 +55,8 @@ param(
 enum Arch {
     x86
     x64
+    arm32
+    arm64
 }
 
 ### 
@@ -103,8 +105,27 @@ Set-Alias 7zip ./tools/7zip/7za.exe -Option AllScope
 Set-Alias vswhere ($supportPathRoot+"vswhere.exe") -Option AllScope
 Set-Alias cmake ($supportPathRoot+"cmake/bin/cmake.exe") -Option AllScope
 
+function Get-MSVC-Arch()
+{
+    [CmdletBinding()]
+    param (
+        [Parameter()]
+        [Arch]$Arch
+    )
 
-function Find-VS()
+    $msvc = "amd64"
+    switch ($Arch)
+    {
+        [Arch]::x64   {$msvc = "amd64"}
+        [Arch]::x86   {$msvc = "x86"}
+        [Arch]::arm32 {$msvc = "arm"}
+        [Arch]::arm64 {$msvc = "arm64"}
+    }
+
+    return $msvc
+}
+
+function Set-VC-Environment()
 {
     [CmdletBinding()]
     param (
@@ -112,9 +133,16 @@ function Find-VS()
         [Arch]$Arch = [Arch]::x64,
         [Parameter()]
         [Arch]$HostArch = [Arch]::x64,
+        [string[]]
         [Parameter(ValueFromRemainingArguments=$true)]
         $Arguments
     )
+
+    $msvcArch = Get-MSVC-Arch -Arch $Arch
+    $msvcHostArch = Get-MSVC-Arch -Arch $HostArch
+
+    # prepare the arguments array with the arch info
+    $Arguments = @("-arch") + $msvcArch + @("-host_arch") + $msvcHostArch + $Arguments
 
     $installDir = vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
     if ($installDir) {
@@ -123,23 +151,12 @@ function Find-VS()
             $version = gc -raw $path
             if ($version) {
                 $version = $version.Trim()
-                $path = join-path $installDir "VC\Tools\MSVC\$version\bin\Host$HostArch\$Arch\cl.exe"
+                $path = join-path $installDir "Common7\tools\VsDevCmd.bat"
                 & $path $Arguments
             }
         }
     }
-}
 
-function Set-VC-Vars($vcvarsname)
-{
-    Push-Location "C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\VC\Auxiliary\Build"
-    cmd /c "$vcvarsname.bat&set" |
-    Foreach-Object {
-      if ($_ -match "=") {
-        $v = $_.split("="); set-item -force -path "ENV:\$($v[0])"  -value "$($v[1])"
-      }
-    }
-    Pop-Location
 }
 
 function Get-Absolute-Path($relativePath)
@@ -179,17 +196,9 @@ function Build-Kicad {
     #step down into kicad folder
     Push-Location "$PSScriptRoot\kicad"
 
+    Set-VC-Environment -Arch $arch
+
     $generator = "Ninja";
-    if($arch -eq [Arch]::x64)
-    {
-        $cmakeBuildFolder = "build64";
-        Set-VC-Vars("vcvars64")
-    }
-    elseif($arch -eq [Arch]::x86)
-    {
-        $cmakeBuildFolder = "build32";
-        Set-VC-Vars("vcvars32")
-    }
 
     #delete the old build folder
     if($fresh)
@@ -422,6 +431,7 @@ function Get-Latest-Kicad {
     git pull --rebase
     Pop-Location
 }
+
 
 if( $Config )
 {
