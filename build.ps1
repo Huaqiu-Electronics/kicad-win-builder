@@ -6,7 +6,7 @@
 #   ./build.ps1 -Config -VcpkgPath="path to vcpkg"
 #
 #   Checkout any required tools
-#   ./build.ps1 -Setup
+#   ./build.ps1 -Init
 #   
 #   Rebuilds vcpkg dependencies (if updated)
 #   ./build.ps1 -Vcpkg
@@ -98,12 +98,28 @@ $settings = Merge-HashTable -default $settingDefault -uppend $settingsSaved
 ### 
 # Setup aliases to shorten accessing tools
 ##
-$vcpkgPath = Join-Path -Path $settings.VcpkgPath -ChildPath "vcpkg.exe"
 
-Set-Alias vcpkg $vcpkgPath -Option AllScope
-Set-Alias 7zip ./tools/7zip/7za.exe -Option AllScope
-Set-Alias vswhere ($supportPathRoot+"vswhere.exe") -Option AllScope
-Set-Alias cmake ($supportPathRoot+"cmake/bin/cmake.exe") -Option AllScope
+function Set-Aliases()
+{
+    $tmp = Join-Path -Path $settings.VcpkgPath -ChildPath "vcpkg.exe"
+    Set-Alias vcpkg $tmp -Option AllScope
+
+    $tmp = Join-Path -Path $PSScriptRoot -ChildPath "/tools/7zip/7za.exe"
+    Set-Alias 7zip $tmp -Option AllScope
+    
+    $tmp = Join-Path -Path $supportPathRoot -ChildPath "vswhere.exe"
+    Set-Alias vswhere $tmp -Option AllScope
+    
+    $tmp = Join-Path -Path $settings.VcpkgPath -ChildPath "cmake/bin/cmake.exe"
+    Set-Alias cmake $tmp -Option AllScope
+}
+
+## Invoke it
+Set-Aliases
+
+###
+# General functions
+##
 
 function Get-MSVC-Arch()
 {
@@ -259,7 +275,7 @@ function Start-Init {
     # The progress bar slows down download performance by absurd amounts, turn it off
     $ProgressPreference = 'SilentlyContinue'
 
-    if(![System.IO.Directory]::Exists( $supportPathRoot+"cmake" ))
+    if(![System.IO.Directory]::Exists( "$supportPathRoot/cmake" ))
     {
         Write-Host "Downloading CMake..." -ForegroundColor Yellow
         Invoke-WebRequest -Uri $cmakeDownload -OutFile ($downloadsPathRoot+"cmake.zip")
@@ -271,25 +287,25 @@ function Start-Init {
     }
     else
     {
-        Write-Host "Cmake already exists";
+        Write-Host "Cmake already exists" -ForegroundColor Green
     }
 
-    if(![System.IO.File]::Exists( $supportPathRoot+"vswhere.exe" ))
+    if(![System.IO.File]::Exists( "$supportPathRoot/vswhere.exe" ))
     {
         Write-Host "Downloading Vswhere..." -ForegroundColor Yellow
         Invoke-WebRequest -Uri $vswhereDownload -OutFile ($supportPathRoot+"vswhere.exe")
     }
     else
     {
-        Write-Host "vswhere already exists";
+        Write-Host "vswhere already exists" -ForegroundColor Green
     }
 
-    if(![System.IO.Directory]::Exists( $supportPathRoot+"swigwin" ))
+    if(![System.IO.Directory]::Exists( "$supportPathRoot/swigwin" ))
     {
         Write-Host "Downloading Swigwin..." -ForegroundColor Yellow
         Invoke-WebRequest -Uri $swigwinDownload -OutFile ($downloadsPathRoot+"swigwin.zip") -UserAgent [Microsoft.PowerShell.Commands.PSUserAgent]::FireFox
         
-        Write-Host "Extracting Cmake" -ForegroundColor Yellow
+        Write-Host "Extracting Swigwin" -ForegroundColor Yellow
         unzip ($downloadsPathRoot+"swigwin.zip") $supportPathRoot
 
         
@@ -298,11 +314,11 @@ function Start-Init {
     }
     else
     {
-        Write-Host "Cmake already exists";
+        Write-Host "swigwin already exists" -ForegroundColor Green
     }
 
     ### Download Kicad
-    if(![System.IO.Directory]::Exists($PSScriptRoot+'kicad/'))
+    if(![System.IO.Directory]::Exists("$PSScriptRoot/kicad/"))
     {
         Write-Host "Cloning kicad repo";
         git clone https://gitlab.com/kicad/code/kicad.git kicad
@@ -395,8 +411,9 @@ function Start-Package {
     )
 
     $triplet = Get-Vcpkg-Triplet -Arch $arch
-    $vcpkgInstalled = ("$settings.VcpkgPath\installed\$triplet\")
-    $destPath = ("$PSScriptRoot\.out\$triplet\")
+
+    $vcpkgInstalledRoot = Join-Path -Path $settings.VcpkgPath -ChildPath "installed\$triplet\"
+    $destRoot = Join-Path -Path $PSScriptRoot -ChildPath ".out\$triplet\"
 
     $vcpkgBinCopy = @( "boost*",
                         "TK*",
@@ -404,11 +421,11 @@ function Start-Package {
                     )
 
     for ($i = 0; $i -lt $vcpkgBinCopy.Count; $i++) {
-        Copy-Item ("$vcpkgInstalled\bin\$vcpkgBinCopy[$i]") -Destination "$destPath\bin\" -Recurse
+        Copy-Item ("$vcpkgInstalledRoot\bin\$vcpkgBinCopy[$i]") -Destination "$destRoot\bin\" -Recurse
     }
 
     ## now python3
-    Copy-Item ("$vcpkgInstalled\python3\*") -Destination "$destPath\lib\python3" -Recurse
+    Copy-Item ("$vcpkgInstalled\tools\python3\*") -Destination "$destPath\lib\python3" -Recurse
 }
 
 
@@ -432,6 +449,9 @@ function Get-Latest-Kicad {
     Pop-Location
 }
 
+###
+# Decode and execute the selected script stage
+###
 
 if( $Config )
 {
