@@ -28,7 +28,7 @@ param(
 
     [Parameter(Position = 0, Mandatory=$True, ParameterSetName="build")]
     [Switch]$Build,
-	
+
     [Parameter(Position = 0, Mandatory=$True, ParameterSetName="vcpkg")]
     [Switch]$Vcpkg,
 
@@ -349,7 +349,7 @@ function Build-Vcpkg {
                         "openssl",
                         "python3",
                         "wxwidgets",
-						"wxpython",
+                        "wxpython",
                         "zlib")
 
     # Format the dependencies with the triplet
@@ -418,10 +418,10 @@ function Set-Config {
         [Parameter(Mandatory=$True)]
         [string]$VcpkgPath
     )
-	
-	$settings.VcpkgPath = $VcpkgPath
-	
-	$settings | ConvertTo-Json -Compress | Set-Content -Path $settingsPath
+
+    $settings.VcpkgPath = $VcpkgPath
+
+    $settings | ConvertTo-Json -Compress | Set-Content -Path $settingsPath
 }
 
 function Get-Latest-Kicad {
