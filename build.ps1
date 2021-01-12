@@ -214,6 +214,8 @@ function Build-Kicad {
 
     Set-VC-Environment -Arch $arch
 
+    $cmakeBuildFolder = "build/$triplet"
+
     $generator = "Ninja";
 
     #delete the old build folder
@@ -361,6 +363,7 @@ function Build-Vcpkg {
                         "glm",
                         "icu",
                         "ngspice",
+                        "opencascade",
                         "opengl",
                         "openssl",
                         "python3",
