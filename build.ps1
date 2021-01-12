@@ -38,12 +38,12 @@ param(
     [Parameter(Mandatory=$False, ParameterSetName="build")]
     [Switch]$Latest,
 
-    [Parameter(Mandatory=$True, ParameterSetName="build")]
-    [Parameter(Mandatory=$True, ParameterSetName="vcpkg")]
+    [Parameter(Mandatory=$False, ParameterSetName="build")]
+    [Parameter(Mandatory=$False, ParameterSetName="vcpkg")]
     [ValidateSet('x86', 'x64')]
-    [string]$Arch,
+    [string]$Arch = 'x64',
 
-    [Parameter(Mandatory=$True, ParameterSetName="build")]
+    [Parameter(Mandatory=$False, ParameterSetName="build")]
     [ValidateSet('Release', 'Debug')]
     [string]$BuildType = 'Release',
 	
@@ -169,13 +169,15 @@ function Build-Kicad {
         [Arch]$arch,
         [Parameter(Mandatory=$False)]
         [ValidateSet('Release', 'Debug')]
-        [string]$buildType = 'Release'
+        [string]$buildType = 'Release',
+        [Parameter(Mandatory=$False)]
+        [bool]$fresh = $False
     )
 
-    Reset-Env-Path
+    $triplet = Get-Vcpkg-Triplet -Arch $arch
 
     #step down into kicad folder
-    Push-Location kicad
+    Push-Location "$PSScriptRoot\kicad"
 
     $generator = "Ninja";
     if($arch -eq [Arch]::x64)
@@ -188,8 +190,12 @@ function Build-Kicad {
         $cmakeBuildFolder = "build32";
         Set-VC-Vars("vcvars32")
     }
+
     #delete the old build folder
-    Remove-Item $cmakeBuildFolder -Recurse
+    if($fresh)
+    {
+        Remove-Item $cmakeBuildFolder -Recurse -ErrorAction SilentlyContinue
+    }
 
     
     $installPath = "$PSScriptRoot/.out/$triplet/"
@@ -338,6 +344,12 @@ function Build-Vcpkg {
         $dependencies[$i] = $dependencies[$i]+":$triplet"
     }
     vcpkg install $dependencies
+    
+    if (!$?) {
+        Write-Error "Failure installing vcpkg ports"
+    } else {
+        Write-Host "vcpkg ports installed/updated" -ForegroundColor Green
+    }
 
     Pop-Location
 }
