@@ -109,9 +109,9 @@ function Find-VS()
     [CmdletBinding()]
     param (
         [Parameter()]
-        $Arch = 'x64',
+        [Arch]$Arch = [Arch]::x64,
         [Parameter()]
-        $HostArch = 'x64',
+        [Arch]$HostArch = [Arch]::x64,
         [Parameter(ValueFromRemainingArguments=$true)]
         $Arguments
     )
@@ -166,8 +166,7 @@ function Build-Kicad {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$True)]
-        [ValidateSet('x86', 'x64')]
-        [string]$arch,
+        [Arch]$arch,
         [Parameter(Mandatory=$False)]
         [ValidateSet('Release', 'Debug')]
         [string]$buildType = 'Release'
@@ -179,12 +178,12 @@ function Build-Kicad {
     Push-Location kicad
 
     $generator = "Ninja";
-    if($arch -eq "x64")
+    if($arch -eq [Arch]::x64)
     {
         $cmakeBuildFolder = "build64";
         Set-VC-Vars("vcvars64")
     }
-    elseif($arch -eq "x86")
+    elseif($arch -eq [Arch]::x86)
     {
         $cmakeBuildFolder = "build32";
         Set-VC-Vars("vcvars32")
@@ -192,11 +191,16 @@ function Build-Kicad {
     #delete the old build folder
     Remove-Item $cmakeBuildFolder -Recurse
 
+    
+    $installPath = "$PSScriptRoot/.out/$triplet/"
+    $toolchainPath = ($settings["VcpkgPath"]+"scripts/buildsystems/vcpkg.cmake")
+
     cmake -G $generator `
         -B $cmakeBuildFolder `
         -S .  `
         -DCMAKE_BUILD_TYPE="$buildType" `
-        -DCMAKE_TOOLCHAIN_FILE=($settings.vcpkgPath+"/scripts/buildsystems/vcpkg.cmake") `
+        -DCMAKE_TOOLCHAIN_FILE="$toolchainPath" `
+        -DCMAKE_INSTALL_PREFIX="$installPath" `
         -DKICAD_SPICE="ON" `
         -DKICAD_USE_OCE="OFF" `
         -DKICAD_SCRIPTING="OFF" `
@@ -206,8 +210,21 @@ function Build-Kicad {
     if (!$?) {
         Write-Error "Failure generating cmake"
     } else {
-        Write-Host "Invoking cmake build"
+        Write-Host "Invoking cmake build" -ForegroundColor Yellow
         cmake --build $cmakeBuildFolder -j 16
+        
+        if (!$?) {
+            Write-Error "Failure with cmake build"
+        } else {
+            Write-Host "Invoking cmake install" -ForegroundColor Yellow
+            cmake --install $cmakeBuildFolder
+            
+            if (!$?) {
+                Write-Error "Failure with cmake install"
+            } else {
+                Write-Host "Build complete" -ForegroundColor Green
+            }
+        }
     }
 
     #restore path
