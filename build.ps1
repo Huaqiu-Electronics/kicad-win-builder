@@ -19,17 +19,12 @@
 #
 ##
 
-enum Arches {
-    x86
-    x64
-}
-
 param(
     [Parameter(Position = 0, Mandatory=$True, ParameterSetName="config")]
     [Switch]$Config,
 
-    [Parameter(Position = 0, Mandatory=$True, ParameterSetName="setup")]
-    [Switch]$Setup,
+    [Parameter(Position = 0, Mandatory=$True, ParameterSetName="init")]
+    [Switch]$Init,
 
     [Parameter(Position = 0, Mandatory=$True, ParameterSetName="build")]
     [Switch]$Build,
@@ -45,8 +40,8 @@ param(
 
     [Parameter(Mandatory=$True, ParameterSetName="build")]
     [Parameter(Mandatory=$True, ParameterSetName="vcpkg")]
-    [ValidateNotNullOrEmpty()]
-    [Arches]$Arch,
+    [ValidateSet('x86', 'x64')]
+    [string]$Arch,
 
     [Parameter(Mandatory=$True, ParameterSetName="build")]
     [ValidateSet('Release', 'Debug')]
@@ -57,12 +52,18 @@ param(
     [string]$VcpkgPath
 )
 
+enum Arch {
+    x86
+    x64
+}
+
 ### 
 ## Base setup
 ### 
 
 $cmakeDownload = 'https://github.com/Kitware/CMake/releases/download/v3.19.2/cmake-3.19.2-win64-x64.zip';
 $vswhereDownload = 'https://github.com/microsoft/vswhere/releases/download/2.8.4/vswhere.exe'
+$swigwinDownload = "https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.0.2/swigwin-4.0.2.zip/download?use_mirror=pilotfiber"
 
 $downloadsPathRoot = ($PSScriptRoot+"/.downloads/")
 $supportPathRoot = ($PSScriptRoot+"/.support/")
@@ -99,7 +100,9 @@ $vcpkgPath = Join-Path -Path $settings.VcpkgPath -ChildPath "vcpkg.exe"
 
 Set-Alias vcpkg $vcpkgPath -Option AllScope
 Set-Alias 7zip ./tools/7zip/7za.exe -Option AllScope
-Set-Alias vswhere $supportPathRoot+"vswhere.exe" -Option AllScope
+Set-Alias vswhere ($supportPathRoot+"vswhere.exe") -Option AllScope
+Set-Alias cmake ($supportPathRoot+"cmake/bin/cmake.exe") -Option AllScope
+
 
 function Find-VS()
 {
@@ -147,12 +150,12 @@ function Get-Absolute-Path($relativePath)
 }
 
 function Reset-Env {
-  Set-Item `
-      -Path (('Env:', $args[0]) -join '') `
-      -Value ((
-          [System.Environment]::GetEnvironmentVariable($args[0], "Machine"),
-          [System.Environment]::GetEnvironmentVariable($args[0], "User")
-      ) -match '.' -join ';')
+    Set-Item `
+        -Path (('Env:', $args[0]) -join '') `
+        -Value ((
+            [System.Environment]::GetEnvironmentVariable($args[0], "Machine"),
+            [System.Environment]::GetEnvironmentVariable($args[0], "User")
+        ) -match '.' -join ';')
 }
 
 function Reset-Env-Path {
@@ -170,11 +173,7 @@ function Build-Kicad {
         [string]$buildType = 'Release'
     )
 
-    $cmakeBin = Get-Absolute-Path(".\tools\cmake\bin\")
-    Set-Alias cmake $cmakeBin/cmake.exe
-
     Reset-Env-Path
-    $vcpkgBase = Get-Absolute-Path("./vcpkg")
 
     #step down into kicad folder
     Push-Location kicad
@@ -193,12 +192,11 @@ function Build-Kicad {
     #delete the old build folder
     Remove-Item $cmakeBuildFolder -Recurse
 
-
     cmake -G $generator `
         -B $cmakeBuildFolder `
         -S .  `
         -DCMAKE_BUILD_TYPE="$buildType" `
-        -DCMAKE_TOOLCHAIN_FILE="$vcpkgBase/scripts/buildsystems/vcpkg.cmake" `
+        -DCMAKE_TOOLCHAIN_FILE=($settings.vcpkgPath+"/scripts/buildsystems/vcpkg.cmake") `
         -DKICAD_SPICE="ON" `
         -DKICAD_USE_OCE="OFF" `
         -DKICAD_SCRIPTING="OFF" `
@@ -221,8 +219,7 @@ function Unzip([string] $zip, [string] $dest) {
     7zip x $zip "$dest" -y
 }
 
-
-function Start-Setup {
+function Start-Init {
     # The progress bar slows down download performance by absurd amounts, turn it off
     $ProgressPreference = 'SilentlyContinue'
 
@@ -251,7 +248,6 @@ function Start-Setup {
         Write-Host "vswhere already exists";
     }
 
-    $swigwinDownload = "https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.0.2/swigwin-4.0.2.zip/download?use_mirror=pilotfiber"
     if(![System.IO.Directory]::Exists( $supportPathRoot+"swigwin" ))
     {
         Write-Host "Downloading Swigwin..." -ForegroundColor Yellow
@@ -284,8 +280,7 @@ function Get-Vcpkg-Triplet {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$True)]
-        [ValidateSet('x86', 'x64')]
-        [string]$arch
+        [Arch]$arch
     )
 
     $triplet = "$arch-windows"
@@ -293,22 +288,15 @@ function Get-Vcpkg-Triplet {
 }
 
 
-function Prepare-Vcpkg {
+function Build-Vcpkg {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$True)]
-        [ValidateSet('x86', 'x64')]
-        [string]$arch
+        [Arch]$arch
     )
 
-    # Patch vcpkg
-    $patches = Get-ChildItem .\patches\*.patch
-    foreach ($patch in $patches) {
-        git apply $patch --directory vcpkg --whitespace=fix
-    }
-
     # Bootstrap vcpkg
-    Push-Location $settings.VcpkgPath
+    Push-Location $settings["VcpkgPath"]
     .\bootstrap-vcpkg.bat
 
     # Setup dependencies
@@ -358,25 +346,27 @@ function Merge-HashTable {
 }
 
 function Start-Package {
-    $vcpkgCopyPaths = @( "boost",
-                        "cairo",
-                        "curl", 
-                        "glew",
-                        "gettext",
-                        "glm",
-                        "icu",
-                        "ngspice",
-                        "opengl",
-                        "openssl",
-                        "python3",
-                        "wxwidgets",
-						"wxpython",
-                        "zlib")
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [Arch]$arch
+    )
 
-    # Format the dependencies with the triplet
-    for ($i = 0; $i -lt $dependencies.Count; $i++) {
-        $dependencies[$i] = $dependencies[$i]+":$triplet"
+    $triplet = Get-Vcpkg-Triplet -Arch $arch
+    $vcpkgInstalled = ("$settings.VcpkgPath\installed\$triplet\")
+    $destPath = ("$PSScriptRoot\.out\$triplet\")
+
+    $vcpkgBinCopy = @( "boost*",
+                        "TK*",
+                        "wx*"
+                    )
+
+    for ($i = 0; $i -lt $vcpkgBinCopy.Count; $i++) {
+        Copy-Item ("$vcpkgInstalled\bin\$vcpkgBinCopy[$i]") -Destination "$destPath\bin\" -Recurse
     }
+
+    ## now python3
+    Copy-Item ("$vcpkgInstalled\python3\*") -Destination "$destPath\lib\python3" -Recurse
 }
 
 
@@ -405,14 +395,14 @@ if( $Config )
     Set-Config -VcpkgPath $VcpkgPath
 }
 
-if( $Setup )
+if( $Init )
 {
-    Start-Setup
+    Start-Init
 }
 
 if( $Vcpkg )
 {
-    Prepare-Vcpkg -arch $Arch
+    Build-Vcpkg -arch $Arch
 }
 
 if( $Latest )
