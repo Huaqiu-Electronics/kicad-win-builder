@@ -209,9 +209,13 @@ function Build-Kicad {
         -DCMAKE_INSTALL_PREFIX="$installPath" `
         -DKICAD_SPICE="ON" `
         -DKICAD_USE_OCE="OFF" `
-        -DKICAD_SCRIPTING="OFF" `
-        -DKICAD_SCRIPTING_WXPYTHON="OFF" `
-        -DKICAD_SCRIPTING_MODULES="ON"
+        -DKICAD_USE_OCC="ON" `
+        -DKICAD_SCRIPTING="ON" `
+        -DKICAD_SCRIPTING_PYTHON3="ON" `
+        -DKICAD_SCRIPTING_WXPYTHON="ON" `
+        -DKICAD_SCRIPTING_MODULES="ON" `
+        -DKICAD_BUILD_QA_TESTS="OFF" `
+        -DKICAD_WIN32_DPI_AWARE="ON"
 
     if (!$?) {
         Write-Error "Failure generating cmake"
