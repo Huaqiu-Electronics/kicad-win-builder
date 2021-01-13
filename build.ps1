@@ -63,9 +63,18 @@ enum Arch {
 ## Base setup
 ### 
 
-$cmakeDownload = 'https://github.com/Kitware/CMake/releases/download/v3.19.2/cmake-3.19.2-win64-x64.zip';
+$cmakeDownload = 'https://github.com/Kitware/CMake/releases/download/v3.19.2/cmake-3.19.2-win64-x64.zip'
+$cmakeChecksum = "A6FDF509D7A39F1C08B429EAA3EA0012744365A731D00FB770AE88B4D6549FF3"
+
 $vswhereDownload = 'https://github.com/microsoft/vswhere/releases/download/2.8.4/vswhere.exe'
+$vswhereChecksum = "E50A14767C27477F634A4C19709D35C27A72F541FB2BA5C3A446C80998A86419"
+
 $swigwinDownload = "https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.0.2/swigwin-4.0.2.zip/download?use_mirror=pilotfiber"
+$swigwinChecksum = "DAADB32F19FE818CB9B0015243233FC81584844C11A48436385E87C050346559"
+
+$nsisDownload = "https://sourceforge.net/projects/nsis/files/NSIS%203/3.06.1/nsis-3.06.1.zip/download"
+$nsisChecksum = "D463AD11AA191AB5AE64EDB3A439A4A4A7A3E277FCB138254317254F7111FBA7"
+
 
 $downloadsPathRoot = ($PSScriptRoot+"/.downloads/")
 $supportPathRoot = ($PSScriptRoot+"/.support/")
@@ -273,51 +282,106 @@ function Unzip([string] $zip, [string] $dest) {
     7zip x $zip "$dest" -y
 }
 
+
+function Get-Tool {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [string]$ToolName,
+        [Parameter(Mandatory=$True)]
+        [string]$Url,
+        [Parameter(Mandatory=$True)]
+        [string]$DestPath,
+        [Parameter(Mandatory=$True)]
+        [string]$DownloadPath,
+        [Parameter(Mandatory=$True)]
+        [string]$Checksum,
+        [Parameter(Mandatory=$False)]
+        [bool]$ExtractZip = $False,
+        [Parameter(Mandatory=$False)]
+        [bool]$ZipRelocate = $False,
+        [Parameter(Mandatory=$False)]
+        [string]$ZipRelocateFilter = ""
+    )
+    
+    if( -not (Test-Path $DestPath) )
+    {
+        Write-Host "Downloading $ToolName..." -ForegroundColor Yellow
+
+        Invoke-WebRequest -Uri $Url -OutFile $DownloadPath -UserAgent [Microsoft.PowerShell.Commands.PSUserAgent]::FireFox
+
+        $calculatedChecksum = ( Get-FileHash -Algorithm SHA256 $DownloadPath ).Hash
+        if( $calculatedChecksum -ne $Checksum )
+        {
+            Remove-Item -Path $DownloadPath
+            Write-Error "Invalid checksum for $ToolName, expected: $cmakeChecksum actual: $calculatedChecksum"
+            Exit 1
+        }
+
+        if( $ExtractZip )
+        {
+            Write-Host "Extracting $ToolName" -ForegroundColor Yellow
+            unzip $DownloadPath $supportPathRoot
+            if (!$?) {
+                Write-Error "Unable to extract $ToolName"
+                Exit 2
+            }
+
+            if( $ZipRelocate )
+            {
+                $folders = Get-ChildItem $ZipRelocateFilter -Directory
+                Move-Item $folders $DestPath
+            }
+        }
+        else 
+        {
+            Move-Item $DownloadPath $DestPath
+        }
+    }
+    else
+    {
+        Write-Host "$ToolName already exists" -ForegroundColor Green
+    }
+}
+
+
 function Start-Init {
     # The progress bar slows down download performance by absurd amounts, turn it off
     $ProgressPreference = 'SilentlyContinue'
 
-    if(![System.IO.Directory]::Exists( "$supportPathRoot/cmake" ))
-    {
-        Write-Host "Downloading CMake..." -ForegroundColor Yellow
-        Invoke-WebRequest -Uri $cmakeDownload -OutFile ($downloadsPathRoot+"cmake.zip")
-        Write-Host "Extracting Cmake" -ForegroundColor Yellow
-        unzip ($downloadsPathRoot+"cmake.zip") $supportPathRoot
+    Get-Tool -ToolName "CMake" `
+             -Url $cmakeDownload `
+             -DestPath ($supportPathRoot+'cmake/') `
+             -DownloadPath ($downloadsPathRoot+"cmake.zip") `
+             -Checksum $cmakeChecksum `
+             -ExtractZip $true `
+             -ZipRelocate $True `
+             -ZipRelocateFilter ($supportPathRoot+'cmake-*/')
 
-        $folder = Get-ChildItem ($supportPathRoot+'cmake-*/') -Directory
-        Move-Item $folder ($supportPathRoot+'cmake/')
-    }
-    else
-    {
-        Write-Host "Cmake already exists" -ForegroundColor Green
-    }
+    Get-Tool -ToolName "swigwin" `
+             -Url $swigwinDownload `
+             -DestPath ($supportPathRoot+'swigwin/') `
+             -DownloadPath ($downloadsPathRoot+"swigwin.zip") `
+             -Checksum $swigwinChecksum `
+             -ExtractZip $true `
+             -ZipRelocate $True `
+             -ZipRelocateFilter ($supportPathRoot+'swigwin-*/')
 
-    if(![System.IO.File]::Exists( "$supportPathRoot/vswhere.exe" ))
-    {
-        Write-Host "Downloading Vswhere..." -ForegroundColor Yellow
-        Invoke-WebRequest -Uri $vswhereDownload -OutFile ($supportPathRoot+"vswhere.exe")
-    }
-    else
-    {
-        Write-Host "vswhere already exists" -ForegroundColor Green
-    }
+    Get-Tool -ToolName "nsis" `
+             -Url $nsisDownload `
+             -DestPath ($supportPathRoot+'nsis/') `
+             -DownloadPath ($downloadsPathRoot+"nsis.zip") `
+             -Checksum $nsisChecksum `
+             -ExtractZip $true `
+             -ZipRelocate $True `
+             -ZipRelocateFilter ($supportPathRoot+'nsis-*/')
 
-    if(![System.IO.Directory]::Exists( "$supportPathRoot/swigwin" ))
-    {
-        Write-Host "Downloading Swigwin..." -ForegroundColor Yellow
-        Invoke-WebRequest -Uri $swigwinDownload -OutFile ($downloadsPathRoot+"swigwin.zip") -UserAgent [Microsoft.PowerShell.Commands.PSUserAgent]::FireFox
-        
-        Write-Host "Extracting Swigwin" -ForegroundColor Yellow
-        unzip ($downloadsPathRoot+"swigwin.zip") $supportPathRoot
-
-        
-        $folder = Get-ChildItem ($supportPathRoot+'swigwin-*/') -Directory
-        Move-Item $folder ($supportPathRoot+'swigwin/')
-    }
-    else
-    {
-        Write-Host "swigwin already exists" -ForegroundColor Green
-    }
+    Get-Tool -ToolName "vswhere" `
+             -Url $vswhereDownload `
+             -DestPath ($supportPathRoot+'vswhere.exe') `
+             -DownloadPath ($downloadsPathRoot+"vswhere.exe") `
+             -Checksum $vswhereChecksum `
+             -ExtractZip $False
 
     ### Download Kicad
     if(![System.IO.Directory]::Exists("$PSScriptRoot/kicad/"))
