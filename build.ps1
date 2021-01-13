@@ -112,19 +112,19 @@ $settings = Merge-HashTable -default $settingDefault -uppend $settingsSaved
 function Set-Aliases()
 {
     $tmp = Join-Path -Path $settings.VcpkgPath -ChildPath "vcpkg.exe"
-    Set-Alias vcpkg $tmp -Option AllScope
+    Set-Alias vcpkg $tmp -Option AllScope -Scope Global
 
     $tmp = Join-Path -Path $PSScriptRoot -ChildPath "tools/7zip/7za.exe"
-    Set-Alias 7zip $tmp -Option AllScope
+    Set-Alias 7zip $tmp -Option AllScope -Scope Global
     
     $tmp = Join-Path -Path $supportPathRoot -ChildPath "vswhere.exe"
-    Set-Alias vswhere $tmp -Option AllScope
+    Set-Alias vswhere $tmp -Option AllScope -Scope Global
     
     $tmp = Join-Path -Path $supportPathRoot -ChildPath "cmake/bin/cmake.exe"
-    Set-Alias cmake $tmp -Option AllScope
+    Set-Alias cmake $tmp -Option AllScope -Scope Global
     
     $tmp = Join-Path -Path $supportPathRoot -ChildPath "nsis/bin/makensis.exe"
-    Set-Alias makensis $tmp -Option AllScope
+    Set-Alias makensis $tmp -Option AllScope -Scope Global
 }
 
 ## Invoke it
@@ -535,8 +535,28 @@ function Start-Package {
     ## now python3
     $python3Source = "$vcpkgInstalledRoot\tools\python3\"
     $python3Dest = "$destRoot\lib\"
-    Write-Host "Copying python3 $source to $python3Dest" -ForegroundColor Yellow
+    Write-Host "Copying python3 $python3Source to $python3Dest" -ForegroundColor Yellow
     Copy-Item $python3Source -Destination $python3Dest -Recurse -Container  -Force
+
+    ## now nsis
+    $nsisSource = Join-Path -Path $PSScriptRoot -ChildPath "nsis\"
+    Write-Host "Copying nsis $nsisSource to $nsisDest" -ForegroundColor Yellow
+    Copy-Item $nsisSource -Destination $destRoot -Recurse -Container -Force
+
+    ## Run NSIS
+    $nsisScript = Join-Path -Path $destRoot -ChildPath "nsis\install.nsi"
+    $packageVersion = ""
+    $kicadVersion = ""
+
+    Write-Host "Copying LICENSE.README as copyright.txt" -ForegroundColor Yellow
+    Copy-Item "$PSScriptRoot/kicad/LICENSE.README" -Destination "$destRoot\COPYRIGHT.txt" -Force
+
+    makensis /DPACKAGE_VERSION=$packageVersion `
+        /DKICAD_VERSION=$kicadVersion `
+        /DOUTFILE="..\kicad-$packageVersion-$arch.exe" `
+        /DARCH="$arch" `
+        "$nsisScript"
+
 }
 
 
