@@ -113,14 +113,17 @@ function Set-Aliases()
     $tmp = Join-Path -Path $settings.VcpkgPath -ChildPath "vcpkg.exe"
     Set-Alias vcpkg $tmp -Option AllScope
 
-    $tmp = Join-Path -Path $PSScriptRoot -ChildPath "/tools/7zip/7za.exe"
+    $tmp = Join-Path -Path $PSScriptRoot -ChildPath "tools/7zip/7za.exe"
     Set-Alias 7zip $tmp -Option AllScope
     
     $tmp = Join-Path -Path $supportPathRoot -ChildPath "vswhere.exe"
     Set-Alias vswhere $tmp -Option AllScope
     
-    $tmp = Join-Path -Path $settings.VcpkgPath -ChildPath "cmake/bin/cmake.exe"
+    $tmp = Join-Path -Path $supportPathRoot -ChildPath "cmake/bin/cmake.exe"
     Set-Alias cmake $tmp -Option AllScope
+    
+    $tmp = Join-Path -Path $supportPathRoot -ChildPath "nsis/bin/makensis.exe"
+    Set-Alias makensis $tmp -Option AllScope
 }
 
 ## Invoke it
