@@ -40,6 +40,7 @@ param(
 
     [Parameter(Mandatory=$False, ParameterSetName="build")]
     [Parameter(Mandatory=$False, ParameterSetName="vcpkg")]
+    [Parameter(Mandatory=$False, ParameterSetName="package")]
     [ValidateSet('x86', 'x64')]
     [string]$Arch = 'x64',
 
@@ -483,20 +484,59 @@ function Start-Package {
 
     $triplet = Get-Vcpkg-Triplet -Arch $arch
 
-    $vcpkgInstalledRoot = Join-Path -Path $settings.VcpkgPath -ChildPath "installed\$triplet\"
+    $vcpkgInstalledRoot = Join-Path -Path $settings["VcpkgPath"] -ChildPath "installed\$triplet\"
     $destRoot = Join-Path -Path $PSScriptRoot -ChildPath ".out\$triplet\"
 
     $vcpkgBinCopy = @( "boost*",
                         "TK*",
-                        "wx*"
+                        "wx*",
+                        "jpeg62*",
+                        "libpng16*",
+                        "tiff*",
+                        "zlib*",
+                        "libcurl*",
+                        "python*",
+                        "glew32*",
+                        "cairo*",
+                        "libexpat*",
+                        "lzma*",
+                        "fontconfig*",
+                        "freetype*",
+                        "bz2*",
+                        "brotli*",
+                        "charset*",
+                        "libwebpmux*",
+                        "libcrypto*",
+                        "libssl*",
+                        "libffi*",
+                        "ngspice*",
+                        "pthread*",
+                        "turbojpeg*",
+                        "zstd*",
+                        "sqlite*",
+                        "icu*",
+                        "iconv*",
+                        "intl*"
                     )
 
-    for ($i = 0; $i -lt $vcpkgBinCopy.Count; $i++) {
-        Copy-Item ("$vcpkgInstalledRoot\bin\$vcpkgBinCopy[$i]") -Destination "$destRoot\bin\" -Recurse
+                        
+    $vcpkgInstalledBin = Join-Path -Path $vcpkgInstalledRoot -ChildPath "bin\"
+    $destBin = Join-Path -Path $destRoot -ChildPath "bin\"
+
+    Write-Host "Copying from $vcpkgInstalledBin to $destBin" -ForegroundColor Yellow
+    foreach( $copyFilter in $vcpkgBinCopy ) 
+    {
+        $source = "$vcpkgInstalledBin\$copyFilter"
+        
+        Write-Host "Copying $source" -ForegroundColor Green
+        Copy-Item $source -Destination $destBin -Recurse
     }
 
     ## now python3
-    Copy-Item ("$vcpkgInstalled\tools\python3\*") -Destination "$destPath\lib\python3" -Recurse
+    $python3Source = "$vcpkgInstalledRoot\tools\python3\"
+    $python3Dest = "$destRoot\lib\"
+    Write-Host "Copying python3 $source to $python3Dest" -ForegroundColor Yellow
+    Copy-Item $python3Source -Destination $python3Dest -Recurse -Container  -Force
 }
 
 
@@ -551,5 +591,5 @@ if( $Build )
 
 if( $Package )
 {
-    Start-Package
+    Start-Package -arch $Arch
 }
