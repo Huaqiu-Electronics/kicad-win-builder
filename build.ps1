@@ -156,13 +156,49 @@ function Get-MSVC-Arch()
     $msvc = "amd64"
     switch ($Arch)
     {
-        [Arch]::x64   {$msvc = "amd64"}
-        [Arch]::x86   {$msvc = "x86"}
-        [Arch]::arm32 {$msvc = "arm"}
-        [Arch]::arm64 {$msvc = "arm64"}
+        {[Arch]::x64} {
+            $msvc = "amd64"
+            break   
+        }
+        {[Arch]::x86} {
+            $msvc = "x86"
+            break   
+        }
+        {[Arch]::arm32} {
+            $msvc = "arm"
+            break   
+        }
+        {[Arch]::arm64} {
+            $msvc = "arm64"
+            break   
+        }
     }
 
     return $msvc
+}
+
+function Get-NSIS-Arch()
+{
+    [CmdletBinding()]
+    param (
+        [Parameter()]
+        [Arch]$Arch
+    )
+
+    $nsis = ""
+    switch ($Arch)
+    {
+        {[Arch]::x64} {
+            $nsis = "x86_64"
+            break
+        }
+        {[Arch]::x86} {
+            $nsis = "i686"
+            break   
+        }
+    }
+
+    return $nsis
 }
 
 function Set-VC-Environment()
@@ -520,6 +556,8 @@ function Start-Package {
 
     $packageVersion = Get-KiCad-PackageVersion
     $kicadVersion = Get-KiCad-Version
+
+    $nsisArch = Get-NSIS-Arch -Arch $arch
     
     Write-Host "Package Version: $packageVersion"
     Write-Host "KiCad Version: $kicadVersion"
@@ -593,8 +631,8 @@ function Start-Package {
 
     makensis /DPACKAGE_VERSION=$packageVersion `
         /DKICAD_VERSION=$kicadVersion `
-        /DOUTFILE="..\kicad-$packageVersion-$arch.exe" `
-        /DARCH="$arch" `
+        /DOUTFILE="..\kicad-$packageVersion-$nsisArch.exe" `
+        /DARCH="$nsisArch" `
         "$nsisScript"
 
         
