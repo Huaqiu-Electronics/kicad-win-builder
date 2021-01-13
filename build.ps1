@@ -60,6 +60,16 @@ enum Arch {
     arm64
 }
 
+enum ExitCodes {
+    Ok = 0
+    DownloadChecksumFailure = 1
+    VcpkgInstallPortsFailure = 2
+    CMakeGenerationFailure = 3
+    CMakeBuildFailure = 4
+    CMakeInstallFailure = 5
+    NsisFailure = 6
+}
+
 ### 
 ## Base setup
 ### 
@@ -111,6 +121,7 @@ $settings = Merge-HashTable -default $settingDefault -uppend $settingsSaved
 
 function Set-Aliases()
 {
+    Write-Host "Configuring tool aliases"
     $tmp = Join-Path -Path $settings.VcpkgPath -ChildPath "vcpkg.exe"
     Set-Alias vcpkg $tmp -Option AllScope -Scope Global
 
@@ -228,7 +239,6 @@ function Build-Kicad {
     Set-VC-Environment -Arch $arch
 
     $cmakeBuildFolder = "build/$triplet"
-
     $generator = "Ninja";
 
     #delete the old build folder
@@ -260,18 +270,21 @@ function Build-Kicad {
 
     if (!$?) {
         Write-Error "Failure generating cmake"
+        Exit [ExitCodes]::CMakeGenerationFailure
     } else {
         Write-Host "Invoking cmake build" -ForegroundColor Yellow
         cmake --build $cmakeBuildFolder -j 16
         
         if (!$?) {
             Write-Error "Failure with cmake build"
+            Exit [ExitCodes]::CMakeBuildFailure
         } else {
             Write-Host "Invoking cmake install" -ForegroundColor Yellow
             cmake --install $cmakeBuildFolder
             
             if (!$?) {
                 Write-Error "Failure with cmake install"
+                Exit [ExitCodes]::CMakeInstallFailure
             } else {
                 Write-Host "Build complete" -ForegroundColor Green
             }
@@ -320,7 +333,8 @@ function Get-Tool {
         {
             Remove-Item -Path $DownloadPath
             Write-Error "Invalid checksum for $ToolName, expected: $cmakeChecksum actual: $calculatedChecksum"
-            Exit 1
+            
+            Exit [ExitCodes]::DownloadChecksumFailure
         }
 
         if( $ExtractZip )
@@ -424,6 +438,8 @@ function Build-Vcpkg {
 
     # Setup dependencies
     $triplet = Get-Vcpkg-Triplet -Arch $arch
+
+
     $dependencies = @( "boost",
                         "cairo",
                         "curl", 
@@ -444,10 +460,12 @@ function Build-Vcpkg {
     for ($i = 0; $i -lt $dependencies.Count; $i++) {
         $dependencies[$i] = $dependencies[$i]+":$triplet"
     }
+    
     vcpkg install $dependencies
     
     if (!$?) {
         Write-Error "Failure installing vcpkg ports"
+        Exit [ExitCodes]::VcpkgInstallPortsFailure
     } else {
         Write-Host "vcpkg ports installed/updated" -ForegroundColor Green
     }
@@ -502,6 +520,9 @@ function Start-Package {
 
     $packageVersion = Get-KiCad-PackageVersion
     $kicadVersion = Get-KiCad-Version
+    
+    Write-Host "Package Version: $packageVersion"
+    Write-Host "KiCad Version: $kicadVersion"
 
     $triplet = Get-Vcpkg-Triplet -Arch $arch
 
@@ -549,25 +570,25 @@ function Start-Package {
     {
         $source = "$vcpkgInstalledBin\$copyFilter"
         
-        Write-Host "Copying $source" -ForegroundColor Green
+        Write-Host "Copying $source"
         Copy-Item $source -Destination $destBin -Recurse
     }
 
     ## now python3
     $python3Source = "$vcpkgInstalledRoot\tools\python3\"
     $python3Dest = "$destRoot\lib\"
-    Write-Host "Copying python3 $python3Source to $python3Dest" -ForegroundColor Yellow
+    Write-Host "Copying python3 $python3Source to $python3Dest"
     Copy-Item $python3Source -Destination $python3Dest -Recurse -Container  -Force
 
     ## now nsis
     $nsisSource = Join-Path -Path $PSScriptRoot -ChildPath "nsis\"
-    Write-Host "Copying nsis $nsisSource to $nsisDest" -ForegroundColor Yellow
+    Write-Host "Copying nsis $nsisSource to $nsisDest"
     Copy-Item $nsisSource -Destination $destRoot -Recurse -Container -Force
 
     ## Run NSIS
     $nsisScript = Join-Path -Path $destRoot -ChildPath "nsis\install.nsi"
 
-    Write-Host "Copying LICENSE.README as copyright.txt" -ForegroundColor Yellow
+    Write-Host "Copying LICENSE.README as copyright.txt"
     Copy-Item "$PSScriptRoot/kicad/LICENSE.README" -Destination "$destRoot\COPYRIGHT.txt" -Force
 
     makensis /DPACKAGE_VERSION=$packageVersion `
@@ -576,6 +597,11 @@ function Start-Package {
         /DARCH="$arch" `
         "$nsisScript"
 
+        
+    if (!$?) {
+        Write-Error "Error building nsis package"
+        Exit [ExitCodes]::NsisFailure
+    }
 }
 
 
