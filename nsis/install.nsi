@@ -420,7 +420,7 @@ Section $(TITLE_SEC_MAIN) SEC01
   SetOutPath "$INSTDIR\share\kicad\internat"
   File /nonfatal /r "..\share\kicad\internat\*"
   SetOutPath "$INSTDIR\ssl\certs"
-  File "..\ssl\certs\ca-bundle.crt"
+  File /nonfatal "..\ssl\certs\ca-bundle.crt"
 
   ${RegisterApplication} "kicad.exe" $(APP_FRIENDLY_KICAD)
   ${RegisterApplication} "pcbnew.exe" $(APP_FRIENDLY_PCBNEW)
