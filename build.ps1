@@ -475,12 +475,33 @@ function Merge-HashTable {
     return $defaultClone + $uppend;
 }
 
+function Get-KiCad-PackageVersion {
+    Push-Location "$PSScriptRoot\kicad"
+
+    $revCount = (git rev-list --count HEAD)
+    $commitHash = (git rev-parse HEAD).Substring(0,10)
+
+    Pop-Location
+
+    return "msvc.r$revCount.$commitHash"
+}
+
+function Get-KiCad-Version {
+    $srcFile = "$PSScriptRoot\kicad\CMakeModules\KiCadVersion.cmake"
+    $result = Select-String -Path $srcFile -Pattern '(?<=KICAD_SEMANTIC_VERSION\s")([0-9]+).([0-9])+' -AllMatches | % { $_.Matches } | % { $_.Value } | Select-Object -First 1
+    
+    return $result
+}
+
 function Start-Package {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$True)]
         [Arch]$arch
     )
+
+    $packageVersion = Get-KiCad-PackageVersion
+    $kicadVersion = Get-KiCad-Version
 
     $triplet = Get-Vcpkg-Triplet -Arch $arch
 
@@ -545,8 +566,6 @@ function Start-Package {
 
     ## Run NSIS
     $nsisScript = Join-Path -Path $destRoot -ChildPath "nsis\install.nsi"
-    $packageVersion = ""
-    $kicadVersion = ""
 
     Write-Host "Copying LICENSE.README as copyright.txt" -ForegroundColor Yellow
     Copy-Item "$PSScriptRoot/kicad/LICENSE.README" -Destination "$destRoot\COPYRIGHT.txt" -Force
