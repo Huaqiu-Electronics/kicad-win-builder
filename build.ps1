@@ -513,7 +513,7 @@ function Set-Config {
 }
 
 function Get-Latest-Kicad {
-    Push-Location ($PSScriptRoot+"kicad")
+    Push-Location "$PSScriptRoot/kicad"
     git reset --hard origin/master
     git clean -f
     git pull --rebase
