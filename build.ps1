@@ -112,6 +112,25 @@ if ( Test-Path $settingsPath ) {
 
     $settingsObj.psobject.properties | Foreach { $settingsSaved[$_.Name] = $_.Value }
 }
+function Merge-HashTable {
+    param(
+        [hashtable] $default,
+        [hashtable] $uppend
+    )
+
+    # Clone for idempotence
+    $defaultClone = $default.Clone();
+
+    # Remove keys that exist in both uppend and default from default
+    foreach ($key in $uppend.Keys) {
+        if ($defaultClone.ContainsKey($key)) {
+            $defaultClone.Remove($key);
+        }
+    }
+
+    # Union both sets
+    return $defaultClone + $uppend;
+}
 
 $settings = Merge-HashTable -default $settingDefault -uppend $settingsSaved
 
@@ -218,7 +237,7 @@ function Set-VC-Environment()
     $msvcHostArch = Get-MSVC-Arch -Arch $HostArch
 
     # prepare the arguments array with the arch info
-    $Arguments = @("-arch") + $msvcArch + @("-host_arch") + $msvcHostArch + $Arguments
+    $Arguments = @("-arch=$msvcArch") + @("-host_arch=$msvcHostArch") + $Arguments
 
     $installDir = vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
     if ($installDir) {
@@ -306,6 +325,7 @@ function Build-Kicad {
 
     if (!$?) {
         Write-Error "Failure generating cmake"
+        Pop-Location
         Exit [ExitCodes]::CMakeGenerationFailure
     } else {
         Write-Host "Invoking cmake build" -ForegroundColor Yellow
@@ -313,6 +333,7 @@ function Build-Kicad {
         
         if (!$?) {
             Write-Error "Failure with cmake build"
+            Pop-Location
             Exit [ExitCodes]::CMakeBuildFailure
         } else {
             Write-Host "Invoking cmake install" -ForegroundColor Yellow
@@ -320,6 +341,7 @@ function Build-Kicad {
             
             if (!$?) {
                 Write-Error "Failure with cmake install"
+                Pop-Location
                 Exit [ExitCodes]::CMakeInstallFailure
             } else {
                 Write-Host "Build complete" -ForegroundColor Green
@@ -507,26 +529,6 @@ function Build-Vcpkg {
     }
 
     Pop-Location
-}
-
-function Merge-HashTable {
-    param(
-        [hashtable] $default,
-        [hashtable] $uppend
-    )
-
-    # Clone for idempotence
-    $defaultClone = $default.Clone();
-
-    # Remove keys that exist in both uppend and default from default
-    foreach ($key in $uppend.Keys) {
-        if ($defaultClone.ContainsKey($key)) {
-            $defaultClone.Remove($key);
-        }
-    }
-
-    # Union both sets
-    return $defaultClone + $uppend;
 }
 
 function Get-KiCad-PackageVersion {
