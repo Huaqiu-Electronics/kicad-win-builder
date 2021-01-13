@@ -478,8 +478,8 @@ function Merge-HashTable {
 function Get-KiCad-PackageVersion {
     Push-Location "$PSScriptRoot\kicad"
 
-    $revCount = (git rev-list --count HEAD)
-    $commitHash = (git rev-parse HEAD).Substring(0,10)
+    $revCount = (git rev-list --count --first-parent HEAD)
+    $commitHash = (git rev-parse --short HEAD)
 
     Pop-Location
 
