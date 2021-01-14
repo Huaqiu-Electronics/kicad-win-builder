@@ -247,7 +247,20 @@ function Set-VC-Environment()
             if ($version) {
                 $version = $version.Trim()
                 $path = join-path $installDir "Common7\tools\VsDevCmd.bat"
-                & $path $Arguments
+                $argString = $Arguments -join ' '
+
+                # what is this scary thing?
+                # We need to capture the environment variables set by vsdevcmd.bat
+                # We use json as an intermediate or else it may get broken by environment variables with spaces in them, json keeps the variables in tact
+                $json = $(& "${env:COMSPEC}" /s /c "`"$path`" -no_logo $argString && powershell -Command `"Get-ChildItem env: | Select-Object Key,Value | ConvertTo-Json`"")
+                if  (!$?) {
+                    Write-Error "Error extracting vsdevcmd.bat environment variables: $LASTEXITCODE"
+                } else {
+                    $($json | ConvertFrom-Json) | ForEach-Object {
+                        $k, $v = $_.Key, $_.Value
+                        Set-Content env:\"$k" "$v"
+                    }
+                }
             }
         }
     }
@@ -304,7 +317,7 @@ function Build-Kicad {
 
     
     $installPath = "$PSScriptRoot/.out/$triplet/"
-    $toolchainPath = ($settings["VcpkgPath"]+"scripts/buildsystems/vcpkg.cmake")
+    $toolchainPath = Join-Path -Path $settings["VcpkgPath"] -ChildPath "/scripts/buildsystems/vcpkg.cmake"
 
     cmake -G $generator `
         -B $cmakeBuildFolder `
