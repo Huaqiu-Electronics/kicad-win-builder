@@ -68,7 +68,12 @@ enum ExitCodes {
     CMakeBuildFailure = 4
     CMakeInstallFailure = 5
     NsisFailure = 6
+    DownloadExtractFailure = 7
+    GitCloneFailure = 8
 }
+
+# Load the .NET compression library, powershell's expand-archive is horrid in performance
+Add-Type -Assembly 'System.IO.Compression.FileSystem'
 
 ### 
 ## Base setup
@@ -144,9 +149,6 @@ function Set-Aliases()
     $tmp = Join-Path -Path $settings.VcpkgPath -ChildPath "vcpkg.exe"
     Set-Alias vcpkg $tmp -Option AllScope -Scope Global
 
-    $tmp = Join-Path -Path $PSScriptRoot -ChildPath "tools/7zip/7za.exe"
-    Set-Alias 7zip $tmp -Option AllScope -Scope Global
-    
     $tmp = Join-Path -Path $supportPathRoot -ChildPath "vswhere.exe"
     Set-Alias vswhere $tmp -Option AllScope -Scope Global
     
@@ -367,8 +369,16 @@ function Build-Kicad {
 }
 
 function Unzip([string] $zip, [string] $dest) {
-    $dest = "-o"+$dest;
-    7zip x $zip "$dest" -y
+    Write-Host "Extracting $zip to $dest"
+    Try
+    {
+        [System.IO.Compression.ZipFile]::ExtractToDirectory($zip, $dest)
+    }
+    Catch
+    {
+        Write-Error "Error trying to extract $zip"
+        Exit [ExitCodes]::DownloadExtractFailure
+    }
 }
 
 
@@ -478,6 +488,11 @@ function Start-Init {
     {
         Write-Host "Cloning kicad repo";
         git clone https://gitlab.com/kicad/code/kicad.git kicad
+        if (!$?)
+        {
+            Write-Error "Error cloning kicad repo"
+            Exit [ExitCodes]::GitCloneFailure
+        }
     }
 
     # Restore progress bar
