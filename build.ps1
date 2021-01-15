@@ -872,7 +872,7 @@ if( $Vcpkg )
 
 if( $Build )
 {
-    Start-Build -arch $Arch -buildType $BuildType -latest $latest
+    Start-Build -arch $Arch -buildType $BuildType -latest $Latest
 }
 
 if( $Package )
