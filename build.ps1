@@ -375,7 +375,7 @@ function Build-Library-Source {
         -S .  `
         -DCMAKE_INSTALL_PREFIX="$installPath" `
         -DCMAKE_RULE_MESSAGES:BOOL="OFF" `
-        -DCMAKE_VERBOSE_MAKEFILE:BOOL="ON"
+        -DCMAKE_VERBOSE_MAKEFILE:BOOL="OFF"
 
     if (!$?) {
         Write-Error "Failure generating cmake"
@@ -383,6 +383,7 @@ function Build-Library-Source {
         Exit [ExitCodes]::CMakeGenerationFailure
     }
 
+    Write-Host "Installing $libraryFolderName to output" -ForegroundColor Yellow
     cmake --install $cmakeBuildFolder
     if (!$?) {
         Write-Error "Failure with cmake install"
