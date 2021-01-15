@@ -349,7 +349,7 @@ function Get-Source {
     
 }
 
-function Get-Build-Path([string]$subfolder) {
+function Get-Source-Path([string]$subfolder) {
     return Join-Path -Path $buildPathRoot -ChildPath $subfolder
 }
 
@@ -359,15 +359,18 @@ function Build-Library-Source {
     param(
         [Parameter(Mandatory=$True)]
         [Arch]$arch,
+        [Parameter(Mandatory=$False)]
+        [ValidateSet('Release', 'Debug')]
+        [string]$buildType = 'Release',
         [string]$libraryFolderName
     )
     
-    Push-Location (Get-Build-Path $libraryFolderName)
+    Push-Location (Get-Source-Path $libraryFolderName)
 
-    $triplet = Get-Vcpkg-Triplet -Arch $arch
-    $installPath = Join-Path -Path $outPathRoot -ChildPath "$triplet/"
+    $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
+    $installPath = Join-Path -Path $outPathRoot -ChildPath "$buildName/"
 
-    $cmakeBuildFolder = "build/$triplet"
+    $cmakeBuildFolder = "build/$buildName"
     $generator = "Ninja"
 
     cmake -G $generator `
@@ -405,14 +408,14 @@ function Build-Kicad {
         [bool]$fresh = $False
     )
 
-    $triplet = Get-Vcpkg-Triplet -Arch $arch
+    $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
 
     #step down into kicad folder
-    Push-Location (Get-Build-Path kicad)
+    Push-Location (Get-Source-Path kicad)
 
     Set-VC-Environment -Arch $arch
 
-    $cmakeBuildFolder = "build/$triplet"
+    $cmakeBuildFolder = "build/$buildName"
     $generator = "Ninja"
 
     #delete the old build folderhttps://gitlab.com/kicad/code/kicad.git
@@ -422,7 +425,7 @@ function Build-Kicad {
     }
 
     
-    $installPath = Join-Path -Path $outPathRoot -ChildPath "$triplet/"
+    $installPath = Join-Path -Path $outPathRoot -ChildPath "$buildName/"
     $toolchainPath = Join-Path -Path $settings["VcpkgPath"] -ChildPath "/scripts/buildsystems/vcpkg.cmake"
 
     cmake -G $generator `
@@ -484,27 +487,27 @@ function Start-Build {
     )
 
     Get-Source -url https://gitlab.com/kicad/code/kicad.git `
-               -dest (Get-Build-Path kicad) `
+               -dest (Get-Source-Path kicad) `
                -sourceType git `
                -latest $latest
 
     Get-Source -url https://gitlab.com/kicad/libraries/kicad-symbols.git `
-               -dest (Get-Build-Path kicad-symbols) `
+               -dest (Get-Source-Path kicad-symbols) `
                -sourceType git `
                -latest $latest
 
     Get-Source -url https://gitlab.com/kicad/libraries/kicad-footprints.git `
-               -dest (Get-Build-Path kicad-footprints) `
+               -dest (Get-Source-Path kicad-footprints) `
                -sourceType git `
                -latest $latest
 
     Get-Source -url https://gitlab.com/kicad/libraries/kicad-packages3D.git `
-               -dest (Get-Build-Path kicad-packages3D) `
+               -dest (Get-Source-Path kicad-packages3D) `
                -sourceType git `
                -latest $latest
 
     Get-Source -url https://gitlab.com/kicad/libraries/kicad-templates.git `
-               -dest (Get-Build-Path kicad-templates) `
+               -dest (Get-Source-Path kicad-templates) `
                -sourceType git `
                -latest $latest
 
@@ -639,11 +642,25 @@ function Get-Vcpkg-Triplet {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$True)]
-        [Arch]$arch
+        [Arch]$Arch
     )
 
-    $triplet = "$arch-windows"
+    $triplet = "$Arch-windows"
     return $triplet;
+}
+
+
+function Get-Build-Name {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [Arch]$Arch,
+        [Parameter(Mandatory=$True)]
+        [ValidateSet('Release', 'Debug')]
+        [string]$BuildType
+    )
+
+    return "$Arch-windows-$BuildType";
 }
 
 
@@ -696,7 +713,7 @@ function Build-Vcpkg {
 }
 
 function Get-KiCad-PackageVersion {
-    Push-Location (Get-Build-Path kicad)
+    Push-Location (Get-Source-Path kicad)
 
     $revCount = (git rev-list --count --first-parent HEAD)
     $commitHash = (git rev-parse --short HEAD)
@@ -707,7 +724,7 @@ function Get-KiCad-PackageVersion {
 }
 
 function Get-KiCad-Version {
-    $srcFile = Join-Path -Path (Get-Build-Path kicad) -ChildPath "CMakeModules\KiCadVersion.cmake"
+    $srcFile = Join-Path -Path (Get-Source-Path kicad) -ChildPath "CMakeModules\KiCadVersion.cmake"
     $result = Select-String -Path $srcFile -Pattern '(?<=KICAD_SEMANTIC_VERSION\s")([0-9]+).([0-9])+' -AllMatches | % { $_.Matches } | % { $_.Value } | Select-Object -First 1
     
     return $result
@@ -717,7 +734,10 @@ function Start-Package {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$True)]
-        [Arch]$arch
+        [Arch]$arch,
+        [Parameter(Mandatory=$False)]
+        [ValidateSet('Release', 'Debug')]
+        [string]$buildType = "Release"
     )
 
     $packageVersion = Get-KiCad-PackageVersion
@@ -729,9 +749,16 @@ function Start-Package {
     Write-Host "KiCad Version: $kicadVersion"
 
     $triplet = Get-Vcpkg-Triplet -Arch $arch
+    $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
 
     $vcpkgInstalledRoot = Join-Path -Path $settings["VcpkgPath"] -ChildPath "installed\$triplet\"
-    $destRoot = Join-Path -Path $PSScriptRoot -ChildPath ".out\$triplet\"
+    $vcpkgInstalledRootPrimary = $vcpkgInstalledRoot
+    $destRoot = Join-Path -Path $PSScriptRoot -ChildPath ".out\$buildName\"
+
+    if( $buildType -eq 'Debug' )
+    {
+        $vcpkgInstalledRoot = Join-Path -Path $vcpkgInstalledRoot -ChildPath "debug"
+    }
 
     $vcpkgBinCopy = @( "boost*",
                         "TK*",
@@ -779,7 +806,7 @@ function Start-Package {
     }
 
     ## now python3
-    $python3Source = "$vcpkgInstalledRoot\tools\python3\"
+    $python3Source = "$vcpkgInstalledRootPrimary\tools\python3\"
     $python3Dest = "$destRoot\lib\"
     Write-Host "Copying python3 $python3Source to $python3Dest"
     Copy-Item $python3Source -Destination $python3Dest -Recurse -Container  -Force
@@ -793,7 +820,9 @@ function Start-Package {
     $nsisScript = Join-Path -Path $destRoot -ChildPath "nsis\install.nsi"
 
     Write-Host "Copying LICENSE.README as copyright.txt"
-    Copy-Item "$PSScriptRoot/kicad/LICENSE.README" -Destination "$destRoot\COPYRIGHT.txt" -Force
+
+    $readmeSrc = Join-Path -Path (Get-Source-Path kicad) -ChildPath "LICENSE.README"
+    Copy-Item $readmeSrc -Destination "$destRoot\COPYRIGHT.txt" -Force
 
     makensis /DPACKAGE_VERSION=$packageVersion `
         /DKICAD_VERSION=$kicadVersion `
