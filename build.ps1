@@ -94,6 +94,8 @@ $nsisChecksum = "D463AD11AA191AB5AE64EDB3A439A4A4A7A3E277FCB138254317254F7111FBA
 
 $downloadsPathRoot = ($PSScriptRoot+"/.downloads/")
 $supportPathRoot = ($PSScriptRoot+"/.support/")
+$buildPathRoot = ($PSScriptRoot+"/.build/")
+$outPathRoot = ($PSScriptRoot+"/.out/")
 
 $swigWinPath = ($supportPathRoot+"/swigwin")
 
@@ -289,6 +291,107 @@ function Reset-Env-Path {
     Reset-Env Path
 }
 
+enum SourceType {
+    git
+    tar
+}
+
+function Get-Source {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [string]$url,
+        [Parameter(Mandatory=$True)]
+        [string]$dest,
+        [Parameter(Mandatory=$True)]
+        [SourceType]$sourceType,
+        [Parameter(Mandatory=$False)]
+        [bool]$latest = $False
+    )
+
+    if(![System.IO.Directory]::Exists($dest))
+    {
+        if($sourceType -eq [SourceType]::git)
+        {
+            & git clone "$url" "$dest"
+            
+            if (!$?)
+            {
+                Write-Error "Error cloning kicad repo"
+                Exit [ExitCodes]::GitCloneFailure
+            }
+        }
+        elseif($sourceType -eq [SourceType]::tar)
+        {
+            
+        }
+    }
+    elseif($latest)
+    {
+        if($sourceType -eq [SourceType]::git)
+        {
+            & "git -C '$dest' reset @{upstream}"
+            & "git -C '$dest' clean -f"
+            & "git -C '$dest' pull --rebase"
+            
+            if (!$?)
+            {
+                Write-Error "Error cloning kicad repo"
+                Exit [ExitCodes]::GitCloneFailure
+            }
+        }
+        elseif($sourceType -eq [SourceType]::tar)
+        {
+            
+        }
+    }
+
+    
+}
+
+function Get-Build-Path([string]$subfolder) {
+    return Join-Path -Path $buildPathRoot -ChildPath $subfolder
+}
+
+
+function Build-Library-Source {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [Arch]$arch,
+        [string]$libraryFolderName
+    )
+    
+    Push-Location (Get-Build-Path $libraryFolderName)
+
+    $triplet = Get-Vcpkg-Triplet -Arch $arch
+    $installPath = Join-Path -Path $outPathRoot -ChildPath "$triplet/"
+
+    $cmakeBuildFolder = "build/$triplet"
+    $generator = "Ninja"
+
+    cmake -G $generator `
+        -B $cmakeBuildFolder `
+        -S .  `
+        -DCMAKE_INSTALL_PREFIX="$installPath" `
+        -DCMAKE_RULE_MESSAGES:BOOL="OFF" `
+        -DCMAKE_VERBOSE_MAKEFILE:BOOL="ON"
+
+    if (!$?) {
+        Write-Error "Failure generating cmake"
+        Pop-Location
+        Exit [ExitCodes]::CMakeGenerationFailure
+    }
+
+    cmake --install $cmakeBuildFolder
+    if (!$?) {
+        Write-Error "Failure with cmake install"
+        Pop-Location
+        Exit [ExitCodes]::CMakeInstallFailure
+    }
+    Pop-Location
+}
+
 function Build-Kicad {
     [CmdletBinding()]
     param(
@@ -304,21 +407,21 @@ function Build-Kicad {
     $triplet = Get-Vcpkg-Triplet -Arch $arch
 
     #step down into kicad folder
-    Push-Location "$PSScriptRoot\kicad"
+    Push-Location (Get-Build-Path kicad)
 
     Set-VC-Environment -Arch $arch
 
     $cmakeBuildFolder = "build/$triplet"
-    $generator = "Ninja";
+    $generator = "Ninja"
 
-    #delete the old build folder
+    #delete the old build folderhttps://gitlab.com/kicad/code/kicad.git
     if($fresh)
     {
         Remove-Item $cmakeBuildFolder -Recurse -ErrorAction SilentlyContinue
     }
 
     
-    $installPath = "$PSScriptRoot/.out/$triplet/"
+    $installPath = Join-Path -Path $outPathRoot -ChildPath "$triplet/"
     $toolchainPath = Join-Path -Path $settings["VcpkgPath"] -ChildPath "/scripts/buildsystems/vcpkg.cmake"
 
     cmake -G $generator `
@@ -366,6 +469,49 @@ function Build-Kicad {
 
     #restore path
     Pop-Location
+}
+function Start-Build {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [Arch]$arch,
+        [Parameter(Mandatory=$False)]
+        [ValidateSet('Release', 'Debug')]
+        [string]$buildType = 'Release',
+        [Parameter(Mandatory=$False)]
+        [bool]$latest = $False
+    )
+
+    Get-Source -url https://gitlab.com/kicad/code/kicad.git `
+               -dest (Get-Build-Path kicad) `
+               -sourceType git `
+               -latest $latest
+
+    Get-Source -url https://gitlab.com/kicad/libraries/kicad-symbols.git `
+               -dest (Get-Build-Path kicad-symbols) `
+               -sourceType git `
+               -latest $latest
+
+    Get-Source -url https://gitlab.com/kicad/libraries/kicad-footprints.git `
+               -dest (Get-Build-Path kicad-footprints) `
+               -sourceType git `
+               -latest $latest
+
+    Get-Source -url https://gitlab.com/kicad/libraries/kicad-packages3D.git `
+               -dest (Get-Build-Path kicad-packages3D) `
+               -sourceType git `
+               -latest $latest
+
+    Get-Source -url https://gitlab.com/kicad/libraries/kicad-templates.git `
+               -dest (Get-Build-Path kicad-templates) `
+               -sourceType git `
+               -latest $latest
+
+    Build-KiCad -arch $arch -buildType $buildType
+    Build-Library-Source -arch $arch -libraryFolderName kicad-symbols
+    Build-Library-Source -arch $arch -libraryFolderName kicad-footprints
+    Build-Library-Source -arch $arch -libraryFolderName kicad-packages3D
+    Build-Library-Source -arch $arch -libraryFolderName kicad-templates
 }
 
 function Unzip([string] $zip, [string] $dest) {
@@ -421,7 +567,7 @@ function Get-Tool {
         if( $ExtractZip )
         {
             Write-Host "Extracting $ToolName" -ForegroundColor Yellow
-            unzip $DownloadPath $supportPathRoot
+            Unzip $DownloadPath $supportPathRoot
             if (!$?) {
                 Write-Error "Unable to extract $ToolName"
                 Exit 2
@@ -483,17 +629,6 @@ function Start-Init {
              -Checksum $vswhereChecksum `
              -ExtractZip $False
 
-    ### Download Kicad
-    if(![System.IO.Directory]::Exists("$PSScriptRoot/kicad/"))
-    {
-        Write-Host "Cloning kicad repo";
-        git clone https://gitlab.com/kicad/code/kicad.git kicad
-        if (!$?)
-        {
-            Write-Error "Error cloning kicad repo"
-            Exit [ExitCodes]::GitCloneFailure
-        }
-    }
 
     # Restore progress bar
     $ProgressPreference = 'Continue'
@@ -685,13 +820,6 @@ function Set-Config {
     $settings | ConvertTo-Json -Compress | Set-Content -Path $settingsPath
 }
 
-function Get-Latest-Kicad {
-    Push-Location "$PSScriptRoot/kicad"
-    git reset --hard origin/master
-    git clean -f
-    git pull --rebase
-    Pop-Location
-}
 
 ###
 # Decode and execute the selected script stage
@@ -712,14 +840,9 @@ if( $Vcpkg )
     Build-Vcpkg -arch $Arch
 }
 
-if( $Latest )
-{
-    Get-Latest-Kicad
-}
-
 if( $Build )
 {
-    Build-KiCad -arch $Arch -buildType $BuildType
+    Start-Build -arch $Arch -buildType $BuildType -latest $latest
 }
 
 if( $Package )
