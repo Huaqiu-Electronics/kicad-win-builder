@@ -696,7 +696,7 @@ function Build-Vcpkg {
 }
 
 function Get-KiCad-PackageVersion {
-    Push-Location "$PSScriptRoot\kicad"
+    Push-Location (Get-Build-Path kicad)
 
     $revCount = (git rev-list --count --first-parent HEAD)
     $commitHash = (git rev-parse --short HEAD)
@@ -707,7 +707,7 @@ function Get-KiCad-PackageVersion {
 }
 
 function Get-KiCad-Version {
-    $srcFile = "$PSScriptRoot\kicad\CMakeModules\KiCadVersion.cmake"
+    $srcFile = Join-Path -Path (Get-Build-Path kicad) -ChildPath "CMakeModules\KiCadVersion.cmake"
     $result = Select-String -Path $srcFile -Pattern '(?<=KICAD_SEMANTIC_VERSION\s")([0-9]+).([0-9])+' -AllMatches | % { $_.Matches } | % { $_.Value } | Select-Object -First 1
     
     return $result
