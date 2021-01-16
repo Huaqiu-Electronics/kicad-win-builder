@@ -388,7 +388,7 @@ function Build-Library-Source {
     }
 
     Write-Host "Installing $libraryFolderName to output" -ForegroundColor Yellow
-    cmake --install $cmakeBuildFolder
+    cmake --install $cmakeBuildFolder > $null
     if (!$?) {
         Write-Error "Failure with cmake install"
         Pop-Location
