@@ -9,7 +9,7 @@
 #   ./build.ps1 -Init
 #   
 #   Rebuilds vcpkg dependencies (if updated)
-#   ./build.ps1 -Vcpkg
+#   ./build.ps1 -Vcpkg -Latest
 #   
 #   Triggers a build
 #   ./build.ps1 -Build -Latest
@@ -36,6 +36,7 @@ param(
     [Switch]$Package,
 
     [Parameter(Mandatory=$False, ParameterSetName="build")]
+    [Parameter(Mandatory=$False, ParameterSetName="vcpkg")]
     [Switch]$Latest,
 
     [Parameter(Mandatory=$False, ParameterSetName="build")]
@@ -668,11 +669,19 @@ function Build-Vcpkg {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$True)]
-        [Arch]$arch
+        [Arch]$arch,
+        [Parameter(Mandatory=$False)]
+        [bool]$latest = $false
     )
 
     # Bootstrap vcpkg
     Push-Location $settings["VcpkgPath"]
+
+    if( $latest )
+    {
+        & git pull --rebase
+    }
+    
     .\bootstrap-vcpkg.bat
 
     # Setup dependencies
@@ -867,7 +876,7 @@ if( $Init )
 
 if( $Vcpkg )
 {
-    Build-Vcpkg -arch $Arch
+    Build-Vcpkg -arch $Arch -latest $Latest
 }
 
 if( $Build )
