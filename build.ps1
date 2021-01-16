@@ -724,8 +724,21 @@ function Build-Vcpkg {
         [bool]$latest = $false
     )
 
+    $vcpkgPath = $settings["VcpkgPath"]
+    if( $vcpkgPath -eq "" )
+    {
+        Write-Host "No vcpkg path provided" -ForegroundColor DarkYellow
+
+        $vcpkgPath = Join-Path -Path $PSScriptRoot -ChildPath vcpkg
+        
+        Write-Host "Checking out vcpkg to $vcpkgPath" -ForegroundColor Yellow
+        git clone https://gitlab.com/kicad/packaging/vcpkg.git $vcpkgPath
+
+        Set-Config -VcpkgPath $vcpkgPath
+    }
+
     # Bootstrap vcpkg
-    Push-Location $settings["VcpkgPath"]
+    Push-Location $vcpkgPath
 
     if( $latest )
     {
