@@ -174,20 +174,32 @@ $settings = Merge-HashTable -default $settingDefault -uppend $settingsSaved
 function Set-Aliases()
 {
     Write-Host "Configuring tool aliases"
-    if( $settings.VcpkgPath -ne "" )
+    if( -not (Test-Path alias:vcpkg ) )
     {
-        $tmp = Join-Path -Path $settings.VcpkgPath -ChildPath "vcpkg.exe"
-        Set-Alias vcpkg $tmp -Option AllScope -Scope Global
+        if( $settings.VcpkgPath -ne "" )
+        {
+            $tmp = Join-Path -Path $settings.VcpkgPath -ChildPath "vcpkg.exe"
+            Set-Alias vcpkg $tmp -Option AllScope -Scope Global
+        }
     }
 
-    $tmp = Join-Path -Path $supportPathRoot -ChildPath "vswhere.exe"
-    Set-Alias vswhere $tmp -Option AllScope -Scope Global
-    
-    $tmp = Join-Path -Path $supportPathRoot -ChildPath "cmake/bin/cmake.exe"
-    Set-Alias cmake $tmp -Option AllScope -Scope Global
-    
-    $tmp = Join-Path -Path $supportPathRoot -ChildPath "nsis/bin/makensis.exe"
-    Set-Alias makensis $tmp -Option AllScope -Scope Global
+    if( -not (Test-Path alias:vswhere ) )
+    {
+        $tmp = Join-Path -Path $supportPathRoot -ChildPath "vswhere.exe"
+        Set-Alias vswhere $tmp -Option AllScope -Scope Global
+    }
+
+    if( -not (Test-Path alias:cmake ) )
+    {
+        $tmp = Join-Path -Path $supportPathRoot -ChildPath "cmake/bin/cmake.exe"
+        Set-Alias cmake $tmp -Option AllScope -Scope Global
+    }
+
+    if( -not (Test-Path alias:makensis ) )
+    {
+        $tmp = Join-Path -Path $supportPathRoot -ChildPath "nsis/bin/makensis.exe"
+        Set-Alias makensis $tmp -Option AllScope -Scope Global
+    }
 }
 
 ## Invoke it
@@ -760,6 +772,9 @@ function Build-Vcpkg {
         git clone https://gitlab.com/kicad/packaging/vcpkg.git $vcpkgPath
 
         Set-Config -VcpkgPath $vcpkgPath
+
+        # get vcpkg alias updated
+        Set-Aliases
     }
 
     # Bootstrap vcpkg
