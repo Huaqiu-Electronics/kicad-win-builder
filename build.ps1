@@ -103,6 +103,26 @@ $supportPathRoot = ($PSScriptRoot+"/.support/")
 $buildPathRoot = ($PSScriptRoot+"/.build/")
 $outPathRoot = ($PSScriptRoot+"/.out/")
 
+if( -not (Test-Path $downloadsPathRoot) )
+{
+    New-Item $downloadsPathRoot -ItemType "directory"
+}
+
+if( -not (Test-Path $supportPathRoot ) )
+{
+    New-Item $supportPathRoot -ItemType "directory"
+}
+
+if( -not (Test-Path $buildPathRoot ) )
+{
+    New-Item $buildPathRoot -ItemType "directory"
+}
+
+if( -not (Test-Path $outPathRoot ) )
+{
+    New-Item $outPathRoot -ItemType "directory"
+}
+
 $swigWinPath = ($supportPathRoot+"/swigwin")
 
 # Use TLS1.2 by force in case of older powershell
