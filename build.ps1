@@ -513,10 +513,10 @@ function Start-Build {
                -latest $latest
 
     Build-KiCad -arch $arch -buildType $buildType
-    Build-Library-Source -arch $arch -libraryFolderName kicad-symbols
-    Build-Library-Source -arch $arch -libraryFolderName kicad-footprints
-    Build-Library-Source -arch $arch -libraryFolderName kicad-packages3D
-    Build-Library-Source -arch $arch -libraryFolderName kicad-templates
+    Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-symbols
+    Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-footprints
+    Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-packages3D
+    Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-templates
 }
 
 function Unzip([string] $zip, [string] $dest) {
@@ -679,6 +679,7 @@ function Build-Vcpkg {
 
     if( $latest )
     {
+        Write-Host "Updating vcpkg git repo" -ForegroundColor Yellow
         & git pull --rebase
     }
     
