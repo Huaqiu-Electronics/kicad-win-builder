@@ -154,8 +154,11 @@ $settings = Merge-HashTable -default $settingDefault -uppend $settingsSaved
 function Set-Aliases()
 {
     Write-Host "Configuring tool aliases"
-    $tmp = Join-Path -Path $settings.VcpkgPath -ChildPath "vcpkg.exe"
-    Set-Alias vcpkg $tmp -Option AllScope -Scope Global
+    if( $settings.VcpkgPath -ne "" )
+    {
+        $tmp = Join-Path -Path $settings.VcpkgPath -ChildPath "vcpkg.exe"
+        Set-Alias vcpkg $tmp -Option AllScope -Scope Global
+    }
 
     $tmp = Join-Path -Path $supportPathRoot -ChildPath "vswhere.exe"
     Set-Alias vswhere $tmp -Option AllScope -Scope Global
@@ -615,7 +618,7 @@ function Get-Tool {
         $calculatedChecksum = ( Get-FileHash -Algorithm SHA256 $DownloadPath ).Hash
         if( $calculatedChecksum -ne $Checksum )
         {
-            Remove-Item -Path $DownloadPath
+            Remove-Item -Path $DownloadPath -ErrorAction SilentlyContinue
             Write-Error "Invalid checksum for $ToolName, expected: $cmakeChecksum actual: $calculatedChecksum"
             
             Exit [ExitCodes]::DownloadChecksumFailure
