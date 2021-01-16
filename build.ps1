@@ -1,21 +1,23 @@
 ##
 # KiCad Powershell Windows Build Assistant
 #
+# Note, options in brackets [] are optional
 #  Usage:
-#   Configure/set the vcpkg path
+#   Configure/set the vcpkg path, OPTIONAL
+#   Otherwise will checkout vcpkg inside the win-builder folder
 #   ./build.ps1 -Config -VcpkgPath="path to vcpkg"
 #
 #   Checkout any required tools
 #   ./build.ps1 -Init
 #   
 #   Rebuilds vcpkg dependencies (if updated)
-#   ./build.ps1 -Vcpkg -Latest
+#   ./build.ps1 -Vcpkg [-Latest] [-Arch x64] [-BuildType Release]
 #   
 #   Triggers a build
-#   ./build.ps1 -Build -Latest
+#   ./build.ps1 -Build [-Latest] [-Arch x64] [-BuildType Release]
 #   
 #   Triggers a package operation
-#   ./build.ps1 -Package
+#   ./build.ps1 -Package [-Arch x64] [-BuildType Release]
 #
 ##
 
