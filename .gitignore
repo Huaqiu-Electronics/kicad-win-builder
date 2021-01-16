@@ -6,4 +6,4 @@
 /msys64
 /.out
 /.build
-vcpkg
+/vcpkg
