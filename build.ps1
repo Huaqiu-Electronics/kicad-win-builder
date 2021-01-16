@@ -390,6 +390,28 @@ function Build-Library-Source {
         Exit [ExitCodes]::CMakeGenerationFailure
     }
 
+    Write-Host "Configured $libraryFolderName" -ForegroundColor Green
+    Pop-Location
+}
+
+
+function Install-Library {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [Arch]$arch,
+        [Parameter(Mandatory=$False)]
+        [ValidateSet('Release', 'Debug')]
+        [string]$buildType = 'Release',
+        [string]$libraryFolderName
+    )
+
+    Push-Location (Get-Source-Path $libraryFolderName)
+
+    $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
+
+    $cmakeBuildFolder = "build/$buildName"
+
     Write-Host "Installing $libraryFolderName to output" -ForegroundColor Yellow
     cmake --install $cmakeBuildFolder > $null
     if (!$?) {
@@ -397,6 +419,39 @@ function Build-Library-Source {
         Pop-Location
         Exit [ExitCodes]::CMakeInstallFailure
     }
+
+    Pop-Location
+}
+
+function Install-Kicad {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [Arch]$arch,
+        [Parameter(Mandatory=$False)]
+        [ValidateSet('Release', 'Debug')]
+        [string]$buildType = 'Release'
+    )
+    
+    $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
+
+    #step down into kicad folder
+    Push-Location (Get-Source-Path kicad)
+
+    $cmakeBuildFolder = "build/$buildName"
+
+    Write-Host "Invoking cmake install" -ForegroundColor Yellow
+    cmake --install $cmakeBuildFolder > $null
+    
+    if (!$?) {
+        Write-Error "Failure with cmake install"
+        Pop-Location
+        Exit [ExitCodes]::CMakeInstallFailure
+    } else {
+        Write-Host "Build complete" -ForegroundColor Green
+    }
+
+    #restore path
     Pop-Location
 }
 
@@ -462,22 +517,14 @@ function Build-Kicad {
             Pop-Location
             Exit [ExitCodes]::CMakeBuildFailure
         } else {
-            Write-Host "Invoking cmake install" -ForegroundColor Yellow
-            cmake --install $cmakeBuildFolder
-            
-            if (!$?) {
-                Write-Error "Failure with cmake install"
-                Pop-Location
-                Exit [ExitCodes]::CMakeInstallFailure
-            } else {
-                Write-Host "Build complete" -ForegroundColor Green
-            }
+            Write-Host "Build complete" -ForegroundColor Green
         }
     }
 
     #restore path
     Pop-Location
 }
+
 function Start-Build {
     [CmdletBinding()]
     param(
@@ -769,6 +816,18 @@ function Start-Package {
     $vcpkgInstalledRoot = Join-Path -Path $settings["VcpkgPath"] -ChildPath "installed\$triplet\"
     $vcpkgInstalledRootPrimary = $vcpkgInstalledRoot
     $destRoot = Join-Path -Path $PSScriptRoot -ChildPath ".out\$buildName\"
+
+    # Now delete the existing output content
+    if( Test-Path $destRoot )
+    {
+        Remove-Item $destRoot -Recurse -Force 
+    }
+
+    Install-Kicad -arch $arch -buildType $buildType
+    Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-symbols
+    Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-footprints
+    Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-packages3D
+    Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-templates
 
     if( $buildType -eq 'Debug' )
     {
