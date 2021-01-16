@@ -51,7 +51,10 @@ param(
 	
     [Parameter(Mandatory=$True, ParameterSetName="config")]
 	[ValidateScript({Test-Path $_})]
-    [string]$VcpkgPath
+    [string]$VcpkgPath,
+    
+    [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [bool]$IncludeDebugSymbols = $False
 )
 
 enum Arch {
@@ -747,7 +750,9 @@ function Start-Package {
         [Arch]$arch,
         [Parameter(Mandatory=$False)]
         [ValidateSet('Release', 'Debug')]
-        [string]$buildType = "Release"
+        [string]$buildType = "Release",
+        [Parameter(Mandatory=$False)]
+        [bool]$includeDebugSymbols = $False
     )
 
     $packageVersion = Get-KiCad-PackageVersion
@@ -770,6 +775,9 @@ function Start-Package {
         $vcpkgInstalledRoot = Join-Path -Path $vcpkgInstalledRoot -ChildPath "debug"
     }
 
+    # All libraries to copy _should use a wildcard at the end
+    # This is to copy both the .dll and .pdb
+    # Or only .dll based on switch
     $vcpkgBinCopy = @( "boost*",
                         "TK*",
                         "wx*",
@@ -810,6 +818,11 @@ function Start-Package {
     foreach( $copyFilter in $vcpkgBinCopy ) 
     {
         $source = "$vcpkgInstalledBin\$copyFilter"
+
+        if(!$includeDebugSymbols)
+        {
+            $source += ".dll";
+        }
         
         Write-Host "Copying $source"
         Copy-Item $source -Destination $destBin -Recurse
@@ -887,5 +900,5 @@ if( $Build )
 
 if( $Package )
 {
-    Start-Package -arch $Arch
+    Start-Package -arch $Arch -includeDebugSymbols $IncludeDebugSymbols
 }
