@@ -331,9 +331,9 @@ function Get-Source {
     {
         if($sourceType -eq [SourceType]::git)
         {
-            & "git -C '$dest' reset @{upstream}"
-            & "git -C '$dest' clean -f"
-            & "git -C '$dest' pull --rebase"
+            git -C "$dest" reset `@`{upstream`}
+            git -C "$dest" clean -f
+            git -C "$dest" pull --rebase
             
             if (!$?)
             {
