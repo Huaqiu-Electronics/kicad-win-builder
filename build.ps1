@@ -799,6 +799,7 @@ function Build-Vcpkg {
                         "gettext",
                         "glm",
                         "icu",
+                        "libxslt",
                         "ngspice",
                         "opencascade",
                         "opengl",
@@ -902,6 +903,8 @@ function Start-Package {
                         "glew32*",
                         "cairo*",
                         "libexpat*",
+                        "libxslt*",
+                        "libxml*",
                         "lzma*",
                         "fontconfig*",
                         "freetype*",
@@ -945,6 +948,11 @@ function Start-Package {
     $python3Dest = "$destRoot\lib\"
     Write-Host "Copying python3 $python3Source to $python3Dest"
     Copy-Item $python3Source -Destination $python3Dest -Recurse -Container  -Force
+    
+    ## now libxslt
+    $xsltprocSource = "$vcpkgInstalledRootPrimary\tools\libxslt\xsltproc.exe"
+    Write-Host "Copying $xsltprocSource to $destBin"
+    Copy-Item $xsltprocSource -Destination $destBin -Recurse  -Force
 
     ## now nsis
     $nsisSource = Join-Path -Path $PSScriptRoot -ChildPath "nsis\"
