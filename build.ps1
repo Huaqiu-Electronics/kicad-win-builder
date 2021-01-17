@@ -44,7 +44,7 @@ param(
     [Parameter(Mandatory=$False, ParameterSetName="build")]
     [Parameter(Mandatory=$False, ParameterSetName="vcpkg")]
     [Parameter(Mandatory=$False, ParameterSetName="package")]
-    [ValidateSet('x86', 'x64')]
+    [ValidateSet('x86', 'x64', 'arm64', 'arm')]
     [string]$Arch = 'x64',
 
     [Parameter(Mandatory=$False, ParameterSetName="build")]
@@ -62,7 +62,7 @@ param(
 enum Arch {
     x86
     x64
-    arm32
+    arm
     arm64
 }
 
@@ -228,7 +228,7 @@ function Get-MSVC-Arch()
             $msvc = "x86"
             break   
         }
-        {[Arch]::arm32} {
+        {[Arch]::arm} {
             $msvc = "arm"
             break   
         }
@@ -258,6 +258,14 @@ function Get-NSIS-Arch()
         }
         {[Arch]::x86} {
             $nsis = "i686"
+            break   
+        }
+        {[Arch]::arm} {
+            $nsis = "arm"
+            break   
+        }
+        {[Arch]::arm64} {
+            $nsis = "arm64"
             break   
         }
     }
