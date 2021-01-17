@@ -971,6 +971,7 @@ function Start-Package {
         /DKICAD_VERSION=$kicadVersion `
         /DOUTFILE="..\kicad-$packageVersion-$nsisArch.exe" `
         /DARCH="$nsisArch" `
+        /DMSVC `
         "$nsisScript"
 
         

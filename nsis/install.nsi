@@ -403,6 +403,34 @@ Function onDirectoryPageLeave
   ${nsProcess::Unload}
 FunctionEnd
 
+!ifdef MSVC
+Section -Prerequisites
+  !define VCRUNTIME_MINIMUM_BLD 29325 
+  !if ${ARCH} == 'x86_64'
+    ReadRegDword $R1 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Installed"
+    ReadRegDword $R2 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Bld"
+    !define VC_REDIST "VC_redist.x64.exe"
+  !else if ${ARCH} == 'arm64'
+    ReadRegDword $R1 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\ARM" "Installed"
+    ReadRegDword $R2 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\ARM" "Bld"
+    !define VC_REDIST "VC_redist.arm64.exe"
+  !else
+    ReadRegDword $R1 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x86" "Installed"
+    ReadRegDword $R2 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x86" "Bld"
+    !define VC_REDIST "VC_redist.x86.exe"
+  !endif
+
+  SetOutPath "$INSTDIR"
+
+  ${If} $R1 != "1"
+    ${OrIf} $R2 < ${VCRUNTIME_MINIMUM_BLD}
+      File "vcredist\${VC_REDIST}"
+      ExecWait '"$INSTDIR\${VC_REDIST}" /quiet'
+      Delete "$INSTDIR\${VC_REDIST}"
+  ${EndIf}
+SectionEnd
+!endif
+
 Section $(TITLE_SEC_MAIN) SEC01
   SectionIn RO
   SetOverwrite try
@@ -598,6 +626,10 @@ Section -CreateAddRemoveEntry
   WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "HelpLink" "${KICAD_USER_FORUM}"
   WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "URLUpdateInfo" "${KICAD_MAIN_SITE}"
   WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "InstallLocation" "$INSTDIR"
+
+  !ifdef MSVC
+  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "MSVC" "1"
+  !endif
 
   WriteUninstaller "$INSTDIR\uninstaller.exe"
 SectionEnd
