@@ -32,13 +32,11 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-cmake"
              "git"
              "unzip")
 source=("${_realname}"::"git+https://gitlab.com/kicad/code/kicad.git"
-        "${_realname}-i18n"::"git+https://gitlab.com/kicad/code/kicad-i18n.git"
         "git+https://gitlab.com/kicad/libraries/kicad-symbols.git"
         "git+https://gitlab.com/kicad/libraries/kicad-footprints.git"
         "git+https://gitlab.com/kicad/libraries/kicad-packages3D.git"
         "git+https://gitlab.com/kicad/libraries/kicad-templates.git")
 md5sums=('SKIP'
-         'SKIP'
          'SKIP'
          'SKIP'
          'SKIP'
@@ -89,26 +87,13 @@ build() {
     -DKICAD_SCRIPTING_ACTION_MENU=ON \
     -DKICAD_USE_OCE=ON \
     -DKICAD_SPICE=ON \
+    -DKICAD_BUILD_I18N=ON \
     -DPYTHON_EXECUTABLE=${MINGW_PREFIX}/bin/python2.exe \
     ${EXTRA_FLAGS} \
     ../${_realname}
   make
 
   cd "${srcdir}"
-
-  # Configure the translation installation build.
-  [[ -d build-i18n ]] && rm -r build-i18n
-  mkdir build-i18n && cd build-i18n
-  MSYS2_ARG_CONV_EXCL="-DCMAKE_INSTALL_PREFIX=" \
-  ${MINGW_PREFIX}/bin/cmake.exe \
-    -G "MSYS Makefiles" \
-    -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON \
-    -DCMAKE_RULE_MESSAGES:BOOL=OFF \
-    -DCMAKE_INSTALL_PREFIX=${MINGW_PREFIX} \
-    ../${_realname}-i18n
-
-  cd "${srcdir}"
-
   # Configure the library installation build.
   [[ -d build-symbols ]] && rm -r build-symbols
   mkdir build-symbols && cd build-symbols
@@ -157,10 +142,6 @@ build() {
 package() {
   # Install KiCad.
   cd "${srcdir}/build-${MINGW_CHOST}"
-  make DESTDIR=${pkgdir} install
-
-  # Install KiCad i18n.
-  cd "${srcdir}/build-i18n"
   make DESTDIR=${pkgdir} install
 
   # Install the KiCad libraries.
