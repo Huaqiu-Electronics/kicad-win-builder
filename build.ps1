@@ -101,9 +101,9 @@ $swigwinChecksum = "DAADB32F19FE818CB9B0015243233FC81584844C11A48436385E87C05034
 $nsisDownload = "https://sourceforge.net/projects/nsis/files/NSIS%203/3.06.1/nsis-3.06.1.zip/download"
 $nsisChecksum = "D463AD11AA191AB5AE64EDB3A439A4A4A7A3E277FCB138254317254F7111FBA7"
 
-$gettextFolderName = "gettext-0.14.4-bin"
-$gettextDownload = "https://sourceforge.net/projects/gnuwin32/files/gettext/0.14.4/$gettextFolderName.zip/download"
-$gettextChecksum = "60B9EF26BC5CCEEF036F0424E542106CF158352B2677F43A01AFFD6D82A1D641"
+$gettextFolderName = "gettext0.21-iconv1.16-static-64"
+$gettextDownload = "https://github.com/mlocati/gettext-iconv-windows/releases/download/v0.21-v1.16/gettext0.21-iconv1.16-static-64.zip"
+$gettextChecksum = "721395C2E057EEED321F0C793311732E57CB4FA30D5708672A13902A69A77D43"
 
 $downloadsPathRoot = ($PSScriptRoot+"/.downloads/")
 $supportPathRoot = ($PSScriptRoot+"/.support/")
@@ -557,7 +557,8 @@ function Build-Kicad {
         -DKICAD_SCRIPTING_WXPYTHON_PHOENIX="ON" `
         -DKICAD_SCRIPTING_MODULES="ON" `
         -DKICAD_BUILD_QA_TESTS="OFF" `
-        -DKICAD_WIN32_DPI_AWARE="ON"
+        -DKICAD_WIN32_DPI_AWARE="ON" `
+        -DKICAD_BUILD_I18N="ON"
 
     if (!$?) {
         Write-Error "Failure generating cmake"
