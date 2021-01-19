@@ -81,6 +81,9 @@ enum ExitCodes {
 # Load the .NET compression library, powershell's expand-archive is horrid in performance
 Add-Type -Assembly 'System.IO.Compression.FileSystem'
 
+##
+Reset-Env-Path
+
 ### 
 ## Base setup
 ### 
@@ -91,12 +94,16 @@ $cmakeChecksum = "A6FDF509D7A39F1C08B429EAA3EA0012744365A731D00FB770AE88B4D6549F
 $vswhereDownload = 'https://github.com/microsoft/vswhere/releases/download/2.8.4/vswhere.exe'
 $vswhereChecksum = "E50A14767C27477F634A4C19709D35C27A72F541FB2BA5C3A446C80998A86419"
 
-$swigwinDownload = "https://sourceforge.net/projects/swig/files/swigwin/swigwin-4.0.2/swigwin-4.0.2.zip/download?use_mirror=pilotfiber"
+$swigwinFolder = "swigwin-4.0.2"
+$swigwinDownload = "https://sourceforge.net/projects/swig/files/swigwin/$swigwinFolder/$swigwinFolder.zip/download?use_mirror=pilotfiber"
 $swigwinChecksum = "DAADB32F19FE818CB9B0015243233FC81584844C11A48436385E87C050346559"
 
 $nsisDownload = "https://sourceforge.net/projects/nsis/files/NSIS%203/3.06.1/nsis-3.06.1.zip/download"
 $nsisChecksum = "D463AD11AA191AB5AE64EDB3A439A4A4A7A3E277FCB138254317254F7111FBA7"
 
+$gettextFolderName = "gettext-0.14.4-bin"
+$gettextDownload = "https://sourceforge.net/projects/gnuwin32/files/gettext/0.14.4/$gettextFolderName.zip/download"
+$gettextChecksum = "60B9EF26BC5CCEEF036F0424E542106CF158352B2677F43A01AFFD6D82A1D641"
 
 $downloadsPathRoot = ($PSScriptRoot+"/.downloads/")
 $supportPathRoot = ($PSScriptRoot+"/.support/")
@@ -123,12 +130,15 @@ if( -not (Test-Path $outPathRoot ) )
     New-Item $outPathRoot -ItemType "directory"
 }
 
-$swigWinPath = ($supportPathRoot+"/swigwin")
+
+$swigWinPath = ($supportPathRoot+"/$swigwinFolder")
+$gettextPath = ($supportPathRoot+"/$gettextFolderName/bin")
+
+$env:Path = $swigWinPath+";"+$gettextPath+";"+$env:PATH
 
 # Use TLS1.2 by force in case of older powershell
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
-$env:Path = $swigWinPath+";"+$env:PATH
 
 ### 
 # Load and handle Config
@@ -646,7 +656,9 @@ function Get-Tool {
         [Parameter(Mandatory=$False)]
         [bool]$ZipRelocate = $False,
         [Parameter(Mandatory=$False)]
-        [string]$ZipRelocateFilter = ""
+        [string]$ZipRelocateFilter = "",
+        [Parameter(Mandatory=$False)]
+        [bool]$ExtractInSupportRoot = $False
     )
     
     if( -not (Test-Path $DestPath) )
@@ -667,7 +679,15 @@ function Get-Tool {
         if( $ExtractZip )
         {
             Write-Host "Extracting $ToolName" -ForegroundColor Yellow
-            Unzip $DownloadPath $supportPathRoot
+            if( $ExtractInSupportRoot )
+            {
+                Unzip $DownloadPath $supportPathRoot
+            }
+            else 
+            {
+                Unzip $DownloadPath $DestPath
+            }
+    
             if (!$?) {
                 Write-Error "Unable to extract $ToolName"
                 Exit 2
@@ -702,16 +722,16 @@ function Start-Init {
              -Checksum $cmakeChecksum `
              -ExtractZip $true `
              -ZipRelocate $True `
-             -ZipRelocateFilter ($supportPathRoot+'cmake-*/')
+             -ZipRelocateFilter ($supportPathRoot+'cmake-*/') `
+             -ExtractInSupportRoot $True
 
     Get-Tool -ToolName "swigwin" `
              -Url $swigwinDownload `
-             -DestPath ($supportPathRoot+'swigwin/') `
-             -DownloadPath ($downloadsPathRoot+"swigwin.zip") `
+             -DestPath ($supportPathRoot+"$swigwinFolder/") `
+             -DownloadPath ($downloadsPathRoot+"$swigwinFolder.zip") `
              -Checksum $swigwinChecksum `
              -ExtractZip $true `
-             -ZipRelocate $True `
-             -ZipRelocateFilter ($supportPathRoot+'swigwin-*/')
+             -ExtractInSupportRoot $True
 
     Get-Tool -ToolName "nsis" `
              -Url $nsisDownload `
@@ -720,7 +740,8 @@ function Start-Init {
              -Checksum $nsisChecksum `
              -ExtractZip $true `
              -ZipRelocate $True `
-             -ZipRelocateFilter ($supportPathRoot+'nsis-*/')
+             -ZipRelocateFilter ($supportPathRoot+'nsis-*/') `
+             -ExtractInSupportRoot $True
 
     Get-Tool -ToolName "vswhere" `
              -Url $vswhereDownload `
@@ -729,6 +750,12 @@ function Start-Init {
              -Checksum $vswhereChecksum `
              -ExtractZip $False
 
+    Get-Tool -ToolName "gettext" `
+             -Url $gettextDownload `
+             -DestPath ($supportPathRoot+"$gettextFolderName/") `
+             -DownloadPath ($downloadsPathRoot+"$gettextFolderName.zip") `
+             -Checksum $gettextChecksum `
+             -ExtractZip $true `
 
     # Restore progress bar
     $ProgressPreference = 'Continue'
