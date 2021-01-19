@@ -81,8 +81,6 @@ enum ExitCodes {
 # Load the .NET compression library, powershell's expand-archive is horrid in performance
 Add-Type -Assembly 'System.IO.Compression.FileSystem'
 
-##
-Reset-Env-Path
 
 ### 
 ## Base setup
