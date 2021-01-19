@@ -134,6 +134,9 @@ $gettextPath = ($supportPathRoot+"/$gettextFolderName/bin")
 
 $env:Path = $swigWinPath+";"+$gettextPath+";"+$env:PATH
 
+# Force vcpkg to select msvc2019
+$env:VCPKG_PLATFORM_TOOLSET = "v142"
+
 # Use TLS1.2 by force in case of older powershell
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
