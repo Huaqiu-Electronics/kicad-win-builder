@@ -559,6 +559,12 @@ function Build-Kicad {
     $installPath = Join-Path -Path $outPathRoot -ChildPath "$buildName/"
     $toolchainPath = Join-Path -Path $settings["VcpkgPath"] -ChildPath "/scripts/buildsystems/vcpkg.cmake"
 
+    Write-Host "Starting build"
+    Write-Host "arch: $arch"
+    Write-Host "buildType: $buildType"
+    Write-Host "Configured install directory: $installPath"
+    Write-Host "Vcpkg Path: $toolchainPath"
+
     cmake -G $generator `
         -B $cmakeBuildFolder `
         -S .  `
