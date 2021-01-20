@@ -131,8 +131,9 @@ if( -not (Test-Path $outPathRoot ) )
 
 $swigWinPath = ($supportPathRoot+"/$swigwinFolder")
 $gettextPath = ($supportPathRoot+"/$gettextFolderName/bin")
+$nsisPath = Join-Path -Path $supportPathRoot -ChildPath "nsis/bin/"
 
-$env:Path = $swigWinPath+";"+$gettextPath+";"+$env:PATH
+$env:Path = $swigWinPath+";"+$gettextPath+";"+$nsisPath+";"+$env:PATH
 
 
 # Use TLS1.2 by force in case of older powershell
