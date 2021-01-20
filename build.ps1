@@ -134,8 +134,6 @@ $gettextPath = ($supportPathRoot+"/$gettextFolderName/bin")
 
 $env:Path = $swigWinPath+";"+$gettextPath+";"+$env:PATH
 
-# Force vcpkg to select msvc2019
-$env:VCPKG_PLATFORM_TOOLSET = "v142"
 
 # Use TLS1.2 by force in case of older powershell
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
@@ -147,7 +145,9 @@ $env:VCPKG_PLATFORM_TOOLSET = "v142"
 $settingsPath = $PSScriptRoot + "\settings.json";
 
 $settingDefault = @{
-	VcpkgPath = ''
+    VcpkgPath = ''
+    VcpkgPlatformToolset = 'v142'
+    VsVersion = '16.0'
 }
 
 $settingsSaved = @{}
@@ -177,6 +177,11 @@ function Merge-HashTable {
 }
 
 $settings = Merge-HashTable -default $settingDefault -uppend $settingsSaved
+
+
+# Set VCPKG Platform Toolset
+$env:VCPKG_PLATFORM_TOOLSET = $settings.VcpkgPlatformToolset
+
 
 ### 
 # Setup aliases to shorten accessing tools
@@ -297,13 +302,22 @@ function Set-VC-Environment()
         $Arguments
     )
 
+    if($env:VSCMD_VER)
+    {
+        Write-Host "VS Environment already configured" -ForegroundColor Yellow
+        return
+    }
+
     $msvcArch = Get-MSVC-Arch -Arch $Arch
     $msvcHostArch = Get-MSVC-Arch -Arch $HostArch
 
     # prepare the arguments array with the arch info
     $Arguments = @("-arch=$msvcArch") + @("-host_arch=$msvcHostArch") + $Arguments
 
-    $installDir = vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+    $version = $settings.VsVersion
+    $installDir = vswhere -version "$version" -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+
+    $installDir = $installDir | Select-Object -first 1
     if ($installDir) {
         $path = join-path $installDir 'VC\Auxiliary\Build\Microsoft.VCToolsVersion.default.txt'
         if (test-path $path) {
@@ -312,6 +326,8 @@ function Set-VC-Environment()
                 $version = $version.Trim()
                 $path = join-path $installDir "Common7\tools\VsDevCmd.bat"
                 $argString = $Arguments -join ' '
+
+                Write-Host "Selecting MSVC $version found at $installDir" -ForegroundColor Yellow
 
                 # what is this scary thing?
                 # We need to capture the environment variables set by vsdevcmd.bat
