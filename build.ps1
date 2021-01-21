@@ -17,8 +17,10 @@
 #   ./build.ps1 -Build [-Latest] [-Arch x64] [-BuildType Release]
 #   
 #   Triggers a package operation
-#   ./build.ps1 -Package [-Arch x64] [-BuildType Release]
-#
+#   ./build.ps1 -Package [-Arch x64] [-BuildType Release] [-Lite] [-IncludeDebugSymbols]
+#   
+#   IncludeDebugSymbols will include PDBs (off by default)
+#   Lite will build the light version of the installer (no libraries)
 ##
 
 param(
