@@ -56,7 +56,10 @@ param(
     [string]$VcpkgPath,
     
     [Parameter(Mandatory=$False, ParameterSetName="package")]
-    [bool]$IncludeDebugSymbols = $False
+    [switch]$IncludeDebugSymbols,
+    
+    [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [switch]$Lite
 )
 
 enum Arch {
@@ -913,7 +916,9 @@ function Start-Package {
         [ValidateSet('Release', 'Debug')]
         [string]$buildType = "Release",
         [Parameter(Mandatory=$False)]
-        [bool]$includeDebugSymbols = $False
+        [bool]$includeDebugSymbols = $False,
+        [Parameter(Mandatory=$False)]
+        [bool]$lite = $False
     )
 
     $packageVersion = Get-KiCad-PackageVersion
@@ -923,6 +928,12 @@ function Start-Package {
     
     Write-Host "Package Version: $packageVersion"
     Write-Host "KiCad Version: $kicadVersion"
+    if($lite) {
+        Write-Host "Lite package"
+    }
+    else {
+        Write-Host "Full package"
+    }
 
     $triplet = Get-Vcpkg-Triplet -Arch $arch
     $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
@@ -938,10 +949,14 @@ function Start-Package {
     }
 
     Install-Kicad -arch $arch -buildType $buildType
-    Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-symbols
-    Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-footprints
-    Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-packages3D
-    Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-templates
+
+    if( -not $lite )
+    {
+        Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-symbols
+        Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-footprints
+        Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-packages3D
+        Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-templates
+    }
 
     if( $buildType -eq 'Debug' )
     {
@@ -1027,12 +1042,32 @@ function Start-Package {
     $readmeSrc = Join-Path -Path (Get-Source-Path kicad) -ChildPath "LICENSE.README"
     Copy-Item $readmeSrc -Destination "$destRoot\COPYRIGHT.txt" -Force
 
-    makensis /DPACKAGE_VERSION=$packageVersion `
-        /DKICAD_VERSION=$kicadVersion `
-        /DOUTFILE="..\kicad-$packageVersion-$nsisArch.exe" `
-        /DARCH="$nsisArch" `
-        /DMSVC `
-        "$nsisScript"
+
+    if( $lite )
+    {
+        $liteGitTag = "master"
+        $found = $packageVersion -match '^\d+\.\d+\.\d+'
+        if ($found) {
+            $liteGitTag = $matches[0]
+        }
+        
+        makensis /DPACKAGE_VERSION=$packageVersion `
+            /DKICAD_VERSION=$kicadVersion `
+            /DOUTFILE="..\kicad-$packageVersion-$nsisArch-lite.exe" `
+            /DARCH="$nsisArch" `
+            /DLIBRARIES_TAG="$liteGitTag" `
+            /DMSVC `
+            "$nsisScript"
+    }
+    else
+    {
+        makensis /DPACKAGE_VERSION=$packageVersion `
+            /DKICAD_VERSION=$kicadVersion `
+            /DOUTFILE="..\kicad-$packageVersion-$nsisArch.exe" `
+            /DARCH="$nsisArch" `
+            /DMSVC `
+            "$nsisScript"
+    }
 
         
     if (!$?) {
@@ -1081,5 +1116,5 @@ if( $Build )
 
 if( $Package )
 {
-    Start-Package -arch $Arch -includeDebugSymbols $IncludeDebugSymbols
+    Start-Package -arch $Arch -includeDebugSymbols $IncludeDebugSymbols -lite $Lite
 }
