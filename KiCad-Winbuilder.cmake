@@ -312,7 +312,7 @@ message( STATUS "MSYS2 user name is: $USERNAME=${USERNAME}" )
 
 # Get the MinGW packages project for MSYS2
 if( NOT EXISTS "${HOME_DIR}/MINGW-packages" )
-    execute_msys2_bash( "cd \"${HOME_DIR}\" && git clone https://github.com/Alexpux/MINGW-packages.git" "${LOG_DIR}/git_clone" )
+    execute_msys2_bash( "cd \"${HOME_DIR}\" && git clone https://github.com/msys2/MINGW-packages.git" "${LOG_DIR}/git_clone" )
 endif()
 
 set( EXPORT_CARCH "" )
