@@ -1002,9 +1002,10 @@ function Start-Package {
                         "intl*"
                     )
 
-                        
+
     $vcpkgInstalledBin = Join-Path -Path $vcpkgInstalledRoot -ChildPath "bin\"
     $destBin = Join-Path -Path $destRoot -ChildPath "bin\"
+    $destLib = Join-Path -Path $destRoot -ChildPath "lib\"
 
     Write-Host "Copying from $vcpkgInstalledBin to $destBin" -ForegroundColor Yellow
     foreach( $copyFilter in $vcpkgBinCopy ) 
@@ -1020,11 +1021,19 @@ function Start-Package {
         Copy-Item $source -Destination $destBin -Recurse
     }
 
+    ## ngspice related
+    $ngspiceLib = Join-Path -Path $vcpkgInstalledRoot -ChildPath "lib\ngspice"
+    Write-Host "Copying ngspice lib $ngspiceLib to $destLib"
+    Copy-Item $ngspiceLib -Destination $destLib -Recurse -Container  -Force
+
+    $ngspiceShare = Join-Path -Path $vcpkgInstalledRoot -ChildPath "share\ngspice"
+    Write-Host "Copying ngspice share $ngspiceShare to $destLib"
+    Copy-Item $ngspiceShare -Destination $destLib -Recurse -Container  -Force
+
     ## now python3
     $python3Source = "$vcpkgInstalledRootPrimary\tools\python3\"
-    $python3Dest = "$destRoot\lib\"
-    Write-Host "Copying python3 $python3Source to $python3Dest"
-    Copy-Item $python3Source -Destination $python3Dest -Recurse -Container  -Force
+    Write-Host "Copying python3 $python3Source to $destLib"
+    Copy-Item $python3Source -Destination $destLib -Recurse -Container  -Force
     
     ## now libxslt
     $xsltprocSource = "$vcpkgInstalledRootPrimary\tools\libxslt\xsltproc.exe"
