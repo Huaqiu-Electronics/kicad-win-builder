@@ -836,7 +836,7 @@ function Build-Vcpkg {
         $vcpkgPath = Join-Path -Path $PSScriptRoot -ChildPath vcpkg
         
         Write-Host "Checking out vcpkg to $vcpkgPath" -ForegroundColor Yellow
-        git clone https://gitlab.com/kicad/packaging/vcpkg.git $vcpkgPath --porcelain
+        git clone https://gitlab.com/kicad/packaging/vcpkg.git $vcpkgPath
 
         Set-Config -VcpkgPath $vcpkgPath
 
