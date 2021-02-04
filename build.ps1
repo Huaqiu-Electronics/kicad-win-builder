@@ -834,6 +834,12 @@ function Build-Vcpkg {
         Write-Host "No vcpkg path provided" -ForegroundColor DarkYellow
 
         $vcpkgPath = Join-Path -Path $PSScriptRoot -ChildPath vcpkg
+
+        # for now, destroy the folder if it isnt configured on our side
+        if( Test-Path $vcpkgPath )
+        {
+            Remove-Item $vcpkgPath -Recurse -Force 
+        }
         
         Write-Host "Checking out vcpkg to $vcpkgPath" -ForegroundColor Yellow
         git clone https://gitlab.com/kicad/packaging/vcpkg.git $vcpkgPath
