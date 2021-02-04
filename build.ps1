@@ -144,6 +144,8 @@ $env:Path = $swigWinPath+";"+$gettextPath+";"+$nsisPath+";"+$env:PATH
 # Use TLS1.2 by force in case of older powershell
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
+$env:GIT_REDIRECT_STDERR='2>&1'
+
 
 ### 
 # Load and handle Config
@@ -834,7 +836,7 @@ function Build-Vcpkg {
         $vcpkgPath = Join-Path -Path $PSScriptRoot -ChildPath vcpkg
         
         Write-Host "Checking out vcpkg to $vcpkgPath" -ForegroundColor Yellow
-        git clone https://gitlab.com/kicad/packaging/vcpkg.git $vcpkgPath
+        git clone https://gitlab.com/kicad/packaging/vcpkg.git $vcpkgPath --porcelain
 
         Set-Config -VcpkgPath $vcpkgPath
 
