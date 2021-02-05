@@ -825,7 +825,7 @@ function Build-Vcpkg {
         [Parameter(Mandatory=$True)]
         [Arch]$arch,
         [Parameter(Mandatory=$False)]
-        [bool]$latest = $false
+        [bool]$latest = $True
     )
 
     $vcpkgPath = $settings["VcpkgPath"]
@@ -1125,7 +1125,7 @@ if( $Init )
 
 if( $Vcpkg )
 {
-    Build-Vcpkg -arch $Arch -latest $Latest
+    Build-Vcpkg -arch $Arch -latest $True
 }
 
 if( $Build )
