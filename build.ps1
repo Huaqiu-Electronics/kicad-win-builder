@@ -86,7 +86,6 @@ enum ExitCodes {
 # Load the .NET compression library, powershell's expand-archive is horrid in performance
 Add-Type -Assembly 'System.IO.Compression.FileSystem'
 
-
 ### 
 ## Base setup
 ### 
@@ -144,6 +143,7 @@ $env:Path = $swigWinPath+";"+$gettextPath+";"+$nsisPath+";"+$env:PATH
 # Use TLS1.2 by force in case of older powershell
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
+# Force git output to go to stdout or else powershell eats it and doesn't show us it
 $env:GIT_REDIRECT_STDERR='2>&1'
 
 
