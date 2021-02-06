@@ -604,7 +604,7 @@ function Build-Kicad {
     # restore to default
     $ErrorActionPreference = 'Continue'
 
-    if (!$?) {
+    if ($LastExitCode -ne 0) {
         Write-Error "Failure generating cmake"
         Pop-Location
         Exit [ExitCodes]::CMakeGenerationFailure
@@ -612,11 +612,11 @@ function Build-Kicad {
         Write-Host "Invoking cmake build" -ForegroundColor Yellow
         
         $ErrorActionPreference = 'Ignore'
-        cmake --build $cmakeBuildFolder -j 16
+        cmake --build $cmakeBuildFolder -j 2>&1
         # restore to default
         $ErrorActionPreference = 'Continue'
         
-        if (!$?) {
+        if ($LastExitCode -ne 0) {
             Write-Error "Failure with cmake build"
             Pop-Location
             Exit [ExitCodes]::CMakeBuildFailure
