@@ -549,7 +549,7 @@ function Build-Kicad {
         [ValidateSet('Release', 'Debug')]
         [string]$buildType = 'Release',
         [Parameter(Mandatory=$False)]
-        [bool]$fresh = $False
+        [bool]$fresh = $True
     )
 
     $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
@@ -578,6 +578,9 @@ function Build-Kicad {
     Write-Host "Configured install directory: $installPath"
     Write-Host "Vcpkg Path: $toolchainPath"
 
+    # ignore cmake dumping to stderr
+    # the boost warnings will cause it to treat it as a failed command
+    $ErrorActionPreference = 'Ignore'
     cmake -G $generator `
         -Wno-dev `
         -B $cmakeBuildFolder `
@@ -595,7 +598,11 @@ function Build-Kicad {
         -DKICAD_SCRIPTING_MODULES="ON" `
         -DKICAD_BUILD_QA_TESTS="OFF" `
         -DKICAD_WIN32_DPI_AWARE="ON" `
-        -DKICAD_BUILD_I18N="ON"
+        -DKICAD_BUILD_I18N="ON" `
+        2>&1 
+
+    # restore to default
+    $ErrorActionPreference = 'Continue'
 
     if (!$?) {
         Write-Error "Failure generating cmake"
