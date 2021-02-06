@@ -11,7 +11,7 @@
 #   ./build.ps1 -Init
 #   
 #   Rebuilds vcpkg dependencies (if updated)
-#   ./build.ps1 -Vcpkg [-Latest] [-Arch x64] [-BuildType Release]
+#   ./build.ps1 -Vcpkg [-Latest] [-Arch x64]
 #   
 #   Triggers a build
 #   ./build.ps1 -Build [-Latest] [-Arch x64] [-BuildType Release]
