@@ -90,8 +90,9 @@ Add-Type -Assembly 'System.IO.Compression.FileSystem'
 ## Base setup
 ### 
 
-$cmakeDownload = 'https://github.com/Kitware/CMake/releases/download/v3.19.2/cmake-3.19.2-win64-x64.zip'
-$cmakeChecksum = "A6FDF509D7A39F1C08B429EAA3EA0012744365A731D00FB770AE88B4D6549FF3"
+$cmakeFolder = 'cmake-3.16.6-win64-x64'
+$cmakeDownload = 'https://github.com/Kitware/CMake/releases/download/v3.16.6/cmake-3.16.6-win64-x64.zip'
+$cmakeChecksum = "9C06EEFCCD9B4B24B386573C05EAABEF6AFD756DC692E896C415EB0CD1FB132D"
 
 $vswhereDownload = 'https://github.com/microsoft/vswhere/releases/download/2.8.4/vswhere.exe'
 $vswhereChecksum = "E50A14767C27477F634A4C19709D35C27A72F541FB2BA5C3A446C80998A86419"
@@ -220,7 +221,7 @@ function Set-Aliases()
 
     if( -not (Test-Path alias:cmake ) )
     {
-        $tmp = Join-Path -Path $supportPathRoot -ChildPath "cmake/bin/cmake.exe"
+        $tmp = Join-Path -Path $supportPathRoot -ChildPath "$cmakeFolder/bin/cmake.exe"
         Set-Alias cmake $tmp -Option AllScope -Scope Global
     }
 
@@ -766,12 +767,11 @@ function Start-Init {
 
     Get-Tool -ToolName "CMake" `
              -Url $cmakeDownload `
-             -DestPath ($supportPathRoot+'cmake/') `
+             -DestPath ($supportPathRoot+"$cmakeFolder/") `
              -DownloadPath ($downloadsPathRoot+"cmake.zip") `
              -Checksum $cmakeChecksum `
              -ExtractZip $true `
-             -ZipRelocate $True `
-             -ZipRelocateFilter ($supportPathRoot+'cmake-*/') `
+             -ZipRelocate $False `
              -ExtractInSupportRoot $True
 
     Get-Tool -ToolName "swigwin" `
