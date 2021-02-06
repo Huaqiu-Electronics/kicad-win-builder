@@ -550,7 +550,7 @@ function Build-Kicad {
         [ValidateSet('Release', 'Debug')]
         [string]$buildType = 'Release',
         [Parameter(Mandatory=$False)]
-        [bool]$fresh = $False
+        [bool]$fresh = $True
     )
 
     $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
@@ -601,7 +601,7 @@ function Build-Kicad {
             -DKICAD_BUILD_QA_TESTS="OFF" `
             -DKICAD_WIN32_DPI_AWARE="ON" `
             -DKICAD_BUILD_I18N="ON" `
-            2>&1 
+            2>&1 | % ToString 
     }
 
     if ($LastExitCode -ne 0) {
@@ -613,7 +613,7 @@ function Build-Kicad {
         
         & {
             $ErrorActionPreference = 'SilentlyContinue'
-            cmake --build $cmakeBuildFolder -j 2>&1
+            cmake --build $cmakeBuildFolder -j 2>&1 | % ToString 
         }
         
         if ($LastExitCode -ne 0) {
