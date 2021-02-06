@@ -463,14 +463,18 @@ function Build-Library-Source {
     $cmakeBuildFolder = "build/$buildName"
     $generator = "Ninja"
 
-    cmake -G $generator `
-        -B $cmakeBuildFolder `
-        -S .  `
-        -DCMAKE_INSTALL_PREFIX="$installPath" `
-        -DCMAKE_RULE_MESSAGES:BOOL="OFF" `
-        -DCMAKE_VERBOSE_MAKEFILE:BOOL="OFF"
+    & {
+        $ErrorActionPreference = 'SilentlyContinue'
+        cmake -G $generator `
+            -B $cmakeBuildFolder `
+            -S .  `
+            -DCMAKE_INSTALL_PREFIX="$installPath" `
+            -DCMAKE_RULE_MESSAGES:BOOL="OFF" `
+            -DCMAKE_VERBOSE_MAKEFILE:BOOL="OFF" `
+            2>&1 | % ToString 
+    }
 
-    if (!$?) {
+    if ($LastExitCode -ne 0) {
         Write-Error "Failure generating cmake"
         Pop-Location
         Exit [ExitCodes]::CMakeGenerationFailure
@@ -499,8 +503,12 @@ function Install-Library {
     $cmakeBuildFolder = "build/$buildName"
 
     Write-Host "Installing $libraryFolderName to output" -ForegroundColor Yellow
-    cmake --install $cmakeBuildFolder > $null
-    if (!$?) {
+    & {
+        $ErrorActionPreference = 'SilentlyContinue'
+        cmake --install $cmakeBuildFolder > $null
+    }
+
+    if ($LastExitCode -ne 0) {
         Write-Error "Failure with cmake install"
         Pop-Location
         Exit [ExitCodes]::CMakeInstallFailure
@@ -526,10 +534,10 @@ function Install-Kicad {
 
     $cmakeBuildFolder = "build/$buildName"
 
-    Write-Host "Invoking cmake install" -ForegroundColor Yellow
+    Write-Host "Invoking cmake install" -ForegroundColor Yellow.
     cmake --install $cmakeBuildFolder > $null
     
-    if (!$?) {
+    if ($LastExitCode -ne 0) {
         Write-Error "Failure with cmake install"
         Pop-Location
         Exit [ExitCodes]::CMakeInstallFailure
@@ -913,7 +921,7 @@ function Build-Vcpkg {
     
     vcpkg install $dependencies
     
-    if (!$?) {
+    if ($LastExitCode -ne 0) {
         Write-Error "Failure installing vcpkg ports"
         Exit [ExitCodes]::VcpkgInstallPortsFailure
     } else {
@@ -1113,7 +1121,7 @@ function Start-Package {
     }
 
         
-    if (!$?) {
+    if ($LastExitCode -ne 0) {
         Write-Error "Error building nsis package"
         Exit [ExitCodes]::NsisFailure
     }
