@@ -574,6 +574,7 @@ function Build-Kicad {
     Write-Host "Vcpkg Path: $toolchainPath"
 
     cmake -G $generator `
+        -Wno-dev `
         -B $cmakeBuildFolder `
         -S .  `
         -DCMAKE_BUILD_TYPE="$buildType" `
