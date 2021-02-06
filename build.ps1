@@ -534,8 +534,11 @@ function Install-Kicad {
 
     $cmakeBuildFolder = "build/$buildName"
 
-    Write-Host "Invoking cmake install" -ForegroundColor Yellow.
-    cmake --install $cmakeBuildFolder > $null
+    Write-Host "Invoking cmake install" -ForegroundColor Yellow
+    & {
+        $ErrorActionPreference = 'SilentlyContinue'
+        cmake --install $cmakeBuildFolder > $null
+    }
     
     if ($LastExitCode -ne 0) {
         Write-Error "Failure with cmake install"
