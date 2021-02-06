@@ -610,7 +610,11 @@ function Build-Kicad {
         Exit [ExitCodes]::CMakeGenerationFailure
     } else {
         Write-Host "Invoking cmake build" -ForegroundColor Yellow
+        
+        $ErrorActionPreference = 'Ignore'
         cmake --build $cmakeBuildFolder -j 16
+        # restore to default
+        $ErrorActionPreference = 'Continue'
         
         if (!$?) {
             Write-Error "Failure with cmake build"
