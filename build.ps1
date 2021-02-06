@@ -549,7 +549,7 @@ function Build-Kicad {
         [ValidateSet('Release', 'Debug')]
         [string]$buildType = 'Release',
         [Parameter(Mandatory=$False)]
-        [bool]$fresh = $True
+        [bool]$fresh = $False
     )
 
     $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
