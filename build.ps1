@@ -50,6 +50,7 @@ param(
     [string]$Arch = 'x64',
 
     [Parameter(Mandatory=$False, ParameterSetName="build")]
+    [Parameter(Mandatory=$False, ParameterSetName="package")]
     [ValidateSet('Release', 'Debug')]
     [string]$BuildType = 'Release',
 	
@@ -1170,5 +1171,5 @@ if( $Build )
 
 if( $Package )
 {
-    Start-Package -arch $Arch -includeDebugSymbols $IncludeDebugSymbols -lite $Lite
+    Start-Package -arch $Arch -buildType $BuildType -includeDebugSymbols $IncludeDebugSymbols -lite $Lite
 }
