@@ -107,6 +107,10 @@ $gettextFolderName = "gettext0.21-iconv1.16-static-64"
 $gettextDownload = "https://github.com/mlocati/gettext-iconv-windows/releases/download/v0.21-v1.16/gettext0.21-iconv1.16-static-64.zip"
 $gettextChecksum = "721395C2E057EEED321F0C793311732E57CB4FA30D5708672A13902A69A77D43"
 
+$doxygenDownload = "https://doxygen.nl/files/doxygen-1.9.1.windows.x64.bin.zip"
+$doxygenChecksum = "DEB8E6E5F21C965EC07FD32589D0332EFF047F2C8658B5C56BE4839A5DD43353"
+$doxygenFolderName = "doxygen-1.9.1.windows.x64.bin"
+
 $downloadsPathRoot = ($PSScriptRoot+"/.downloads/")
 $supportPathRoot = ($PSScriptRoot+"/.support/")
 $buildPathRoot = ($PSScriptRoot+"/.build/")
@@ -135,9 +139,10 @@ if( -not (Test-Path $outPathRoot ) )
 
 $swigWinPath = ($supportPathRoot+"/$swigwinFolder")
 $gettextPath = ($supportPathRoot+"/$gettextFolderName/bin")
+$doxygenPath = ($supportPathRoot+"/$doxygenFolderName")
 $nsisPath = Join-Path -Path $supportPathRoot -ChildPath "nsis/bin/"
 
-$env:Path = $swigWinPath+";"+$gettextPath+";"+$nsisPath+";"+$env:PATH
+$env:Path = $swigWinPath+";"+$gettextPath+";"+$nsisPath+";"+$doxygenPath+";"+$env:PATH
 
 
 # Use TLS1.2 by force in case of older powershell
@@ -765,6 +770,14 @@ function Start-Init {
              -Checksum $swigwinChecksum `
              -ExtractZip $true `
              -ExtractInSupportRoot $True
+
+    Get-Tool -ToolName "doxygen" `
+             -Url $doxygenDownload `
+             -DestPath ($supportPathRoot+"$doxygenFolderName/") `
+             -DownloadPath ($downloadsPathRoot+"$doxygenFolderName.zip") `
+             -Checksum $doxygenChecksum `
+             -ExtractZip $true `
+             -ExtractInSupportRoot $False
 
     Get-Tool -ToolName "nsis" `
              -Url $nsisDownload `
