@@ -581,29 +581,28 @@ function Build-Kicad {
 
     # ignore cmake dumping to stderr
     # the boost warnings will cause it to treat it as a failed command
-    $ErrorActionPreference = 'Ignore'
-    cmake -G $generator `
-        -Wno-dev `
-        -B $cmakeBuildFolder `
-        -S .  `
-        -DCMAKE_BUILD_TYPE="$buildType" `
-        -DCMAKE_TOOLCHAIN_FILE="$toolchainPath" `
-        -DCMAKE_INSTALL_PREFIX="$installPath" `
-        -DKICAD_SPICE="ON" `
-        -DKICAD_USE_OCE="OFF" `
-        -DKICAD_USE_OCC="ON" `
-        -DKICAD_SCRIPTING="ON" `
-        -DKICAD_SCRIPTING_PYTHON3="ON" `
-        -DKICAD_SCRIPTING_WXPYTHON="ON" `
-        -DKICAD_SCRIPTING_WXPYTHON_PHOENIX="ON" `
-        -DKICAD_SCRIPTING_MODULES="ON" `
-        -DKICAD_BUILD_QA_TESTS="OFF" `
-        -DKICAD_WIN32_DPI_AWARE="ON" `
-        -DKICAD_BUILD_I18N="ON" `
-        2>&1 
-
-    # restore to default
-    $ErrorActionPreference = 'Continue'
+    & {
+        $ErrorActionPreference = 'SilentlyContinue'
+        cmake -G $generator `
+            -Wno-dev `
+            -B $cmakeBuildFolder `
+            -S .  `
+            -DCMAKE_BUILD_TYPE="$buildType" `
+            -DCMAKE_TOOLCHAIN_FILE="$toolchainPath" `
+            -DCMAKE_INSTALL_PREFIX="$installPath" `
+            -DKICAD_SPICE="ON" `
+            -DKICAD_USE_OCE="OFF" `
+            -DKICAD_USE_OCC="ON" `
+            -DKICAD_SCRIPTING="ON" `
+            -DKICAD_SCRIPTING_PYTHON3="ON" `
+            -DKICAD_SCRIPTING_WXPYTHON="ON" `
+            -DKICAD_SCRIPTING_WXPYTHON_PHOENIX="ON" `
+            -DKICAD_SCRIPTING_MODULES="ON" `
+            -DKICAD_BUILD_QA_TESTS="OFF" `
+            -DKICAD_WIN32_DPI_AWARE="ON" `
+            -DKICAD_BUILD_I18N="ON" `
+            2>&1 
+    }
 
     if ($LastExitCode -ne 0) {
         Write-Error "Failure generating cmake"
@@ -612,10 +611,10 @@ function Build-Kicad {
     } else {
         Write-Host "Invoking cmake build" -ForegroundColor Yellow
         
-        $ErrorActionPreference = 'Ignore'
-        cmake --build $cmakeBuildFolder -j 2>&1
-        # restore to default
-        $ErrorActionPreference = 'Continue'
+        & {
+            $ErrorActionPreference = 'SilentlyContinue'
+            cmake --build $cmakeBuildFolder -j 2>&1
+        }
         
         if ($LastExitCode -ne 0) {
             Write-Error "Failure with cmake build"
