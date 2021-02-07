@@ -1104,7 +1104,7 @@ function Start-Package {
     }
 
     if( $lite ) {
-        $outTags = "$outTag-lite"
+        $outTags = "$outTags-lite"
     }
 
     $outFileName = "kicad-$packageVersion-$nsisArch$outTags.exe"
