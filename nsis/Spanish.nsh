@@ -10,8 +10,9 @@ Este es un software libre de código abierto licenciado bajo GPL.$\r$\n$\r$\n\
 Pulse Siguiente para continuar."
 
 ;Error messages
-LangString ERROR_ADMIN_REQ ${LANG_SPANISH} "¡Se necesitan derechos de Administrador para instalar KiCad!"
-LangString ERROR_WIN9X ${LANG_SPANISH} "¡Error! ¡No puede ejecutarse bajo Windows 9x!"
+LangString ERROR_ADMIN_REQ  ${LANG_SPANISH} "¡Se necesitan derechos de Administrador para instalar KiCad!"
+LangString ERROR_WIN9X      ${LANG_SPANISH} "¡Error! ¡No puede ejecutarse bajo Windows 9x!"
+LangString ERROR_WIN_MIN    ${LANG_SPANISH} "A minimum of Windows 8.1 is required to install KiCad using this installer"
 
 ;Other languages
 LangString LANGUAGE_NAME_EN ${LANG_SPANISH} "Inglés"

@@ -30,6 +30,7 @@
 
 !include "winmessages.nsh"
 !include "nsProcess.nsh"
+!include  "WinVer.nsh"
 
 ; General Product Description Definitions
 !define PRODUCT_NAME "KiCad"
@@ -281,6 +282,13 @@ VIAddVersionKey "FileVersion" "${PACKAGE_VERSION}"
 ;--------------------------------
 
 Function .onInit
+  !ifdef MSVC
+  ${IfNot} ${AtLeastWin8.1}
+      MessageBox MB_OK $(ERROR_WIN_MIN)
+      Quit
+  ${EndIf}
+  !endif
+
   !ifdef LIBRARIES_TAG
   StrCpy $DELETE_DOWNLOADED_FILES "unknown"
   !endif
