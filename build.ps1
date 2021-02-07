@@ -546,7 +546,7 @@ function Install-Kicad {
         Pop-Location
         Exit [ExitCodes]::CMakeInstallFailure
     } else {
-        Write-Host "Build complete" -ForegroundColor Green
+        Write-Host "Install success" -ForegroundColor Green
     }
 
     #restore path
@@ -1097,6 +1097,17 @@ function Start-Package {
     $readmeSrc = Join-Path -Path (Get-Source-Path kicad) -ChildPath "LICENSE.README"
     Copy-Item $readmeSrc -Destination "$destRoot\COPYRIGHT.txt" -Force
 
+    $outTags = ""
+    if( $buildType -eq 'Debug' )
+    {
+        $outTags = '-dbg'
+    }
+
+    if( $lite ) {
+        $outTags = "$outTag-lite"
+    }
+
+    $outFileName = "kicad-$packageVersion-$nsisArch$outTags.exe"
 
     if( $lite )
     {
@@ -1108,7 +1119,7 @@ function Start-Package {
         
         makensis /DPACKAGE_VERSION=$packageVersion `
             /DKICAD_VERSION=$kicadVersion `
-            /DOUTFILE="..\kicad-$packageVersion-$nsisArch-lite.exe" `
+            /DOUTFILE="..\..\$outFileName" `
             /DARCH="$nsisArch" `
             /DLIBRARIES_TAG="$liteGitTag" `
             /DMSVC `
@@ -1118,7 +1129,7 @@ function Start-Package {
     {
         makensis /DPACKAGE_VERSION=$packageVersion `
             /DKICAD_VERSION=$kicadVersion `
-            /DOUTFILE="..\kicad-$packageVersion-$nsisArch.exe" `
+            /DOUTFILE="..\..\$outFileName" `
             /DARCH="$nsisArch" `
             /DMSVC `
             "$nsisScript"
