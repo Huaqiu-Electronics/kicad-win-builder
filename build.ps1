@@ -1070,7 +1070,7 @@ function Start-Package {
     Write-Host "Copying ngspice lib $ngspiceLib to $destLib"
     Copy-Item $ngspiceLib -Destination $destLib -Recurse -Container  -Force
 
-    $ngspiceShare = Join-Path -Path $vcpkgInstalledRoot -ChildPath "share\ngspice"
+    $ngspiceShare = Join-Path -Path $vcpkgInstalledRootPrimary -ChildPath "share\ngspice"
     Write-Host "Copying ngspice share $ngspiceShare to $destLib"
     Copy-Item $ngspiceShare -Destination $destLib -Recurse -Container  -Force
 
