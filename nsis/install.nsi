@@ -283,11 +283,23 @@ VIAddVersionKey "FileVersion" "${PACKAGE_VERSION}"
 
 Function .onInit
   !ifdef MSVC
+  ; MSVC builds use python 3.8+ which dropped windows 7 support and will crash
   ${IfNot} ${AtLeastWin8.1}
       MessageBox MB_OK $(ERROR_WIN_MIN)
       Quit
   ${EndIf}
   !endif
+
+  ; Check if we already have an install (MSYS2)
+  ; Refuse to run until its uninstalled
+  ReadRegStr $0 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "DisplayName"
+  ${If} $0 != ""
+    ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "MSVC"
+    ${If} $1 != 1
+      MessageBox MB_OK $(ERROR_UNINSTALL_FIRST)
+      Quit
+    ${EndIf}
+  ${EndIf}
 
   !ifdef LIBRARIES_TAG
   StrCpy $DELETE_DOWNLOADED_FILES "unknown"

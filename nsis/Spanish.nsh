@@ -13,6 +13,7 @@ Pulse Siguiente para continuar."
 LangString ERROR_ADMIN_REQ  ${LANG_SPANISH} "¡Se necesitan derechos de Administrador para instalar KiCad!"
 LangString ERROR_WIN9X      ${LANG_SPANISH} "¡Error! ¡No puede ejecutarse bajo Windows 9x!"
 LangString ERROR_WIN_MIN    ${LANG_SPANISH} "A minimum of Windows 8.1 is required to install KiCad using this installer"
+LangString ERROR_UNINSTALL_FIRST    ${LANG_SPANISH} "You must run the uninstaller on your existing KiCad ${KICAD_VERSION} installation to proceed with installation"
 
 ;Other languages
 LangString LANGUAGE_NAME_EN ${LANG_SPANISH} "Inglés"

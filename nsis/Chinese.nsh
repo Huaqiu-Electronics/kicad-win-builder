@@ -13,6 +13,7 @@ LangString WELCOME_PAGE_TEXT ${LANG_SIMPCHINESE} "此安装程序将指导您完
 LangString ERROR_ADMIN_REQ  ${LANG_SIMPCHINESE} "安装 KiCad 需要管理员权限！"
 LangString ERROR_WIN9X      ${LANG_SIMPCHINESE} "错误！这不能在 Windows 9x 下运行！"
 LangString ERROR_WIN_MIN    ${LANG_SIMPCHINESE} "A minimum of Windows 8.1 is required to install KiCad using this installer"
+LangString ERROR_UNINSTALL_FIRST    ${LANG_SIMPCHINESE} "You must run the uninstaller on your existing KiCad ${KICAD_VERSION} installation to proceed with installation"
 
 ;Other languages
 LangString LANGUAGE_NAME_EN ${LANG_SIMPCHINESE} "英语"
