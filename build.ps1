@@ -251,19 +251,19 @@ function Get-MSVC-Arch()
     $msvc = "amd64"
     switch ($Arch)
     {
-        {[Arch]::x64} {
+        ([Arch]::x64) {
             $msvc = "amd64"
             break   
         }
-        {[Arch]::x86} {
+        ([Arch]::x86) {
             $msvc = "x86"
             break   
         }
-        {[Arch]::arm} {
+        ([Arch]::arm) {
             $msvc = "arm"
             break   
         }
-        {[Arch]::arm64} {
+        ([Arch]::arm64) {
             $msvc = "arm64"
             break   
         }
