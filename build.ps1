@@ -167,10 +167,20 @@ $settingDefault = @{
 
 $settingsSaved = @{}
 if ( Test-Path $settingsPath ) {
+    Write-Host "Loading settings from $settingsPath"
+
     $settingsObj = Get-Content -Path $settingsPath | ConvertFrom-Json
 
-    $settingsObj.psobject.properties | Foreach { $settingsSaved[$_.Name] = $_.Value }
+    Write-Host "-----"
+    $settingsObj.psobject.properties | Foreach { 
+        $settingsSaved[$_.Name] = $_.Value 
+        Write-Host "$($_.Name): $($_.Value)"
+    }
+    Write-Host "-----"
+} else {
+    Write-Host "Existing settings not found" -ForegroundColor DarkYellow
 }
+
 function Merge-HashTable {
     param(
         [hashtable] $default,
