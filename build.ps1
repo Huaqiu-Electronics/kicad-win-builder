@@ -293,19 +293,19 @@ function Get-NSIS-Arch()
     $nsis = ""
     switch ($Arch)
     {
-        {[Arch]::x64} {
+        ([Arch]::x64) {
             $nsis = "x86_64"
             break
         }
-        {[Arch]::x86} {
+        ([Arch]::x86) {
             $nsis = "i686"
             break   
         }
-        {[Arch]::arm} {
+        ([Arch]::arm) {
             $nsis = "arm"
             break   
         }
-        {[Arch]::arm64} {
+        ([Arch]::arm64) {
             $nsis = "arm64"
             break   
         }
