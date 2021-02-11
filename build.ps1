@@ -1085,10 +1085,20 @@ function Start-Package {
     Copy-Item $ngspiceShare -Destination $destLib -Recurse -Container  -Force
 
     ## now python3
-    $python3Source = "$vcpkgInstalledRootPrimary\tools\python3\"
+    $python3Source = "$vcpkgInstalledRootPrimary\tools\python3\*"
     Write-Host "Copying python3 $python3Source to $destLib"
-    Copy-Item $python3Source -Destination $destLib -Recurse -Container  -Force
+    Copy-Item $python3Source -Destination $destBin -Recurse -Force
     
+    $python3Source = "$vcpkgInstalledRootPrimary\tools\python3\*"
+    Write-Host "Copying python3 $python3Source to $destLib"
+    Copy-Item $python3Source -Destination $destBin -Recurse -Force
+    
+    $siteCustomizeSource = Join-Path -Path $PSScriptRoot -ChildPath ".\sitecustomize.py"
+    $siteCustomizeDest = Join-Path -Path $destBin -ChildPath "Lib/site-packages"
+    Copy-Item $siteCustomizeSource -Destination $siteCustomizeDest -Force
+    
+
+
     ## now libxslt
     $xsltprocSource = "$vcpkgInstalledRootPrimary\tools\libxslt\xsltproc.exe"
     Write-Host "Copying $xsltprocSource to $destBin"
