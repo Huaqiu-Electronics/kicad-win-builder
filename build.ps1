@@ -1100,14 +1100,16 @@ function Start-Package {
     Copy-Item $siteCustomizeSource -Destination $siteCustomizeDest -Force
 
     ### lets setup pip
+    Write-Host "Ensuring pip is bundled and installed"
     $pythonBin = Join-Path -Path $destBin -ChildPath "python.exe"
     $wxRequirements = Join-Path -Path $PSScriptRoot -ChildPath "\support\wxrequirements.txt"
-    & $pythonBin -m ensurepip
+    & $pythonBin -m ensurepip --upgrade
     if ($LastExitCode -ne 0) {
         Write-Error "Error ensuring pip"
         Exit [ExitCodes]::EnsurePip
     }
 
+    Write-Host "Making sure the wxPython requirements are included"
     & $pythonBin -m pip install -r $wxRequirements
     if ($LastExitCode -ne 0) {
         Write-Error "Error installing wxpython requirements"
