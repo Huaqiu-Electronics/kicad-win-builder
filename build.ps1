@@ -82,6 +82,8 @@ enum ExitCodes {
     NsisFailure = 6
     DownloadExtractFailure = 7
     GitCloneFailure = 8
+    EnsurePip = 9
+    WxPythonRequirements = 10
 }
 
 # Load the .NET compression library, powershell's expand-archive is horrid in performance
@@ -1093,11 +1095,24 @@ function Start-Package {
     Write-Host "Copying python3 $python3Source to $destLib"
     Copy-Item $python3Source -Destination $destBin -Recurse -Force
     
-    $siteCustomizeSource = Join-Path -Path $PSScriptRoot -ChildPath ".\sitecustomize.py"
+    $siteCustomizeSource = Join-Path -Path $PSScriptRoot -ChildPath "\support\sitecustomize.py"
     $siteCustomizeDest = Join-Path -Path $destBin -ChildPath "Lib/site-packages"
     Copy-Item $siteCustomizeSource -Destination $siteCustomizeDest -Force
-    
 
+    ### lets setup pip
+    $pythonBin = Join-Path -Path $destBin -ChildPath "python.exe"
+    $wxRequirements = Join-Path -Path $PSScriptRoot -ChildPath "\support\wxrequirements.txt"
+    & $pythonBin -m ensurepip
+    if ($LastExitCode -ne 0) {
+        Write-Error "Error ensuring pip"
+        Exit [ExitCodes]::EnsurePip
+    }
+
+    & $pythonBin -m pip install -r $wxRequirements
+    if ($LastExitCode -ne 0) {
+        Write-Error "Error installing wxpython requirements"
+        Exit [ExitCodes]::WxPythonRequirements
+    }
 
     ## now libxslt
     $xsltprocSource = "$vcpkgInstalledRootPrimary\tools\libxslt\xsltproc.exe"
