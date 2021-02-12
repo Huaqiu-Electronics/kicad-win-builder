@@ -445,7 +445,7 @@ Section -Prerequisites
   ${If} $R1 != "1"
     ${OrIf} $R2 < ${VCRUNTIME_MINIMUM_BLD}
       File "vcredist\${VC_REDIST}"
-      ExecWait '"$INSTDIR\${VC_REDIST}" /quiet'
+      ExecWait '"$INSTDIR\${VC_REDIST}" /install /passive /norestart'
       Delete "$INSTDIR\${VC_REDIST}"
   ${EndIf}
 SectionEnd
