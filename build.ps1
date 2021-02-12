@@ -1088,12 +1088,12 @@ function Start-Package {
 
     ## now python3
     $python3Source = "$vcpkgInstalledRootPrimary\tools\python3\*"
-    Write-Host "Copying python3 $python3Source to $destLib"
+    Write-Host "Copying python3 $python3Source to $destBin"
     Copy-Item $python3Source -Destination $destBin -Recurse -Force
-    
-    $python3Source = "$vcpkgInstalledRootPrimary\tools\python3\*"
-    Write-Host "Copying python3 $python3Source to $destLib"
-    Copy-Item $python3Source -Destination $destBin -Recurse -Force
+
+    ### but delete the scripts folder as this stuff is mostly host based paths
+    ### We will create these later
+    Remove-Item (Join-Path -Path $destBin -ChildPath "\Scripts\") -Recurse
     
     $siteCustomizeSource = Join-Path -Path $PSScriptRoot -ChildPath "\support\sitecustomize.py"
     $siteCustomizeDest = Join-Path -Path $destBin -ChildPath "Lib/site-packages"

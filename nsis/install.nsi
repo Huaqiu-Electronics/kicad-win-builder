@@ -470,6 +470,14 @@ Section $(TITLE_SEC_MAIN) SEC01
   SetOutPath "$INSTDIR\ssl\certs"
   File /nonfatal "..\ssl\certs\ca-bundle.crt"
 
+!ifdef MSVC
+  !insertmacro ExclusiveDetailPrint "Installing pip"
+  nsExec::Exec '"$INSTDIR\bin\python.exe" -m pip install --upgrade --force-reinstall pip'
+  Pop $0 # return value/error/timeout
+  Pop $1 # printed text, up to ${NSIS_MAX_STRLEN}
+  DetailPrint "$1"
+!endif
+
   ${RegisterApplication} "kicad.exe" $(APP_FRIENDLY_KICAD)
   ${RegisterApplication} "pcbnew.exe" $(APP_FRIENDLY_PCBNEW)
   ${RegisterApplication} "eeschema.exe" $(APP_FRIENDLY_EESCHEMA)
