@@ -1062,6 +1062,7 @@ function Start-Package {
     $vcpkgInstalledBin = Join-Path -Path $vcpkgInstalledRoot -ChildPath "bin\"
     $destBin = Join-Path -Path $destRoot -ChildPath "bin\"
     $destLib = Join-Path -Path $destRoot -ChildPath "lib\"
+    $destKicadShare = Join-Path -Path $destRoot -ChildPath "share\kicad"
 
     Write-Host "Copying from $vcpkgInstalledBin to $destBin" -ForegroundColor Yellow
     foreach( $copyFilter in $vcpkgBinCopy ) 
@@ -1148,6 +1149,9 @@ function Start-Package {
 
     if( $lite )
     {
+        # needed for lite mode to enable modules and libraries, why? who knows for now
+        New-Item -ItemType "directory" -Path (Join-Path -Path $destKicadShare -ChildPath "\modules")
+        New-Item -ItemType "directory" -Path (Join-Path -Path $destKicadShare -ChildPath "\library")
         $liteGitTag = "master"
         $found = $packageVersion -match '^\d+\.\d+\.\d+'
         if ($found) {
