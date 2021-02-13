@@ -66,7 +66,7 @@
 Var DELETE_DOWNLOADED_FILES
 !define KICAD_SYMBOLS_FILE "kicad-symbols-${LIBRARIES_TAG}.zip"
 !define KICAD_SYMBOLS_FOLDER "kicad-symbols-${LIBRARIES_TAG}"
-!define KICAD_SYMBOLS_URL "https://gitlab.com/kicad/libraries/kicad-symbols/-/archive/${LIBRARIES_TAG}/kicad-footprints-${LIBRARIES_TAG}.zip"
+!define KICAD_SYMBOLS_URL "https://gitlab.com/kicad/libraries/kicad-symbols/-/archive/${LIBRARIES_TAG}/kicad-symbols-${LIBRARIES_TAG}.zip"
 !define KICAD_FOOTPRINTS_FILE "kicad-footprints-${LIBRARIES_TAG}.zip"
 !define KICAD_FOOTPRINTS_FOLDER "kicad-footprints-${LIBRARIES_TAG}"
 !define KICAD_FOOTPRINTS_URL "https://gitlab.com/kicad/libraries/kicad-footprints/-/archive/${LIBRARIES_TAG}/kicad-footprints-${LIBRARIES_TAG}.zip"
