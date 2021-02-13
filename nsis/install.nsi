@@ -726,7 +726,7 @@ Section Uninstall
   Delete "${SMPATH}\Bitmap2component.lnk"
   Delete "${SMPATH}\PCB calculator.lnk"
   Delete "${SMPATH}\Pagelayout editor.lnk"
-  Delete "$DESKTOP\KiCad.lnk"
+  Delete "$DESKTOP\KiCad ${KICAD_VERSION}.lnk"
   Delete "$INSTDIR\HomePage.url"
   Delete "$INSTDIR\UserForum.url"
   Delete "$INSTDIR\AltDownloadSite.url"
