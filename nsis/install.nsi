@@ -34,13 +34,11 @@
 
 ; General Product Description Definitions
 !define PRODUCT_NAME "KiCad"
-!define LIBRARIES_WEB_SITE "https://kicad.github.io/"
-!define KICAD_MAIN_SITE "www.kicad-pcb.org/"
+!define KICAD_MAIN_SITE "www.kicad.org/"
 !define COMPANY_NAME "KiCad"
 !define TRADE_MARKS ""
 !define COPYRIGHT "Kicad Developers Team"
 !define COMMENTS ""
-!define KICAD_USER_FORUM "https://forum.kicad.info/"
 !define FREECAD_WEB_SITE "https://www.freecadweb.org/"
 
 !define ENV_HKLM 'HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"'
@@ -617,15 +615,9 @@ SectionEnd
 Section -CreateShortcuts
   !insertmacro ExclusiveDetailPrint $(CREATING_SHORTCUTS)
   SetOutPath $INSTDIR
-  WriteIniStr "$INSTDIR\HomePage.url"     "InternetShortcut" "URL" "${KICAD_MAIN_SITE}"
-  WriteIniStr "$INSTDIR\UserForum.url"    "InternetShortcut" "URL" "${KICAD_USER_FORUM}"
-  WriteIniStr "$INSTDIR\LibrariesGroup.url" "InternetShortcut" "URL" "${LIBRARIES_WEB_SITE}"
   SetShellVarContext all
 
   CreateDirectory "${SMPATH}"
-  CreateShortCut "${SMPATH}\Home Page.lnk" "$INSTDIR\HomePage.url"
-  CreateShortCut "${SMPATH}\KiCad Libraries.lnk" "$INSTDIR\LibrariesGroup.url"
-  CreateShortCut "${SMPATH}\KiCad User Forum.lnk" "$INSTDIR\UserForum.url"
   CreateShortCut "${SMPATH}\Uninstall.lnk" "$INSTDIR\uninstaller.exe"
   CreateShortCut "${SMPATH}\KiCad.lnk" "$INSTDIR\bin\kicad.exe"
   CreateShortCut "${SMPATH}\Eeschema.lnk" "$INSTDIR\bin\eeschema.exe"
@@ -712,10 +704,6 @@ Section Uninstall
   !insertmacro ExclusiveDetailPrint $(REMOVING_SHORTCUTS)
   RMDir /r "${SMPATH}"
   Delete "$DESKTOP\KiCad ${KICAD_VERSION}.lnk"
-  Delete "$INSTDIR\HomePage.url"
-  Delete "$INSTDIR\UserForum.url"
-  Delete "$INSTDIR\AltDownloadSite.url"
-  Delete "$INSTDIR\LibrariesGroup.url"
 
   ;remove all program files now
   !insertmacro ExclusiveDetailPrint $(REMOVING_APP)
