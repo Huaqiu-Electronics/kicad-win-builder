@@ -713,26 +713,13 @@ Section Uninstall
   ;remove start menu shortcuts and web page links
   SetShellVarContext all
   !insertmacro ExclusiveDetailPrint $(REMOVING_SHORTCUTS)
-  Delete "${SMPATH}\Home Page.lnk"
-  Delete "${SMPATH}\KiCad Libraries.lnk"
-  Delete "${SMPATH}\KiCad Alternate Download.lnk"
-  Delete "${SMPATH}\KiCad Devel Group.lnk"
-  Delete "${SMPATH}\KiCad User Forum.lnk"
-  Delete "${SMPATH}\Uninstall.lnk"
-  Delete "${SMPATH}\KiCad ${KICAD_VERSION}.lnk"
-  Delete "${SMPATH}\Eeschema.lnk"
-  Delete "${SMPATH}\Pcbnew.lnk"
-  Delete "${SMPATH}\Gerbview.lnk"
-  Delete "${SMPATH}\Bitmap2component.lnk"
-  Delete "${SMPATH}\PCB calculator.lnk"
-  Delete "${SMPATH}\Pagelayout editor.lnk"
+  RMDir /r "${SMPATH}"
   Delete "$DESKTOP\KiCad ${KICAD_VERSION}.lnk"
   Delete "$INSTDIR\HomePage.url"
   Delete "$INSTDIR\UserForum.url"
   Delete "$INSTDIR\AltDownloadSite.url"
   Delete "$INSTDIR\DevelGroup.url"
   Delete "$INSTDIR\LibrariesGroup.url"
-  RMDir "$SMPROGRAMS\KiCad"
 
   ;remove all program files now
   !insertmacro ExclusiveDetailPrint $(REMOVING_APP)
