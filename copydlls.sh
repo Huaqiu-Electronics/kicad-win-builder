@@ -305,11 +305,11 @@ makensis() {
     if [ -z $GIT_TAG ]; then
       GIT_TAG="master"
     fi
-	
-	NSIS_SCRIPT="install.nsi"
-	if [[ "$KICAD_VERSION" == "5.1" ]]; then
-		NSIS_SCRIPT="install-5.1.nsi"
-	fi
+
+    NSIS_SCRIPT="install.nsi"
+    if [[ "$KICAD_VERSION" == "5.1" ]]; then
+        NSIS_SCRIPT="install-5.1.nsi"
+    fi
 
     if [ -z $LITE_ONLY ]; then
     echo Generating full installer...
