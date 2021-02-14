@@ -1081,11 +1081,7 @@ function Start-Package {
     ## ngspice related
     $ngspiceLib = Join-Path -Path $vcpkgInstalledRoot -ChildPath "lib\ngspice"
     Write-Host "Copying ngspice lib $ngspiceLib to $destLib"
-    Copy-Item $ngspiceLib -Destination $destLib -Recurse -Container  -Force
-
-    $ngspiceShare = Join-Path -Path $vcpkgInstalledRootPrimary -ChildPath "share\ngspice"
-    Write-Host "Copying ngspice share $ngspiceShare to $destLib"
-    Copy-Item $ngspiceShare -Destination $destLib -Recurse -Container  -Force
+    Copy-Item $ngspiceLib -Destination "$destLib\ngspice" -Recurse -Container  -Force
 
     ## now python3
     $python3Source = "$vcpkgInstalledRootPrimary\tools\python3\*"
