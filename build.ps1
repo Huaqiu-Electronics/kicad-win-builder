@@ -1091,8 +1091,20 @@ function Start-Package {
 
     ## ngspice related
     $ngspiceLib = Join-Path -Path $vcpkgInstalledRoot -ChildPath "lib\ngspice"
+    $ngspiceDestLib = Join-Path -Path $destLib -ChildPath "ngspice\"
     Write-Host "Copying ngspice lib $ngspiceLib to $destLib"
-    Copy-Item $ngspiceLib -Destination "$destLib\ngspice" -Recurse -Container  -Force
+    Copy-Item $ngspiceLib -Destination $ngspiceDestLib -Recurse -Container  -Force
+
+    ### fixup for 64-bit....ngspice appends "64" to the end of the code model names wrongly
+    if( $arch -eq [Arch]::x64 )
+    {
+        Get-ChildItem $ngspiceDestLib -Filter *64.cm |
+        Foreach-Object {
+            $newName = $_.Name -replace '64.cm','.cm'
+        
+            Rename-Item -Path $_.FullName -NewName $newName
+        }
+    }
 
     ## now python3
     $python3Source = "$vcpkgInstalledRootPrimary\tools\python3\*"
