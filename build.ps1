@@ -943,6 +943,17 @@ function Build-Vcpkg {
     } else {
         Write-Host "vcpkg ports installed/updated" -ForegroundColor Green
     }
+    
+    # Unforunately, theres no "install or upgrade" command
+    # We can safely however run ugprade and install and it'll just do nothing in the worse case
+    vcpkg upgrade $dependencies --no-dry-run
+    
+    if ($LastExitCode -ne 0) {
+        Write-Error "Failure upgrading vcpkg ports"
+        Exit [ExitCodes]::VcpkgInstallPortsFailure
+    } else {
+        Write-Host "vcpkg ports installed/updated" -ForegroundColor Green
+    }
 
     Pop-Location
 }
