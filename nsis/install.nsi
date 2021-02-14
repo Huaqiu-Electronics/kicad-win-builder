@@ -285,7 +285,6 @@ Function .onInit
       MessageBox MB_OK $(ERROR_WIN_MIN)
       Quit
   ${EndIf}
-  !endif
 
   ; Check if we already have an install (MSYS2)
   ; Refuse to run until its uninstalled
@@ -297,6 +296,7 @@ Function .onInit
       Quit
     ${EndIf}
   ${EndIf}
+  !endif
 
   !ifdef LIBRARIES_TAG
   StrCpy $DELETE_DOWNLOADED_FILES "unknown"
