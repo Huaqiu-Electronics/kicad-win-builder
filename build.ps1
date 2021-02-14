@@ -935,7 +935,7 @@ function Build-Vcpkg {
         $dependencies[$i] = $dependencies[$i]+":$triplet"
     }
     
-    vcpkg install $dependencies
+    vcpkg install $dependencies --recurse
     
     if ($LastExitCode -ne 0) {
         Write-Error "Failure installing vcpkg ports"
