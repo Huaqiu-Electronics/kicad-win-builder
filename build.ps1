@@ -9,16 +9,16 @@
 #
 #   Checkout any required tools
 #   ./build.ps1 -Init
-#   
+#
 #   Rebuilds vcpkg dependencies (if updated)
 #   ./build.ps1 -Vcpkg [-Latest] [-Arch x64]
-#   
+#
 #   Triggers a build
 #   ./build.ps1 -Build [-Latest] [-Arch x64] [-BuildType Release]
-#   
+#
 #   Triggers a package operation
 #   ./build.ps1 -Package [-Arch x64] [-BuildType Release] [-Lite] [-IncludeDebugSymbols]
-#   
+#
 #   IncludeDebugSymbols will include PDBs (off by default)
 #   Lite will build the light version of the installer (no libraries)
 ##
@@ -53,14 +53,14 @@ param(
     [Parameter(Mandatory=$False, ParameterSetName="package")]
     [ValidateSet('Release', 'Debug')]
     [string]$BuildType = 'Release',
-	
+
     [Parameter(Mandatory=$True, ParameterSetName="config")]
 	[ValidateScript({Test-Path $_})]
     [string]$VcpkgPath,
-    
+
     [Parameter(Mandatory=$False, ParameterSetName="package")]
     [switch]$IncludeDebugSymbols,
-    
+
     [Parameter(Mandatory=$False, ParameterSetName="package")]
     [switch]$Lite
 )
@@ -89,9 +89,9 @@ enum ExitCodes {
 # Load the .NET compression library, powershell's expand-archive is horrid in performance
 Add-Type -Assembly 'System.IO.Compression.FileSystem'
 
-### 
+###
 ## Base setup
-### 
+###
 
 $cmakeFolder = 'cmake-3.16.6-win64-x64'
 $cmakeDownload = 'https://github.com/Kitware/CMake/releases/download/v3.16.6/cmake-3.16.6-win64-x64.zip'
@@ -156,7 +156,7 @@ $env:Path = $swigWinPath+";"+$gettextPath+";"+$nsisPath+";"+$doxygenPath+";"+$en
 $env:GIT_REDIRECT_STDERR='2>&1'
 
 
-### 
+###
 # Load and handle Config
 ###
 $settingsPath = $PSScriptRoot + "\settings.json";
@@ -174,8 +174,8 @@ if ( Test-Path $settingsPath ) {
     $settingsObj = Get-Content -Path $settingsPath | ConvertFrom-Json
 
     Write-Host "-----"
-    $settingsObj.psobject.properties | Foreach { 
-        $settingsSaved[$_.Name] = $_.Value 
+    $settingsObj.psobject.properties | Foreach {
+        $settingsSaved[$_.Name] = $_.Value
         Write-Host "$($_.Name): $($_.Value)"
     }
     Write-Host "-----"
@@ -210,7 +210,7 @@ $settings = Merge-HashTable -default $settingDefault -uppend $settingsSaved
 $env:VCPKG_PLATFORM_TOOLSET = $settings.VcpkgPlatformToolset
 
 
-### 
+###
 # Setup aliases to shorten accessing tools
 ##
 
@@ -265,19 +265,19 @@ function Get-MSVC-Arch()
     {
         ([Arch]::x64) {
             $msvc = "amd64"
-            break   
+            break
         }
         ([Arch]::x86) {
             $msvc = "x86"
-            break   
+            break
         }
         ([Arch]::arm) {
             $msvc = "arm"
-            break   
+            break
         }
         ([Arch]::arm64) {
             $msvc = "arm64"
-            break   
+            break
         }
     }
 
@@ -301,15 +301,15 @@ function Get-NSIS-Arch()
         }
         ([Arch]::x86) {
             $nsis = "i686"
-            break   
+            break
         }
         ([Arch]::arm) {
             $nsis = "arm"
-            break   
+            break
         }
         ([Arch]::arm64) {
             $nsis = "arm64"
-            break   
+            break
         }
     }
 
@@ -417,7 +417,7 @@ function Get-Source {
         if($sourceType -eq [SourceType]::git)
         {
             & git clone "$url" "$dest"
-            
+
             if (!$?)
             {
                 Write-Error "Error cloning kicad repo"
@@ -426,17 +426,17 @@ function Get-Source {
         }
         elseif($sourceType -eq [SourceType]::tar)
         {
-            
+
         }
     }
     elseif($latest)
     {
         if($sourceType -eq [SourceType]::git)
         {
-            git -C "$dest" reset `@`{upstream`}
-            git -C "$dest" clean -f
+            git -C "$dest" reset --hard `@`{upstream`}
+            git -C "$dest" clean -fdx
             git -C "$dest" pull --rebase
-            
+
             if (!$?)
             {
                 Write-Error "Error cloning kicad repo"
@@ -445,11 +445,11 @@ function Get-Source {
         }
         elseif($sourceType -eq [SourceType]::tar)
         {
-            
+
         }
     }
 
-    
+
 }
 
 function Get-Source-Path([string]$subfolder) {
@@ -467,7 +467,7 @@ function Build-Library-Source {
         [string]$buildType = 'Release',
         [string]$libraryFolderName
     )
-    
+
     Push-Location (Get-Source-Path $libraryFolderName)
 
     $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
@@ -484,7 +484,7 @@ function Build-Library-Source {
             -DCMAKE_INSTALL_PREFIX="$installPath" `
             -DCMAKE_RULE_MESSAGES:BOOL="OFF" `
             -DCMAKE_VERBOSE_MAKEFILE:BOOL="OFF" `
-            2>&1 | % ToString 
+            2>&1 | % ToString
     }
 
     if ($LastExitCode -ne 0) {
@@ -539,7 +539,7 @@ function Install-Kicad {
         [ValidateSet('Release', 'Debug')]
         [string]$buildType = 'Release'
     )
-    
+
     $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
 
     #step down into kicad folder
@@ -552,7 +552,7 @@ function Install-Kicad {
         $ErrorActionPreference = 'SilentlyContinue'
         cmake --install $cmakeBuildFolder > $null
     }
-    
+
     if ($LastExitCode -ne 0) {
         Write-Error "Failure with cmake install"
         Pop-Location
@@ -593,7 +593,7 @@ function Build-Kicad {
         Remove-Item $cmakeBuildFolder -Recurse -ErrorAction SilentlyContinue
     }
 
-    
+
     $installPath = Join-Path -Path $outPathRoot -ChildPath "$buildName/"
     $toolchainPath = Join-Path -Path $settings["VcpkgPath"] -ChildPath "/scripts/buildsystems/vcpkg.cmake"
 
@@ -625,7 +625,7 @@ function Build-Kicad {
             -DKICAD_BUILD_QA_TESTS="OFF" `
             -DKICAD_WIN32_DPI_AWARE="ON" `
             -DKICAD_BUILD_I18N="ON" `
-            2>&1 | % ToString 
+            2>&1 | % ToString
     }
 
     if ($LastExitCode -ne 0) {
@@ -634,12 +634,12 @@ function Build-Kicad {
         Exit [ExitCodes]::CMakeGenerationFailure
     } else {
         Write-Host "Invoking cmake build" -ForegroundColor Yellow
-        
+
         & {
             $ErrorActionPreference = 'SilentlyContinue'
-            cmake --build $cmakeBuildFolder -j 2>&1 | % ToString 
+            cmake --build $cmakeBuildFolder -j 2>&1 | % ToString
         }
-        
+
         if ($LastExitCode -ne 0) {
             Write-Error "Failure with cmake build"
             Pop-Location
@@ -733,7 +733,7 @@ function Get-Tool {
         [Parameter(Mandatory=$False)]
         [bool]$ExtractInSupportRoot = $False
     )
-    
+
     if( -not (Test-Path $DestPath) )
     {
         Write-Host "Downloading $ToolName..." -ForegroundColor Yellow
@@ -745,7 +745,7 @@ function Get-Tool {
         {
             Remove-Item -Path $DownloadPath -ErrorAction SilentlyContinue
             Write-Error "Invalid checksum for $ToolName, expected: $cmakeChecksum actual: $calculatedChecksum"
-            
+
             Exit [ExitCodes]::DownloadChecksumFailure
         }
 
@@ -756,11 +756,11 @@ function Get-Tool {
             {
                 Unzip $DownloadPath $supportPathRoot
             }
-            else 
+            else
             {
                 Unzip $DownloadPath $DestPath
             }
-    
+
             if (!$?) {
                 Write-Error "Unable to extract $ToolName"
                 Exit 2
@@ -772,7 +772,7 @@ function Get-Tool {
                 Move-Item $folders $DestPath
             }
         }
-        else 
+        else
         {
             Move-Item $DownloadPath $DestPath
         }
@@ -886,9 +886,9 @@ function Build-Vcpkg {
         # for now, destroy the folder if it isnt configured on our side
         if( Test-Path $vcpkgPath )
         {
-            Remove-Item $vcpkgPath -Recurse -Force 
+            Remove-Item $vcpkgPath -Recurse -Force
         }
-        
+
         Write-Host "Checking out vcpkg to $vcpkgPath" -ForegroundColor Yellow
         git clone https://gitlab.com/kicad/packaging/vcpkg.git $vcpkgPath
 
@@ -906,7 +906,7 @@ function Build-Vcpkg {
         Write-Host "Updating vcpkg git repo" -ForegroundColor Yellow
         & git pull --rebase
     }
-    
+
     .\bootstrap-vcpkg.bat
 
     # Setup dependencies
@@ -915,7 +915,7 @@ function Build-Vcpkg {
 
     $dependencies = @( "boost",
                         "cairo",
-                        "curl", 
+                        "curl",
                         "glew",
                         "gettext",
                         "glm",
@@ -934,20 +934,20 @@ function Build-Vcpkg {
     for ($i = 0; $i -lt $dependencies.Count; $i++) {
         $dependencies[$i] = $dependencies[$i]+":$triplet"
     }
-    
+
     vcpkg install $dependencies --recurse
-    
+
     if ($LastExitCode -ne 0) {
         Write-Error "Failure installing vcpkg ports"
         Exit [ExitCodes]::VcpkgInstallPortsFailure
     } else {
         Write-Host "vcpkg ports installed/updated" -ForegroundColor Green
     }
-    
+
     # Unforunately, theres no "install or upgrade" command
     # We can safely however run ugprade and install and it'll just do nothing in the worse case
     vcpkg upgrade $dependencies --no-dry-run
-    
+
     if ($LastExitCode -ne 0) {
         Write-Error "Failure upgrading vcpkg ports"
         Exit [ExitCodes]::VcpkgInstallPortsFailure
@@ -972,7 +972,7 @@ function Get-KiCad-PackageVersion {
 function Get-KiCad-Version {
     $srcFile = Join-Path -Path (Get-Source-Path kicad) -ChildPath "CMakeModules\KiCadVersion.cmake"
     $result = Select-String -Path $srcFile -Pattern '(?<=KICAD_SEMANTIC_VERSION\s")([0-9]+).([0-9])+' -AllMatches | % { $_.Matches } | % { $_.Value } | Select-Object -First 1
-    
+
     return $result
 }
 
@@ -994,7 +994,7 @@ function Start-Package {
     $kicadVersion = Get-KiCad-Version
 
     $nsisArch = Get-NSIS-Arch -Arch $arch
-    
+
     Write-Host "Package Version: $packageVersion"
     Write-Host "KiCad Version: $kicadVersion"
     if($lite) {
@@ -1014,7 +1014,7 @@ function Start-Package {
     # Now delete the existing output content
     if( Test-Path $destRoot )
     {
-        Remove-Item $destRoot -Recurse -Force 
+        Remove-Item $destRoot -Recurse -Force
     }
 
     Install-Kicad -arch $arch -buildType $buildType
@@ -1076,7 +1076,7 @@ function Start-Package {
     $destKicadShare = Join-Path -Path $destRoot -ChildPath "share\kicad"
 
     Write-Host "Copying from $vcpkgInstalledBin to $destBin" -ForegroundColor Yellow
-    foreach( $copyFilter in $vcpkgBinCopy ) 
+    foreach( $copyFilter in $vcpkgBinCopy )
     {
         $source = "$vcpkgInstalledBin\$copyFilter"
 
@@ -1084,7 +1084,7 @@ function Start-Package {
         {
             $source += ".dll";
         }
-        
+
         Write-Host "Copying $source"
         Copy-Item $source -Destination $destBin -Recurse
     }
@@ -1101,7 +1101,7 @@ function Start-Package {
         Get-ChildItem $ngspiceDestLib -Filter *64.cm |
         Foreach-Object {
             $newName = $_.Name -replace '64.cm','.cm'
-        
+
             Rename-Item -Path $_.FullName -NewName $newName
         }
     }
@@ -1114,7 +1114,7 @@ function Start-Package {
     ### but delete the scripts folder as this stuff is mostly host based paths
     ### We will create these later
     Remove-Item (Join-Path -Path $destBin -ChildPath "\Scripts\") -Recurse
-    
+
     $siteCustomizeSource = Join-Path -Path $PSScriptRoot -ChildPath "\support\sitecustomize.py"
     $siteCustomizeDest = Join-Path -Path $destBin -ChildPath "Lib/site-packages"
     Copy-Item $siteCustomizeSource -Destination $siteCustomizeDest -Force
@@ -1176,7 +1176,7 @@ function Start-Package {
         if ($found) {
             $liteGitTag = $matches[0]
         }
-        
+
         makensis /DPACKAGE_VERSION=$packageVersion `
             /DKICAD_VERSION=$kicadVersion `
             /DOUTFILE="..\..\$outFileName" `
@@ -1195,7 +1195,7 @@ function Start-Package {
             "$nsisScript"
     }
 
-        
+
     if ($LastExitCode -ne 0) {
         Write-Error "Error building nsis package"
         Exit [ExitCodes]::NsisFailure
