@@ -434,7 +434,7 @@ function Get-Source {
         if($sourceType -eq [SourceType]::git)
         {
             git -C "$dest" reset --hard `@`{upstream`}
-            git -C "$dest" clean -fdx
+            git -C "$dest" clean -f
             git -C "$dest" pull --rebase
 
             if (!$?)
