@@ -84,6 +84,9 @@ enum ExitCodes {
     GitCloneFailure = 8
     EnsurePip = 9
     WxPythonRequirements = 10
+    GitResetFailure = 11
+    GitCleanFailure = 12
+    GitPullRebaseFailure = 13
 }
 
 # Load the .NET compression library, powershell's expand-archive is horrid in performance
@@ -418,8 +421,7 @@ function Get-Source {
         {
             & git clone "$url" "$dest"
 
-            if (!$?)
-            {
+            if ($LastExitCode -ne 0) {
                 Write-Error "Error cloning kicad repo"
                 Exit [ExitCodes]::GitCloneFailure
             }
@@ -433,14 +435,24 @@ function Get-Source {
     {
         if($sourceType -eq [SourceType]::git)
         {
-            git -C "$dest" reset --hard `@`{upstream`}
+            git -C "$dest" reset --hard
+            if ($LastExitCode -ne 0) {
+                Write-Error "Error git reset"
+                Exit [ExitCodes]::GitResetFailure
+            }
+
             git -C "$dest" clean -f
+            
+            if ($LastExitCode -ne 0) {
+                Write-Error "Error git clean"
+                Exit [ExitCodes]::GitCleanFailure
+            }
+
             git -C "$dest" pull --rebase
 
-            if (!$?)
-            {
-                Write-Error "Error cloning kicad repo"
-                Exit [ExitCodes]::GitCloneFailure
+            if ($LastExitCode -ne 0) {
+                Write-Error "Error pull rebase"
+                Exit [ExitCodes]::GitPullRebaseFailure
             }
         }
         elseif($sourceType -eq [SourceType]::tar)
