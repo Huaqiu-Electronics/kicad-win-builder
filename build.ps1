@@ -1059,7 +1059,8 @@ function Start-Package {
                         "glew32*",
                         "cairo*",
                         "libexpat*",
-                        "libxslt*",
+                        "libexslt*", #xsltproc
+                        "libxslt*",  #xsltproc
                         "libxml*",
                         "lzma*",
                         "fontconfig*",
