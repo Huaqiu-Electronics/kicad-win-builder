@@ -466,6 +466,9 @@ Section $(TITLE_SEC_MAIN) SEC01
   File /nonfatal /r "..\share\kicad\internat\*"
   SetOutPath "$INSTDIR\ssl\certs"
   File /nonfatal "..\ssl\certs\ca-bundle.crt"
+  
+  SetOutPath "$INSTDIR\share\kicad\resources"
+  File /nonfatal /r "..\share\kicad\resources\*"
 
 !ifdef MSVC
   !insertmacro ExclusiveDetailPrint "Installing pip"
