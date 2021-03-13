@@ -18,9 +18,12 @@
 			<qualifier name="DeviceFamily" value="Universal"/>
 			<qualifier name="Custom" value=""/>
 		</default>
-		<indexer-config type="folder" foldernameAsQualifier="true" filenameAsQualifier="true" qualifierDelimiter="."/>
-		<indexer-config type="resw" convertDotsToSlashes="true" initialPath=""/>
-		<indexer-config type="resjson" initialPath=""/>
+		<!-- The reality is we need it to just ignore all our folders -->
+		<indexer-config type="folder" foldernameAsQualifier="true" filenameAsQualifier="true" qualifierDelimiter=".">
+			<exclude type="path" value="bin" doNotTraverse="true" doNotIndex="true" />
+			<exclude type="path" value="lib" doNotTraverse="true" doNotIndex="true" />
+			<exclude type="path" value="share" doNotTraverse="true" doNotIndex="true" />
+		</indexer-config>
 		<indexer-config type="PRI"/>
 	</index>
 </resources>

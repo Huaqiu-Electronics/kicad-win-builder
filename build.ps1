@@ -52,6 +52,7 @@ param(
     [Switch]$MsixAssets,
 
     [Parameter(Mandatory=$True, ParameterSetName="msixassets")]
+    [Parameter(Mandatory=$False, ParameterSetName="package")]
     [string]$Version,
 
     [Parameter(Mandatory=$False, ParameterSetName="build")]
@@ -1303,13 +1304,16 @@ function Start-Package-Msix {
         [Parameter(Mandatory=$False)]
         [bool]$lite = $False,
         [Parameter(Mandatory=$False)]
-        [bool]$postCleanup = $False
+        [bool]$postCleanup = $False,
+        [Parameter(Mandatory=$False)]
+        [string]$version = ""
     )
 
+    # need msix packaging tools
+    Set-VC-Environment -Arch $arch
+    
     $packageVersion = Get-KiCad-PackageVersion
     $kicadVersion = Get-KiCad-Version
-
-    $nsisArch = Get-NSIS-Arch -Arch $arch
 
     Write-Host "Package Version: $packageVersion"
     Write-Host "KiCad Version: $kicadVersion"
@@ -1325,9 +1329,20 @@ function Start-Package-Msix {
     $destRoot = Join-Path -Path $PSScriptRoot -ChildPath ".out\$buildName\"
 
     ## now nsis
-    $msixSource = Join-Path -Path $PSScriptRoot -ChildPath "msix\"
+    $msixSource = Join-Path -Path $PSScriptRoot -ChildPath "msix\$version"
     Write-Host "Copying msix $msixSource to $destRoot"
-    Copy-Item $msixSource -Destination $destRoot -Recurse -Force
+    Copy-Item "${msixSource}\*" -Destination $destRoot -Recurse -Force
+
+    $priFilePath = Join-Path -Path $destRoot -ChildPath "priconfig.xml"
+    #makepri createconfig /cf priconfig.xml /dq en-US
+    Push-Location $destRoot
+    makepri new /pr "$destRoot" /cf "$priFilePath" /o
+    Pop-Location
+    
+
+    $outFileName = "kicad-$packageVersion-$arch.msix"
+    $outFilePath = Join-Path -Path $outPathRoot -ChildPath $outFileName
+    makeappx pack /d "$destRoot" /p "$outFilePath"
 }
 
 function Convert-Svg {
@@ -1538,6 +1553,6 @@ if( $Package )
             Exit [ExitCodes]::UnsupportedSwitch
         }
 
-        Start-Package-Msix -arch $Arch -buildType $BuildType -includeDebugSymbols $IncludeDebugSymbols
+        Start-Package-Msix -arch $Arch -buildType $BuildType -includeDebugSymbols $IncludeDebugSymbols -version $Version
     }
 }
