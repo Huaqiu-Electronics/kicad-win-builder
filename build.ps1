@@ -1342,7 +1342,7 @@ function Start-Package-Msix {
 
     $outFileName = "kicad-$packageVersion-$arch.msix"
     $outFilePath = Join-Path -Path $outPathRoot -ChildPath $outFileName
-    makeappx pack /d "$destRoot" /p "$outFilePath"
+    makeappx pack /d "$destRoot" /p "$outFilePath" /o
 }
 
 function Convert-Svg {
