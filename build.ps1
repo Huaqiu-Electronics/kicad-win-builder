@@ -1405,7 +1405,48 @@ function Generate-Target-Size-Icons {
     Generate-Target-Size-Icon -Svg $Svg -OutBase $OutBase -Size 256
 }
 
-function Generate-Tile-Icon {
+
+$imageHelper = @"
+    using System;
+    using System.Drawing;
+    using System.Drawing.Imaging;
+
+    public class ImageHelper
+    {
+        public static void TilizeIcon(string sourcePath, int finalWidth, int finalHeight, string finalPath)
+        {
+            using (var finalImage = new Bitmap(finalWidth, finalHeight))
+            {
+                using (var source = new Bitmap(sourcePath))
+                {
+                    if(source.Width > finalWidth)
+                    {
+                        throw new ArgumentOutOfRangeException("Source width is larger than the final width");
+                    }
+
+                    if (source.Height > finalHeight)
+                    {
+                        throw new ArgumentOutOfRangeException("Source height is larger than the final height");
+                    }
+
+                    using (Graphics g = Graphics.FromImage(finalImage))
+                    {
+                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                        g.DrawImage(source, (finalWidth-source.Width)/2, (finalHeight-source.Height)/2, source.Width, source.Height);
+                    }
+                }
+
+                finalImage.Save(finalPath, ImageFormat.Png);
+            }
+        }
+    }
+"@
+
+$assemblies = ("System.Drawing")
+Add-Type -ReferencedAssemblies $assemblies -TypeDefinition $imageHelper -Language CSharp 
+
+function Generate-Tile-Icon-Sub {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$True)]
@@ -1415,7 +1456,11 @@ function Generate-Tile-Icon {
         [Parameter(Mandatory=$True)]
         [int]$Height,
         [Parameter(Mandatory=$True)]
-        [string]$OutBase
+        [string]$OutBase,
+        [Parameter(Mandatory=$True)]
+        [int]$Scale,
+        [Parameter(Mandatory=$False)]
+        [bool]$Padding = $False
     )
 
     $shape = 'Square';
@@ -1426,24 +1471,49 @@ function Generate-Tile-Icon {
 
     $OutBase = "${OutBase}-${shape}${Width}x${Height}Logo";
 
-    $out = "${OutBase}.scale-100.png"
-    Convert-Svg -Svg $svg -Width $Width -Height $Height -Out $out
-    if( $Width -eq 44 )
+    $out = "${OutBase}.scale-${Scale}.png"
+    $finalWidth = $Width * ($Scale/100.0)
+    $finalHeight = $Height* ($Scale/100.0)
+    if( $Padding )
     {
-        Generate-Target-Size-Icons -Svg $f.FullName -OutBase $OutBase
+        $iconWidth = $finalWidth*0.66
+        $iconHeight = $finalHeight*0.50
+        $iconDim = [math]::Min($iconHeight,$iconWidth)
+        $iconDim = [math]::Round($iconDim, 0)
+        
+        Convert-Svg -Svg $svg -Width $iconDim -Height $iconDim -Out $out
+        [ImageHelper]::TilizeIcon($out, $finalWidth, $finalHeight, $out)
     }
+    else {
+        Convert-Svg -Svg $svg -Width $finalHeight -Height $finalHeight -Out $out
+        if( $finalWidth -eq 44 )
+        {
+            Generate-Target-Size-Icons -Svg $f.FullName -OutBase $OutBase
+        }
+    }
+}
 
-    $out = "${OutBase}.scale-125.png"
-    Convert-Svg -Svg $svg -Width ($Width*1.25) -Height ($Height*1.25) -Out $out
+function Generate-Tile-Icon {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [string]$Svg,
+        [Parameter(Mandatory=$True)]
+        [int]$Width,
+        [Parameter(Mandatory=$True)]
+        [int]$Height,
+        [Parameter(Mandatory=$True)]
+        [string]$OutBase,
+        [Parameter(Mandatory=$False)]
+        [bool]$Padding = $False
+    )
 
-    $out = "${OutBase}.scale-150.png"
-    Convert-Svg -Svg $svg -Width ($Width*1.50) -Height ($Height*1.50) -Out $out
 
-    $out = "${OutBase}.scale-200.png"
-    Convert-Svg -Svg $svg -Width ($Width*2.00) -Height ($Height*2.0) -Out $out
-
-    $out = "${OutBase}.scale-400.png"
-    Convert-Svg -Svg $svg -Width ($Width*4.00) -Height ($Height*4.0) -Out $out
+    Generate-Tile-Icon-Sub -Svg $Svg -Width $Width -Height $Height -OutBase $OutBase -Padding $Padding -Scale 100
+    Generate-Tile-Icon-Sub -Svg $Svg -Width $Width -Height $Height -OutBase $OutBase -Padding $Padding -Scale 125
+    Generate-Tile-Icon-Sub -Svg $Svg -Width $Width -Height $Height -OutBase $OutBase -Padding $Padding -Scale 150
+    Generate-Tile-Icon-Sub -Svg $Svg -Width $Width -Height $Height -OutBase $OutBase -Padding $Padding -Scale 200
+    Generate-Tile-Icon-Sub -Svg $Svg -Width $Width -Height $Height -OutBase $OutBase -Padding $Padding -Scale 400
 }
 
 function Generate-Tile-Icons {
@@ -1456,10 +1526,10 @@ function Generate-Tile-Icons {
     )
 
     Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 44 -Height 44
-    Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 71 -Height 71
-    Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 150 -Height 150
-    Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 310 -Height 310
-    Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 310 -Height 150
+    Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 71 -Height 71 -Padding $True
+    Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 150 -Height 150 -Padding $True
+    Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 310 -Height 310 -Padding $True
+    Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 310 -Height 150 -Padding $True
 }
 
 function Generate-Msix-Assets {
