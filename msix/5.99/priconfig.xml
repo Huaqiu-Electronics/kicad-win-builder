@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <resources targetOsVersion="10.0.0" majorVersion="1">
 	<packaging>
-		<autoResourcePackage qualifier="Language"/>
 		<autoResourcePackage qualifier="Scale"/>
 		<autoResourcePackage qualifier="DXFeatureLevel"/>
 	</packaging>
 	<index root="\" startIndexAt="\">
 		<default>
-			<qualifier name="Language" value="en-US"/>
+			<qualifier name="Language" value="en;es;fr"/>
 			<qualifier name="Contrast" value="standard"/>
 			<qualifier name="Scale" value="100"/>
 			<qualifier name="HomeRegion" value="001"/>
 			<qualifier name="TargetSize" value="256"/>
 			<qualifier name="LayoutDirection" value="LTR"/>
-			<qualifier name="Theme" value="dark"/>
 			<qualifier name="AlternateForm" value=""/>
 			<qualifier name="DXFeatureLevel" value="DX9"/>
 			<qualifier name="Configuration" value=""/>
@@ -25,8 +23,4 @@
 		<indexer-config type="resjson" initialPath=""/>
 		<indexer-config type="PRI"/>
 	</index>
-	<!--<index startIndexAt="Start Index Here" root="Root Here">-->
-	<!--        <indexer-config type="resfiles" qualifierDelimiter="."/>-->
-	<!--        <indexer-config type="priinfo" emitStrings="true" emitPaths="true" emitEmbeddedData="true"/>-->
-	<!--</index>-->
 </resources>
