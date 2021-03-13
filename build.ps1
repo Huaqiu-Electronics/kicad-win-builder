@@ -17,7 +17,10 @@
 #   ./build.ps1 -Build [-Latest] [-Arch x64] [-BuildType Release]
 #
 #   Triggers a package operation
-#   ./build.ps1 -Package [-Arch x64] [-BuildType Release] [-Lite] [-IncludeDebugSymbols]
+#   ./build.ps1 -PreparePackage [-Arch x64] [-BuildType Release] [-Lite] [-IncludeDebugSymbols]
+#
+#   Triggers a package operation
+#   ./build.ps1 -Package [-PackType Nsis] [-Arch x64] [-BuildType Release] [-Lite] [-IncludeDebugSymbols]
 #
 #   IncludeDebugSymbols will include PDBs (off by default)
 #   Lite will build the light version of the installer (no libraries)
@@ -38,6 +41,9 @@ param(
 
     [Parameter(Position = 0, Mandatory=$True, ParameterSetName="package")]
     [Switch]$Package,
+    
+    [Parameter(Position = 0, Mandatory=$True, ParameterSetName="preparepackage")]
+    [Switch]$PreparePackage,
 
     [Parameter(Mandatory=$False, ParameterSetName="build")]
     [Parameter(Mandatory=$False, ParameterSetName="vcpkg")]
@@ -46,11 +52,17 @@ param(
     [Parameter(Mandatory=$False, ParameterSetName="build")]
     [Parameter(Mandatory=$False, ParameterSetName="vcpkg")]
     [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
     [ValidateSet('x86', 'x64', 'arm64', 'arm')]
     [string]$Arch = 'x64',
 
+    [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [ValidateSet('nsis', 'msix')]
+    [string]$PackType = 'nsis',
+
     [Parameter(Mandatory=$False, ParameterSetName="build")]
     [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
     [ValidateSet('Release', 'Debug')]
     [string]$BuildType = 'Release',
 
@@ -59,10 +71,15 @@ param(
     [string]$VcpkgPath,
 
     [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
     [switch]$IncludeDebugSymbols,
 
     [Parameter(Mandatory=$False, ParameterSetName="package")]
-    [switch]$Lite
+    [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
+    [switch]$Lite,
+    
+    [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [bool]$Prepare = $True
 )
 
 enum Arch {
@@ -87,6 +104,7 @@ enum ExitCodes {
     GitResetFailure = 11
     GitCleanFailure = 12
     GitPullRebaseFailure = 13
+    UnsupportedSwitch = 14
 }
 
 # Load the .NET compression library, powershell's expand-archive is horrid in performance
@@ -988,7 +1006,7 @@ function Get-KiCad-Version {
     return $result
 }
 
-function Start-Package {
+function Start-Prepare-Package {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$True)]
@@ -1154,6 +1172,41 @@ function Start-Package {
     Write-Host "Copying $xsltprocSource to $destBin"
     Copy-Item $xsltprocSource -Destination $destBin -Recurse  -Force
 
+    Write-Host "Package prep complete" -ForegroundColor Green
+}
+
+function Start-Package-Nsis {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [Arch]$arch,
+        [Parameter(Mandatory=$False)]
+        [ValidateSet('Release', 'Debug')]
+        [string]$buildType = "Release",
+        [Parameter(Mandatory=$False)]
+        [bool]$includeDebugSymbols = $False,
+        [Parameter(Mandatory=$False)]
+        [bool]$lite = $False
+    )
+
+    $packageVersion = Get-KiCad-PackageVersion
+    $kicadVersion = Get-KiCad-Version
+
+    $nsisArch = Get-NSIS-Arch -Arch $arch
+
+    Write-Host "Package Version: $packageVersion"
+    Write-Host "KiCad Version: $kicadVersion"
+    if($lite) {
+        Write-Host "Lite package"
+    }
+    else {
+        Write-Host "Full package"
+    }
+
+    $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
+
+    $destRoot = Join-Path -Path $PSScriptRoot -ChildPath ".out\$buildName\"
+
     ## now nsis
     $nsisSource = Join-Path -Path $PSScriptRoot -ChildPath "nsis\"
     Write-Host "Copying nsis $nsisSource to $nsisDest"
@@ -1215,6 +1268,40 @@ function Start-Package {
     }
 }
 
+function Start-Package-Msix {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [Arch]$arch,
+        [Parameter(Mandatory=$False)]
+        [ValidateSet('Release', 'Debug')]
+        [string]$buildType = "Release",
+        [Parameter(Mandatory=$False)]
+        [bool]$includeDebugSymbols = $False,
+        [Parameter(Mandatory=$False)]
+        [bool]$lite = $False
+    )
+
+    $packageVersion = Get-KiCad-PackageVersion
+    $kicadVersion = Get-KiCad-Version
+
+    $nsisArch = Get-NSIS-Arch -Arch $arch
+
+    Write-Host "Package Version: $packageVersion"
+    Write-Host "KiCad Version: $kicadVersion"
+    if($lite) {
+        Write-Host "Lite package"
+    }
+    else {
+        Write-Host "Full package"
+    }
+
+    $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
+
+    $destRoot = Join-Path -Path $PSScriptRoot -ChildPath ".out\$buildName\"
+
+}
+
 
 function Set-Config {
     [CmdletBinding()]
@@ -1253,7 +1340,25 @@ if( $Build )
     Start-Build -arch $Arch -buildType $BuildType -latest $Latest
 }
 
+if( $PreparePackage -or ($Package -and $Prepare) )
+{
+    Start-Prepare-Package -arch $Arch -buildType $BuildType -includeDebugSymbols $IncludeDebugSymbols -lite $Lite
+}
+
 if( $Package )
 {
-    Start-Package -arch $Arch -buildType $BuildType -includeDebugSymbols $IncludeDebugSymbols -lite $Lite
+    if( $PackType -eq 'nsis' )
+    {
+        Start-Package-Nsis -arch $Arch -buildType $BuildType -includeDebugSymbols $IncludeDebugSymbols -lite $Lite
+    }
+    elseif( $PackType -eq 'msix' )
+    {
+        if( $Lite )
+        {
+            Write-Error "-Lite switched not supported for Msix build types"
+            Exit [ExitCodes]::UnsupportedSwitch
+        }
+
+        Start-Package-Msix -arch $Arch -buildType $BuildType -includeDebugSymbols $IncludeDebugSymbols
+    }
 }
