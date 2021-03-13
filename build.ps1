@@ -22,6 +22,9 @@
 #   Triggers a package operation
 #   ./build.ps1 -Package [-PackType Nsis] [-Arch x64] [-BuildType Release] [-Lite] [-IncludeDebugSymbols]
 #
+#   Triggers a msix assets generation
+#   ./build.ps1 -MsixAssets
+#
 #   IncludeDebugSymbols will include PDBs (off by default)
 #   Lite will build the light version of the installer (no libraries)
 ##
@@ -44,6 +47,12 @@ param(
     
     [Parameter(Position = 0, Mandatory=$True, ParameterSetName="preparepackage")]
     [Switch]$PreparePackage,
+
+    [Parameter(Position = 0, Mandatory=$True, ParameterSetName="msixassets")]
+    [Switch]$MsixAssets,
+
+    [Parameter(Mandatory=$True, ParameterSetName="msixassets")]
+    [string]$Version,
 
     [Parameter(Mandatory=$False, ParameterSetName="build")]
     [Parameter(Mandatory=$False, ParameterSetName="vcpkg")]
@@ -79,7 +88,10 @@ param(
     [switch]$Lite,
     
     [Parameter(Mandatory=$False, ParameterSetName="package")]
-    [bool]$Prepare = $True
+    [bool]$Prepare = $True,
+    
+    [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [bool]$PostCleanup = $True
 )
 
 enum Arch {
@@ -105,6 +117,8 @@ enum ExitCodes {
     GitCleanFailure = 12
     GitPullRebaseFailure = 13
     UnsupportedSwitch = 14
+    InkscapeSvgConversion = 15
+    InvalidMsixVersion = 16
 }
 
 # Load the .NET compression library, powershell's expand-archive is horrid in performance
@@ -1186,7 +1200,9 @@ function Start-Package-Nsis {
         [Parameter(Mandatory=$False)]
         [bool]$includeDebugSymbols = $False,
         [Parameter(Mandatory=$False)]
-        [bool]$lite = $False
+        [bool]$lite = $False,
+        [Parameter(Mandatory=$False)]
+        [bool]$postCleanup = $False
     )
 
     $packageVersion = Get-KiCad-PackageVersion
@@ -1261,11 +1277,17 @@ function Start-Package-Nsis {
             "$nsisScript"
     }
 
+    if($postCleanup) {
+        $nsisFolder = Join-Path -Path $destRoot -ChildPath "nsis"
+        Remove-Item $nsisFolder -Recurse -Force
+    }
+
 
     if ($LastExitCode -ne 0) {
         Write-Error "Error building nsis package"
         Exit [ExitCodes]::NsisFailure
     }
+
 }
 
 function Start-Package-Msix {
@@ -1279,7 +1301,9 @@ function Start-Package-Msix {
         [Parameter(Mandatory=$False)]
         [bool]$includeDebugSymbols = $False,
         [Parameter(Mandatory=$False)]
-        [bool]$lite = $False
+        [bool]$lite = $False,
+        [Parameter(Mandatory=$False)]
+        [bool]$postCleanup = $False
     )
 
     $packageVersion = Get-KiCad-PackageVersion
@@ -1300,6 +1324,156 @@ function Start-Package-Msix {
 
     $destRoot = Join-Path -Path $PSScriptRoot -ChildPath ".out\$buildName\"
 
+    ## now nsis
+    $msixSource = Join-Path -Path $PSScriptRoot -ChildPath "msix\"
+    Write-Host "Copying msix $msixSource to $destRoot"
+    Copy-Item $msixSource -Destination $destRoot -Recurse -Force
+}
+
+function Convert-Svg {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [string]$Svg,
+        [Parameter(Mandatory=$True)]
+        [int]$Width,
+        [Parameter(Mandatory=$True)]
+        [int]$Height,
+        [Parameter(Mandatory=$True)]
+        [string]$Out
+    )
+
+    Write-Host "Converting $Svg to $Out, w: $Width, h: $Height"
+
+    inkscape --export-area-snap --export-type=png "$Svg" --export-filename "$Out" -w $Width -h $Height 2>$null
+
+    if( $LastExitCode -ne 0 )
+    {
+        Write-Error "Error generating png from svg"
+        Exit [ExitCodes]::InkscapeSvgConversion
+    }
+}
+
+function Generate-Target-Size-Icon {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [string]$Svg,
+        [Parameter(Mandatory=$True)]
+        [int]$Size,
+        [Parameter(Mandatory=$True)]
+        [string]$OutBase
+    )
+
+    $out = "${OutBase}.targetsize-${Size}.png"
+    Convert-Svg -Svg $svg -Width $Size -Height $Size -Out $out
+
+    $out = "${OutBase}.targetsize-${Size}_altform-unplated.png"
+    Convert-Svg -Svg $svg -Width $Size -Height $Size -Out $out
+}
+
+
+# Target size are specific 16,24,32,48,256
+function Generate-Target-Size-Icons {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [string]$Svg,
+        [Parameter(Mandatory=$True)]
+        [string]$OutBase
+    )
+
+    Generate-Target-Size-Icon -Svg $Svg -OutBase $OutBase -Size 16
+    Generate-Target-Size-Icon -Svg $Svg -OutBase $OutBase -Size 24
+    Generate-Target-Size-Icon -Svg $Svg -OutBase $OutBase -Size 32
+    Generate-Target-Size-Icon -Svg $Svg -OutBase $OutBase -Size 48
+    Generate-Target-Size-Icon -Svg $Svg -OutBase $OutBase -Size 256
+}
+
+function Generate-Tile-Icon {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [string]$Svg,
+        [Parameter(Mandatory=$True)]
+        [int]$Width,
+        [Parameter(Mandatory=$True)]
+        [int]$Height,
+        [Parameter(Mandatory=$True)]
+        [string]$OutBase
+    )
+
+    $shape = 'Square';
+    if( $Width -ne $Height )
+    {
+        $shape = 'Wide';
+    }
+
+    $OutBase = "${OutBase}-${shape}${Width}x${Height}Logo";
+
+    $out = "${OutBase}.scale-100.png"
+    Convert-Svg -Svg $svg -Width $Width -Height $Height -Out $out
+    if( $Width -eq 44 )
+    {
+        Generate-Target-Size-Icons -Svg $f.FullName -OutBase $OutBase
+    }
+
+    $out = "${OutBase}.scale-125.png"
+    Convert-Svg -Svg $svg -Width ($Width*1.25) -Height ($Height*1.25) -Out $out
+
+    $out = "${OutBase}.scale-150.png"
+    Convert-Svg -Svg $svg -Width ($Width*1.50) -Height ($Height*1.50) -Out $out
+
+    $out = "${OutBase}.scale-200.png"
+    Convert-Svg -Svg $svg -Width ($Width*2.00) -Height ($Height*2.0) -Out $out
+
+    $out = "${OutBase}.scale-400.png"
+    Convert-Svg -Svg $svg -Width ($Width*4.00) -Height ($Height*4.0) -Out $out
+}
+
+function Generate-Tile-Icons {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [string]$Svg,
+        [Parameter(Mandatory=$True)]
+        [string]$OutBase
+    )
+
+    Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 44 -Height 44
+    Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 71 -Height 71
+    Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 150 -Height 150
+    Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 310 -Height 310
+    Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 310 -Height 150
+}
+
+function Generate-Msix-Assets {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [string]$version
+    )
+
+
+    $iconSources = Join-Path -Path $PSScriptRoot -ChildPath "msix\$version\bundleassets\sources\"
+
+    if( -not (Test-Path $iconSources) )
+    {
+        Write-Error "Version icon msix icon sources do not exist"
+        Exit [ExitCodes]::InvalidMsixVersion
+    }
+
+    
+    $iconDest = Join-Path -Path $PSScriptRoot -ChildPath "msix\$version\bundleassets\png\"
+
+    Remove-Item $iconDest -Recurse -ErrorAction SilentlyContinue
+    New-Item $iconDest -ItemType "directory"
+
+    $icons = Get-ChildItem $iconSources -Filter icon*.svg
+    foreach ($f in $icons){
+        $basePath = "$iconDest/$($f.BaseName)"
+        Generate-Tile-Icons  -Svg $f.FullName -Out $basePath
+    }
 }
 
 
@@ -1340,6 +1514,11 @@ if( $Build )
     Start-Build -arch $Arch -buildType $BuildType -latest $Latest
 }
 
+if( $MsixAssets )
+{
+    Generate-Msix-Assets -version $Version
+}
+
 if( $PreparePackage -or ($Package -and $Prepare) )
 {
     Start-Prepare-Package -arch $Arch -buildType $BuildType -includeDebugSymbols $IncludeDebugSymbols -lite $Lite
@@ -1349,7 +1528,7 @@ if( $Package )
 {
     if( $PackType -eq 'nsis' )
     {
-        Start-Package-Nsis -arch $Arch -buildType $BuildType -includeDebugSymbols $IncludeDebugSymbols -lite $Lite
+        Start-Package-Nsis -arch $Arch -buildType $BuildType -includeDebugSymbols $IncludeDebugSymbols -lite $Lite -postCleanup $PostCleanup
     }
     elseif( $PackType -eq 'msix' )
     {
