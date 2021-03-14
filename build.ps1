@@ -1023,6 +1023,17 @@ function Get-KiCad-Version {
     return $result
 }
 
+function Get-KiCad-PackageVersion-Msix {
+
+    $base = Get-KiCad-Version
+    
+    Push-Location (Get-Source-Path kicad)
+    $revCount = (git rev-list --count --first-parent HEAD)
+    Pop-Location
+
+    return "${base}.0.${revCount}"
+}
+
 function Start-Prepare-Package {
     [CmdletBinding()]
     param(
@@ -1349,7 +1360,7 @@ function Start-Package-Msix {
     # need msix packaging tools
     Set-VC-Environment -Arch $arch
     
-    $packageVersion = Get-KiCad-PackageVersion
+    $packageVersion = Get-KiCad-PackageVersion-Msix
     $kicadVersion = Get-KiCad-Version
 
     Write-Host "Package Version: $packageVersion"
@@ -1375,10 +1386,10 @@ function Start-Package-Msix {
     Create-AppxManifest -SourcePath $msixManifestSource `
                         -DestPath $msixManifestDest `
                         -KiCadVersion $kicadVersion `
-                        -PackageVersion "5.99.0.0" `
+                        -PackageVersion $packageVersion `
                         -Arch "x64" `
-                        -IdentityPublisher "CN=mroszko" `
-                        -IdentityName "80c55bb2-3e58-4f03-95ec-7138440ac13b" `
+                        -IdentityPublisher "CN=069DD09B-C97F-4C04-9248-7A7FA0D53E48" `
+                        -IdentityName "KiCad.KiCadNightly" `
                         -PublisherDisplayName "KiCad"
 
     $priFilePath = Join-Path -Path $destRoot -ChildPath "priconfig.xml"
