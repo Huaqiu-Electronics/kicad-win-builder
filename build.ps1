@@ -1338,6 +1338,7 @@ function Start-Package-Msix {
     $priFilePath = Join-Path -Path $destRoot -ChildPath "priconfig.xml"
     #makepri createconfig /cf priconfig.xml /dq en-US
     Push-Location $destRoot
+    Write-Host "Running makepri"
     makepri new /pr "$destRoot" /cf "$priFilePath" /o
     if( $LastExitCode -ne 0 )
     {
@@ -1346,10 +1347,10 @@ function Start-Package-Msix {
     }
     Pop-Location
     
-
+    Write-Host "Running makeappx"
     $outFileName = "kicad-$packageVersion-$arch.msix"
     $outFilePath = Join-Path -Path $outPathRoot -ChildPath $outFileName
-    makeappx pack /d "$destRoot" /p "$outFilePath" /o
+    makeappx pack /d "$destRoot" /p "$outFilePath" /o > $nul
     if( $LastExitCode -ne 0 )
     {
         Write-Error "Error generating appx package"
