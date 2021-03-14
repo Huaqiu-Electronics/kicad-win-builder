@@ -120,6 +120,8 @@ enum ExitCodes {
     UnsupportedSwitch = 14
     InkscapeSvgConversion = 15
     InvalidMsixVersion = 16
+    MakePriFailure = 17
+    MakeAppxFailure = 18
 }
 
 # Load the .NET compression library, powershell's expand-archive is horrid in performance
@@ -1337,12 +1339,22 @@ function Start-Package-Msix {
     #makepri createconfig /cf priconfig.xml /dq en-US
     Push-Location $destRoot
     makepri new /pr "$destRoot" /cf "$priFilePath" /o
+    if( $LastExitCode -ne 0 )
+    {
+        Write-Error "Error generating resource pack"
+        Exit [ExitCodes]::MakePriFailure
+    }
     Pop-Location
     
 
     $outFileName = "kicad-$packageVersion-$arch.msix"
     $outFilePath = Join-Path -Path $outPathRoot -ChildPath $outFileName
     makeappx pack /d "$destRoot" /p "$outFilePath" /o
+    if( $LastExitCode -ne 0 )
+    {
+        Write-Error "Error generating appx package"
+        Exit [ExitCodes]::MakeAppxFailure
+    }
 }
 
 function Convert-Svg {
@@ -1554,11 +1566,16 @@ function Generate-Msix-Assets {
     Remove-Item $iconDest -Recurse -ErrorAction SilentlyContinue
     New-Item $iconDest -ItemType "directory"
 
+    $kicadStoreIconSource = Join-Path -Path $iconSources -ChildPath "icon_kicad.svg"
+    $kicadStoreIconDest = Join-Path -Path $iconSources -ChildPath "icon_kicad_store.svg"
+    Convert-Svg -Svg $kicadStoreIconSource -Width 300 -Height 300 -Out "$iconDest/icon_kicad_store.png"
+
     $icons = Get-ChildItem $iconSources -Filter icon*.svg
     foreach ($f in $icons){
         $basePath = "$iconDest/$($f.BaseName)"
         Generate-Tile-Icons  -Svg $f.FullName -Out $basePath
     }
+    
 }
 
 
