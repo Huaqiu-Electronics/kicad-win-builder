@@ -9,14 +9,14 @@
         xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"  
         IgnorableNamespaces="uap uap2 uap3 uap10 rescap desktop">
   <Identity
-    Name="80c55bb2-3e58-4f03-95ec-7138440ac13b"
-    Publisher="CN=mroszko"
-    Version="1.0.0.0"
-    ProcessorArchitecture="x64" />
+    Name="[IDENTITY_NAME]"
+    Publisher="[IDENTITY_PUBLISHER]"
+    Version="[PACKAGE_VERSION]"
+    ProcessorArchitecture="[ARCH]" />
 
   <Properties>
-    <DisplayName>KiCad</DisplayName>
-    <PublisherDisplayName>KiCad</PublisherDisplayName>
+    <DisplayName>KiCad [KICAD_VERSION]</DisplayName>
+    <PublisherDisplayName>[PUBLISHER_DISPLAY_NAME]</PublisherDisplayName>
     <Logo>bundleassets\png\icons\icon_kicad.png</Logo>
   </Properties>
 
@@ -37,18 +37,18 @@
       Executable="bin\kicad.exe"
       EntryPoint="Windows.FullTrustApplication">
       <uap3:VisualElements
-        DisplayName="KiCad"
+        DisplayName="KiCad [KICAD_VERSION]"
         Description="KiCad Launcher"
         BackgroundColor="transparent"
         Square150x150Logo="bundleassets\png\icon_kicad-Square150x150Logo.png"
         Square44x44Logo="bundleassets\png\icon_kicad-Square44x44Logo.png"
         AppListEntry="default"
-        VisualGroup="KiCad">
+        VisualGroup="KiCad [KICAD_VERSION]">
         <uap:DefaultTile 
           Wide310x150Logo="bundleassets\png\icon_kicad-Wide310x150Logo.png"  
           Square71x71Logo="bundleassets\png\icon_kicad-Square71x71Logo.png" 
           Square310x310Logo="bundleassets\png\icon_kicad-Square310x310Logo.png"
-          ShortName="KiCad">
+          ShortName="KiCad [KICAD_VERSION]">
             <uap:ShowNameOnTiles>
               <uap:ShowOn Tile="square150x150Logo" />
               <uap:ShowOn Tile="wide310x150Logo" />
@@ -109,7 +109,7 @@
         Square150x150Logo="bundleassets\png\icon_eeschema-Square150x150Logo.png"
         Square44x44Logo="bundleassets\png\icon_eeschema-Square44x44Logo.png"
         AppListEntry="default"
-        VisualGroup="KiCad">
+        VisualGroup="KiCad [KICAD_VERSION]">
         <uap:DefaultTile 
           Wide310x150Logo="bundleassets\png\icon_eeschema-Wide310x150Logo.png"  
           Square71x71Logo="bundleassets\png\icon_eeschema-Square71x71Logo.png" 
@@ -153,7 +153,7 @@
         Square150x150Logo="bundleassets\png\icon_gerbview-Square150x150Logo.png"
         Square44x44Logo="bundleassets\png\icon_gerbview-Square44x44Logo.png"
         AppListEntry="default"
-        VisualGroup="KiCad">
+        VisualGroup="KiCad [KICAD_VERSION]">
         <uap:DefaultTile 
           Wide310x150Logo="bundleassets\png\icon_gerbview-Wide310x150Logo.png"  
           Square71x71Logo="bundleassets\png\icon_gerbview-Square71x71Logo.png" 
@@ -175,7 +175,7 @@
         Square150x150Logo="bundleassets\png\icon_pcbcalculator-Square150x150Logo.png"
         Square44x44Logo="bundleassets\png\icon_pcbcalculator-Square44x44Logo.png"
         AppListEntry="default"
-        VisualGroup="KiCad">
+        VisualGroup="KiCad [KICAD_VERSION]">
         <uap:DefaultTile 
           Wide310x150Logo="bundleassets\png\icon_pcbcalculator-Wide310x150Logo.png"  
           Square71x71Logo="bundleassets\png\icon_pcbcalculator-Square71x71Logo.png" 
@@ -197,7 +197,7 @@
         Square150x150Logo="bundleassets\png\icon_pcbnew-Square150x150Logo.png"
         Square44x44Logo="bundleassets\png\icon_pcbnew-Square44x44Logo.png"
         AppListEntry="default"
-        VisualGroup="KiCad">
+        VisualGroup="KiCad [KICAD_VERSION]">
         <uap:DefaultTile 
           Wide310x150Logo="bundleassets\png\icon_pcbnew-Wide310x150Logo.png"  
           Square71x71Logo="bundleassets\png\icon_pcbnew-Square71x71Logo.png" 

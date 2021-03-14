@@ -1293,6 +1293,41 @@ function Start-Package-Nsis {
 
 }
 
+
+function Create-AppxManifest {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [string]$SourcePath,
+        [Parameter(Mandatory=$True)]
+        [string]$DestPath,
+        [Parameter(Mandatory=$True)]
+        [string]$KiCadVersion,
+        [Parameter(Mandatory=$True)]
+        [string]$Arch,
+        [Parameter(Mandatory=$True)]
+        [string]$PackageVersion,
+        [Parameter(Mandatory=$True)]
+        [string]$IdentityPublisher,
+        [Parameter(Mandatory=$True)]
+        [string]$IdentityName,
+        [Parameter(Mandatory=$True)]
+        [string]$PublisherDisplayName
+    )
+
+    $manifest = Get-Content -Path $SourcePath
+
+    $manifest = $manifest.replace("[PACKAGE_VERSION]", $PackageVersion)
+    $manifest = $manifest.replace("[ARCH]", $Arch)
+    $manifest = $manifest.replace("[KICAD_VERSION]", $KiCadVersion)
+    
+
+    $manifest = $manifest.replace("[IDENTITY_PUBLISHER]", $IdentityPublisher)
+    $manifest = $manifest.replace("[IDENTITY_NAME]", $IdentityName)
+    $manifest = $manifest.replace("[PUBLISHER_DISPLAY_NAME]", $PublisherDisplayName)
+    Set-Content -Path $DestPath -Value $manifest
+}
+
 function Start-Package-Msix {
     [CmdletBinding()]
     param(
@@ -1333,7 +1368,18 @@ function Start-Package-Msix {
     ## now nsis
     $msixSource = Join-Path -Path $PSScriptRoot -ChildPath "msix\$version"
     Write-Host "Copying msix $msixSource to $destRoot"
-    Copy-Item "${msixSource}\*" -Destination $destRoot -Recurse -Force
+    Copy-Item "${msixSource}\*" -Exclude "*.template" -Destination $destRoot -Recurse -Force
+
+    $msixManifestSource = Join-Path -Path $PSScriptRoot -ChildPath "msix\$version\AppxManifest.xml.template"
+    $msixManifestDest= Join-Path -Path $destRoot -ChildPath "AppxManifest.xml" 
+    Create-AppxManifest -SourcePath $msixManifestSource `
+                        -DestPath $msixManifestDest `
+                        -KiCadVersion $kicadVersion `
+                        -PackageVersion "5.99.0.0" `
+                        -Arch "x64" `
+                        -IdentityPublisher "CN=mroszko" `
+                        -IdentityName "80c55bb2-3e58-4f03-95ec-7138440ac13b" `
+                        -PublisherDisplayName "KiCad"
 
     $priFilePath = Join-Path -Path $destRoot -ChildPath "priconfig.xml"
     #makepri createconfig /cf priconfig.xml /dq en-US
@@ -1356,6 +1402,8 @@ function Start-Package-Msix {
         Write-Error "Error generating appx package"
         Exit [ExitCodes]::MakeAppxFailure
     }
+
+
 }
 
 function Convert-Svg {
