@@ -29,7 +29,7 @@
   </Dependencies>
 
   <Resources>
-    <Resource Language="en-us" />
+    <Resource Language="en" />
   </Resources>
 
   <Applications>
@@ -38,7 +38,7 @@
       EntryPoint="Windows.FullTrustApplication">
       <uap3:VisualElements
         DisplayName="KiCad [KICAD_VERSION]"
-        Description="KiCad Launcher"
+        Description="ms-resource:KiCadDescription"
         BackgroundColor="transparent"
         Square150x150Logo="bundleassets\png\icon_kicad-Square150x150Logo.png"
         Square44x44Logo="bundleassets\png\icon_kicad-Square44x44Logo.png"
@@ -82,7 +82,7 @@
     <Application Id="BITMAP2COMPONENT" Executable="bin\bitmap2component.exe" EntryPoint="Windows.FullTrustApplication">
       <uap3:VisualElements
         DisplayName="Bitmap 2 Component Converter"
-        Description="Convert images to KiCad schematic symbols and PCB footprints"
+        Description="ms-resource:B2CDescription"
         BackgroundColor="transparent"
         Square150x150Logo="bundleassets\png\icon_bitmap2component-Square150x150Logo.png"
         Square44x44Logo="bundleassets\png\icon_bitmap2component-Square44x44Logo.png"
@@ -104,7 +104,7 @@
     <Application Id="EESCHEMA" Executable="bin\eeschema.exe" EntryPoint="Windows.FullTrustApplication">
       <uap3:VisualElements
         DisplayName="Schematic Editor"
-        Description="Create and edit schematics in KiCad"
+        Description="ms-resource:EeschemaDescription"
         BackgroundColor="transparent"
         Square150x150Logo="bundleassets\png\icon_eeschema-Square150x150Logo.png"
         Square44x44Logo="bundleassets\png\icon_eeschema-Square44x44Logo.png"
@@ -148,7 +148,7 @@
     <Application Id="GERBVIEW" Executable="bin\gerbview.exe" EntryPoint="Windows.FullTrustApplication">
       <uap3:VisualElements
         DisplayName="Gerber Viewer"
-        Description="View gerbers"
+        Description="ms-resource:GerbviewDescription"
         BackgroundColor="transparent"
         Square150x150Logo="bundleassets\png\icon_gerbview-Square150x150Logo.png"
         Square44x44Logo="bundleassets\png\icon_gerbview-Square44x44Logo.png"
@@ -170,7 +170,7 @@
     <Application Id="PCBCALCULATOR" Executable="bin\pcb_calculator.exe" EntryPoint="Windows.FullTrustApplication">
       <uap3:VisualElements
         DisplayName="PCB Calculator"
-        Description="Assortment of schematic and pcb calculator tools"
+        Description="ms-resource:PcbCalcDescription"
         BackgroundColor="transparent"
         Square150x150Logo="bundleassets\png\icon_pcbcalculator-Square150x150Logo.png"
         Square44x44Logo="bundleassets\png\icon_pcbcalculator-Square44x44Logo.png"
@@ -192,7 +192,7 @@
     <Application Id="PCBNEW" Executable="bin\pcbnew.exe" EntryPoint="Windows.FullTrustApplication">
       <uap3:VisualElements
         DisplayName="PCB Editor"
-        Description="Create and edit PCB designs"
+        Description="ms-resource:PcbNewDescription"
         BackgroundColor="transparent"
         Square150x150Logo="bundleassets\png\icon_pcbnew-Square150x150Logo.png"
         Square44x44Logo="bundleassets\png\icon_pcbnew-Square44x44Logo.png"
