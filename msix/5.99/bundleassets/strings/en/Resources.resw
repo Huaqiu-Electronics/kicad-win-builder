@@ -117,20 +117,35 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="B2CTitle" xml:space="preserve">
+    <value>Bitmap 2 Component Converter</value>
+  </data>
   <data name="B2CDescription" xml:space="preserve">
     <value>Convert images to KiCad schematic symbols and PCB footprints</value>
   </data>
   <data name="KiCadDescription" xml:space="preserve">
     <value>KiCad Launcher</value>
   </data>
+  <data name="PcbNewTitle" xml:space="preserve">
+    <value>PCB Editor</value>
+  </data>
   <data name="PcbNewDescription" xml:space="preserve">
     <value>Create and edit PCB designs</value>
+  </data>
+  <data name="PcbCalcTitle" xml:space="preserve">
+    <value>PCB Calculator</value>
   </data>
   <data name="PcbCalcDescription" xml:space="preserve">
     <value>Assortment of schematic and pcb calculator tools</value>
   </data>
+  <data name="EeschemaTitle" xml:space="preserve">
+    <value>Schematic Editor</value>
+  </data>
   <data name="EeschemaDescription" xml:space="preserve">
     <value>Create and edit schematics in KiCad</value>
+  </data>
+  <data name="GerbviewTitle" xml:space="preserve">
+    <value>Gerber Viewer</value>
   </data>
   <data name="GerbviewDescription" xml:space="preserve">
     <value>Create and edit schematics in KiCad</value>

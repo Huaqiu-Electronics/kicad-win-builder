@@ -81,18 +81,18 @@
     </Application>
     <Application Id="BITMAP2COMPONENT" Executable="bin\bitmap2component.exe" EntryPoint="Windows.FullTrustApplication">
       <uap3:VisualElements
-        DisplayName="Bitmap 2 Component Converter"
+        DisplayName="ms-resource:B2CTitle"
         Description="ms-resource:B2CDescription"
         BackgroundColor="transparent"
         Square150x150Logo="bundleassets\png\icon_bitmap2component-Square150x150Logo.png"
         Square44x44Logo="bundleassets\png\icon_bitmap2component-Square44x44Logo.png"
         AppListEntry="default"
-        VisualGroup="KiCad">
+        VisualGroup="KiCad [KICAD_VERSION]">
         <uap:DefaultTile 
           Wide310x150Logo="bundleassets\png\icon_bitmap2component-Wide310x150Logo.png"  
           Square71x71Logo="bundleassets\png\icon_bitmap2component-Square71x71Logo.png" 
           Square310x310Logo="bundleassets\png\icon_bitmap2component-Square310x310Logo.png"
-          ShortName="Bitmap 2 Component Converter">
+          ShortName="ms-resource:B2CTitle">
             <uap:ShowNameOnTiles>
               <uap:ShowOn Tile="square150x150Logo" />
               <uap:ShowOn Tile="wide310x150Logo" />
@@ -103,13 +103,13 @@
     </Application>
     <Application Id="EESCHEMA" Executable="bin\eeschema.exe" EntryPoint="Windows.FullTrustApplication">
       <uap3:VisualElements
-        DisplayName="Schematic Editor"
+        DisplayName="ms-resource:EeschemaTitle"
         Description="ms-resource:EeschemaDescription"
         BackgroundColor="transparent"
         Square150x150Logo="bundleassets\png\icon_eeschema-Square150x150Logo.png"
         Square44x44Logo="bundleassets\png\icon_eeschema-Square44x44Logo.png"
         AppListEntry="default"
-        VisualGroup="KiCad [KICAD_VERSION]">
+        VisualGroup="ms-resource:EeschemaTitle">
         <uap:DefaultTile 
           Wide310x150Logo="bundleassets\png\icon_eeschema-Wide310x150Logo.png"  
           Square71x71Logo="bundleassets\png\icon_eeschema-Square71x71Logo.png" 
@@ -147,7 +147,7 @@
     </Application>
     <Application Id="GERBVIEW" Executable="bin\gerbview.exe" EntryPoint="Windows.FullTrustApplication">
       <uap3:VisualElements
-        DisplayName="Gerber Viewer"
+        DisplayName="ms-resource:GerbviewTitle"
         Description="ms-resource:GerbviewDescription"
         BackgroundColor="transparent"
         Square150x150Logo="bundleassets\png\icon_gerbview-Square150x150Logo.png"
@@ -158,7 +158,7 @@
           Wide310x150Logo="bundleassets\png\icon_gerbview-Wide310x150Logo.png"  
           Square71x71Logo="bundleassets\png\icon_gerbview-Square71x71Logo.png" 
           Square310x310Logo="bundleassets\png\icon_gerbview-Square310x310Logo.png"
-          ShortName="Gerber Viewer">
+          ShortName="ms-resource:GerbviewTitle">
             <uap:ShowNameOnTiles>
               <uap:ShowOn Tile="square150x150Logo" />
               <uap:ShowOn Tile="wide310x150Logo" />
@@ -169,7 +169,7 @@
     </Application>
     <Application Id="PCBCALCULATOR" Executable="bin\pcb_calculator.exe" EntryPoint="Windows.FullTrustApplication">
       <uap3:VisualElements
-        DisplayName="PCB Calculator"
+        DisplayName="ms-resource:PcbCalcTitle"
         Description="ms-resource:PcbCalcDescription"
         BackgroundColor="transparent"
         Square150x150Logo="bundleassets\png\icon_pcbcalculator-Square150x150Logo.png"
@@ -180,7 +180,7 @@
           Wide310x150Logo="bundleassets\png\icon_pcbcalculator-Wide310x150Logo.png"  
           Square71x71Logo="bundleassets\png\icon_pcbcalculator-Square71x71Logo.png" 
           Square310x310Logo="bundleassets\png\icon_pcbcalculator-Square310x310Logo.png"
-          ShortName="PCB Calculator">
+          ShortName="ms-resource:PcbCalcTitle">
             <uap:ShowNameOnTiles>
               <uap:ShowOn Tile="square150x150Logo" />
               <uap:ShowOn Tile="wide310x150Logo" />
@@ -191,7 +191,7 @@
     </Application>
     <Application Id="PCBNEW" Executable="bin\pcbnew.exe" EntryPoint="Windows.FullTrustApplication">
       <uap3:VisualElements
-        DisplayName="PCB Editor"
+        DisplayName="ms-resource:PcbNewTitle"
         Description="ms-resource:PcbNewDescription"
         BackgroundColor="transparent"
         Square150x150Logo="bundleassets\png\icon_pcbnew-Square150x150Logo.png"
@@ -202,7 +202,7 @@
           Wide310x150Logo="bundleassets\png\icon_pcbnew-Wide310x150Logo.png"  
           Square71x71Logo="bundleassets\png\icon_pcbnew-Square71x71Logo.png" 
           Square310x310Logo="bundleassets\png\icon_pcbnew-Square310x310Logo.png"
-          ShortName="PCB Editor">
+          ShortName="ms-resource:PcbNewTitle">
             <uap:ShowNameOnTiles>
               <uap:ShowOn Tile="square150x150Logo" />
               <uap:ShowOn Tile="wide310x150Logo" />
