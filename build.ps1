@@ -1374,7 +1374,18 @@ function Start-Package-Msix {
 
     $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
 
-    $destRoot = Join-Path -Path $PSScriptRoot -ChildPath ".out\$buildName\"
+    $buildSource = Join-Path -Path $PSScriptRoot -ChildPath ".out\$buildName\"
+
+    $destRoot = Join-Path -Path $outPathRoot -ChildPath "\msix-$buildName"
+    $destRootVfs = Join-Path -Path $destRoot -ChildPath "\VFS\ProgramFilesX64\KiCad\5.99\"
+
+    if( -not (Test-Path $destRootVfs) )
+    {
+        New-Item -Path $destRootVfs -ItemType "directory"
+    }
+
+    Copy-Item "${buildSource}\*" -Destination $destRootVfs -Recurse -Force
+
 
     ## now nsis
     $msixSource = Join-Path -Path $PSScriptRoot -ChildPath "msix\$version"
@@ -1407,14 +1418,19 @@ function Start-Package-Msix {
     Write-Host "Running makeappx"
     $outFileName = "kicad-$packageVersion-$arch.msix"
     $outFilePath = Join-Path -Path $outPathRoot -ChildPath $outFileName
-    makeappx pack /d "$destRoot" /p "$outFilePath" /o > $nul
+    makeappx pack /d "$destRoot" /p "$outFilePath" /o 
     if( $LastExitCode -ne 0 )
     {
         Write-Error "Error generating appx package"
         Exit [ExitCodes]::MakeAppxFailure
     }
 
-
+    Write-Host "Msix built!" -ForegroundColor Green
+    if( $postCleanup )
+    {
+        Write-Host "Cleanup: Removing intermediate build folder $destRoot"
+        Remove-Item $destRoot -Recurse -ErrorAction SilentlyContinue
+    }
 }
 
 function Convert-Svg {
@@ -1700,6 +1716,6 @@ if( $Package )
             Exit [ExitCodes]::UnsupportedSwitch
         }
 
-        Start-Package-Msix -arch $Arch -buildType $BuildType -includeDebugSymbols $IncludeDebugSymbols -version $Version
+        Start-Package-Msix -arch $Arch -buildType $BuildType -includeDebugSymbols $IncludeDebugSymbols -version $Version -postCleanup $PostCleanup
     }
 }

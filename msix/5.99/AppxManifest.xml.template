@@ -34,7 +34,7 @@
 
   <Applications>
     <Application Id="KICAD"
-      Executable="bin\kicad.exe"
+      Executable="VFS\ProgramFilesX64\KiCad\5.99\bin\kicad.exe"
       EntryPoint="Windows.FullTrustApplication">
       <uap3:VisualElements
         DisplayName="KiCad [KICAD_VERSION]"
@@ -79,7 +79,7 @@
         </uap3:Extension>
       </Extensions>
     </Application>
-    <Application Id="BITMAP2COMPONENT" Executable="bin\bitmap2component.exe" EntryPoint="Windows.FullTrustApplication">
+    <Application Id="BITMAP2COMPONENT" Executable="VFS\ProgramFilesX64\KiCad\5.99\bin\bitmap2component.exe" EntryPoint="Windows.FullTrustApplication">
       <uap3:VisualElements
         DisplayName="ms-resource:B2CTitle"
         Description="ms-resource:B2CDescription"
@@ -101,7 +101,7 @@
         </uap:DefaultTile>
       </uap3:VisualElements>
     </Application>
-    <Application Id="EESCHEMA" Executable="bin\eeschema.exe" EntryPoint="Windows.FullTrustApplication">
+    <Application Id="EESCHEMA" Executable="VFS\ProgramFilesX64\KiCad\5.99\bin\eeschema.exe" EntryPoint="Windows.FullTrustApplication">
       <uap3:VisualElements
         DisplayName="ms-resource:EeschemaTitle"
         Description="ms-resource:EeschemaDescription"
@@ -145,7 +145,7 @@
         </uap3:Extension>
       </Extensions>
     </Application>
-    <Application Id="GERBVIEW" Executable="bin\gerbview.exe" EntryPoint="Windows.FullTrustApplication">
+    <Application Id="GERBVIEW" Executable="VFS\ProgramFilesX64\KiCad\5.99\bin\gerbview.exe" EntryPoint="Windows.FullTrustApplication">
       <uap3:VisualElements
         DisplayName="ms-resource:GerbviewTitle"
         Description="ms-resource:GerbviewDescription"
@@ -167,7 +167,7 @@
         </uap:DefaultTile>
       </uap3:VisualElements>
     </Application>
-    <Application Id="PCBCALCULATOR" Executable="bin\pcb_calculator.exe" EntryPoint="Windows.FullTrustApplication">
+    <Application Id="PCBCALCULATOR" Executable="VFS\ProgramFilesX64\KiCad\5.99\bin\pcb_calculator.exe" EntryPoint="Windows.FullTrustApplication">
       <uap3:VisualElements
         DisplayName="ms-resource:PcbCalcTitle"
         Description="ms-resource:PcbCalcDescription"
@@ -189,7 +189,7 @@
         </uap:DefaultTile>
       </uap3:VisualElements>
     </Application>
-    <Application Id="PCBNEW" Executable="bin\pcbnew.exe" EntryPoint="Windows.FullTrustApplication">
+    <Application Id="PCBNEW" Executable="VFS\ProgramFilesX64\KiCad\5.99\bin\pcbnew.exe" EntryPoint="Windows.FullTrustApplication">
       <uap3:VisualElements
         DisplayName="ms-resource:PcbNewTitle"
         Description="ms-resource:PcbNewDescription"

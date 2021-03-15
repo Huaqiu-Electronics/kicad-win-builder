@@ -20,9 +20,7 @@
 		</default>
 		<!-- The reality is we need it to just ignore all our folders -->
 		<indexer-config type="folder" foldernameAsQualifier="true" filenameAsQualifier="true" qualifierDelimiter=".">
-			<exclude type="path" value="bin" doNotTraverse="true" doNotIndex="true" />
-			<exclude type="path" value="lib" doNotTraverse="true" doNotIndex="true" />
-			<exclude type="path" value="share" doNotTraverse="true" doNotIndex="true" />
+			<exclude type="path" value="VFS" doNotTraverse="true" doNotIndex="true" />
 		</indexer-config>
 		<indexer-config type="PRI"/>
     	<indexer-config type="resw" convertDotsToSlashes="true" initialPath=""/>
