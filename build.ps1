@@ -1031,7 +1031,9 @@ function Get-KiCad-PackageVersion-Msix {
     $revCount = (git rev-list --count --first-parent HEAD)
     Pop-Location
 
-    return "${base}.0.${revCount}"
+    # SPECIAL REQUIREMENT
+    # MSIX package version must always end with .0
+    return "${base}.${revCount}.0"
 }
 
 function Start-Prepare-Package {
@@ -1360,6 +1362,7 @@ function Start-Package-Msix {
     # need msix packaging tools
     Set-VC-Environment -Arch $arch
     
+    # TODO handle this better for nightlies
     $packageVersion = Get-KiCad-PackageVersion-Msix
     $kicadVersion = Get-KiCad-Version
 
@@ -1401,7 +1404,7 @@ function Start-Package-Msix {
                         -Arch "x64" `
                         -IdentityPublisher "CN=069DD09B-C97F-4C04-9248-7A7FA0D53E48" `
                         -IdentityName "KiCad.KiCadNightly" `
-                        -PublisherDisplayName "KiCad"
+                        -PublisherDisplayName "KiCad Services Corporation"
 
     $priFilePath = Join-Path -Path $destRoot -ChildPath "priconfig.xml"
     #makepri createconfig /cf priconfig.xml /dq en-US

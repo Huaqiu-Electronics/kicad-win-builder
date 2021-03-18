@@ -17,7 +17,7 @@
   <Properties>
     <DisplayName>KiCad [KICAD_VERSION]</DisplayName>
     <PublisherDisplayName>[PUBLISHER_DISPLAY_NAME]</PublisherDisplayName>
-    <Logo>bundleassets\png\icons\icon_kicad.png</Logo>
+    <Logo>bundleassets\png\icons\icon_kicad_store.png</Logo>
   </Properties>
 
   <uap10:PackageIntegrity>
@@ -25,7 +25,7 @@
   </uap10:PackageIntegrity>
 
   <Dependencies>
-    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.14393.0" MaxVersionTested="10.0.14393.0" />
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17134.0" MaxVersionTested="10.0.19042.867" />
   </Dependencies>
 
   <Resources>
