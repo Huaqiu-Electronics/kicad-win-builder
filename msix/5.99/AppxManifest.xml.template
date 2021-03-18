@@ -17,7 +17,7 @@
   <Properties>
     <DisplayName>KiCad [KICAD_VERSION]</DisplayName>
     <PublisherDisplayName>[PUBLISHER_DISPLAY_NAME]</PublisherDisplayName>
-    <Logo>bundleassets\png\icons\icon_kicad_store.png</Logo>
+    <Logo>bundleassets\png\icon_kicad_store.png</Logo>
     <uap10:PackageIntegrity>
       <uap10:Content Enforcement="on" />
     </uap10:PackageIntegrity>
