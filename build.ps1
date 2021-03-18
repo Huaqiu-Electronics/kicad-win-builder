@@ -92,7 +92,7 @@ param(
     [bool]$Prepare = $True,
     
     [Parameter(Mandatory=$False, ParameterSetName="package")]
-    [bool]$PostCleanup = $True
+    [bool]$PostCleanup = $False
 )
 
 enum Arch {
@@ -1403,7 +1403,7 @@ function Start-Package-Msix {
                         -PackageVersion $packageVersion `
                         -Arch "x64" `
                         -IdentityPublisher "CN=069DD09B-C97F-4C04-9248-7A7FA0D53E48" `
-                        -IdentityName "KiCad.KiCadNightly" `
+                        -IdentityName "KiCad.KiCad" `
                         -PublisherDisplayName "KiCad Services Corporation"
 
     $priFilePath = Join-Path -Path $destRoot -ChildPath "priconfig.xml"

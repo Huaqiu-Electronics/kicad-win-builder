@@ -15,7 +15,7 @@
     ProcessorArchitecture="[ARCH]" />
 
   <Properties>
-    <DisplayName>KiCad [KICAD_VERSION]</DisplayName>
+    <DisplayName>KiCad</DisplayName>
     <PublisherDisplayName>[PUBLISHER_DISPLAY_NAME]</PublisherDisplayName>
     <Logo>bundleassets\png\icon_kicad_store.png</Logo>
     <uap10:PackageIntegrity>
