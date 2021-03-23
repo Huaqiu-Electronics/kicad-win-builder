@@ -130,7 +130,7 @@ dir
               unstash 'signed_installer_exe'
               sh "pwd"
               archiveArtifacts allowEmptyArchive: false, artifacts: 'kicad*.exe', caseSensitive: true, defaultExcludes: true, fingerprint: true, onlyIfSuccessful: true
-              sh "s3cmd put kicad-*.exe s3://kicad-downloads/windows/testing/"
+              sh "s3cmd put kicad-*.exe s3://kicad-downloads/windows/nightly/"
           }
       }
 
