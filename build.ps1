@@ -1134,7 +1134,6 @@ function Start-Prepare-Package {
     $vcpkgInstalledBin = Join-Path -Path $vcpkgInstalledRoot -ChildPath "bin\"
     $destBin = Join-Path -Path $destRoot -ChildPath "bin\"
     $destLib = Join-Path -Path $destRoot -ChildPath "lib\"
-    $destKicadShare = Join-Path -Path $destRoot -ChildPath "share\kicad"
 
     Write-Host "Copying from $vcpkgInstalledBin to $destBin" -ForegroundColor Yellow
     foreach( $copyFilter in $vcpkgBinCopy )
@@ -1263,6 +1262,8 @@ function Start-Package-Nsis {
     }
 
     $outFileName = "kicad-$packageVersion-$nsisArch$outTags.exe"
+    
+    $destKicadShare = Join-Path -Path $destRoot -ChildPath "share\kicad"
 
     if( $lite )
     {
