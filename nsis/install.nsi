@@ -458,8 +458,13 @@ Section $(TITLE_SEC_MAIN) SEC01
   File /nonfatal "..\license_for_documentation.txt"
   SetOutPath "$INSTDIR\share\kicad\template"
   File /nonfatal /r "..\share\kicad\template\*"
+
+  ; delete contents of \bin\ itself to avoid any weird conflicts between versions
+  ; not a foolproof solution for all conflicts that could occur
+  Delete $INSTDIR\bin\*
   SetOutPath "$INSTDIR\bin"
   File /r "..\bin\*"
+
   SetOutPath "$INSTDIR\lib"
   File /r "..\lib\*"
   SetOutPath "$INSTDIR\share\kicad\internat"
