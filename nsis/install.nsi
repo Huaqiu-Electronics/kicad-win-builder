@@ -457,26 +457,31 @@ SectionEnd
 Section $(TITLE_SEC_MAIN) SEC01
   SectionIn RO
   SetOverwrite try
+  
+  ; delete contents of \bin\ itself to avoid any weird conflicts between versions
+  ; not a foolproof solution for all conflicts that could occur
+  Delete "$INSTDIR\bin\*.*"
+
   SetOutPath "$INSTDIR"
   !insertmacro ExclusiveDetailPrint $(INSTALLING_APPS)
   File /nonfatal "..\AUTHORS.txt"
   File /nonfatal "..\COPYRIGHT.txt"
   File /nonfatal "..\license_for_documentation.txt"
-  SetOutPath "$INSTDIR\share\kicad\template"
-  File /nonfatal /r "..\share\kicad\template\*"
 
-  ; delete contents of \bin\ itself to avoid any weird conflicts between versions
-  ; not a foolproof solution for all conflicts that could occur
-  Delete "$INSTDIR\bin\*.*"
   SetOutPath "$INSTDIR\bin"
   File /r "..\bin\*"
 
   SetOutPath "$INSTDIR\lib"
   File /r "..\lib\*"
+
   SetOutPath "$INSTDIR\share\kicad\internat"
   File /nonfatal /r "..\share\kicad\internat\*"
+
   SetOutPath "$INSTDIR\ssl\certs"
   File /nonfatal "..\ssl\certs\ca-bundle.crt"
+
+  SetOutPath "$INSTDIR\share\kicad\template"
+  File /nonfatal /r "..\share\kicad\template\*"
   
   SetOutPath "$INSTDIR\share\kicad\resources"
   File /nonfatal /r "..\share\kicad\resources\*"
