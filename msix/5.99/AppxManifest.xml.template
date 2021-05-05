@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10" 
+        xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10" 
+        xmlns:uap2="http://schemas.microsoft.com/appx/manifest/uap/windows10/2" 
+        xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3" 
+        xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10" 
+        xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities" 
+        xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"  
+        IgnorableNamespaces="uap uap2 uap3 uap10 rescap desktop">
+  <Identity
+    Name="[IDENTITY_NAME]"
+    Publisher="[IDENTITY_PUBLISHER]"
+    Version="[PACKAGE_VERSION]"
+    ProcessorArchitecture="[ARCH]" />
+
+  <Properties>
+    <DisplayName>KiCad</DisplayName>
+    <PublisherDisplayName>[PUBLISHER_DISPLAY_NAME]</PublisherDisplayName>
+    <Logo>bundleassets\png\icon_kicad_store.png</Logo>
+    <uap10:PackageIntegrity>
+      <uap10:Content Enforcement="on" />
+    </uap10:PackageIntegrity>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.17763.0" MaxVersionTested="10.0.19042.867" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="en" />
+  </Resources>
+
+  <Applications>
+    <Application Id="KICAD"
+      Executable="VFS\ProgramFilesX64\KiCad\5.99\bin\kicad.exe"
+      EntryPoint="Windows.FullTrustApplication">
+      <uap3:VisualElements
+        DisplayName="KiCad [KICAD_VERSION]"
+        Description="ms-resource:KiCadDescription"
+        BackgroundColor="transparent"
+        Square150x150Logo="bundleassets\png\icon_kicad-Square150x150Logo.png"
+        Square44x44Logo="bundleassets\png\icon_kicad-Square44x44Logo.png"
+        AppListEntry="default"
+        VisualGroup="KiCad [KICAD_VERSION]">
+        <uap:DefaultTile 
+          Wide310x150Logo="bundleassets\png\icon_kicad-Wide310x150Logo.png"  
+          Square71x71Logo="bundleassets\png\icon_kicad-Square71x71Logo.png" 
+          Square310x310Logo="bundleassets\png\icon_kicad-Square310x310Logo.png"
+          ShortName="KiCad [KICAD_VERSION]">
+            <uap:ShowNameOnTiles>
+              <uap:ShowOn Tile="square150x150Logo" />
+              <uap:ShowOn Tile="wide310x150Logo" />
+              <uap:ShowOn Tile="square310x310Logo" />
+            </uap:ShowNameOnTiles>
+        </uap:DefaultTile>
+      </uap3:VisualElements>
+      <Extensions>
+        <uap3:Extension Category="windows.fileTypeAssociation">
+          <uap3:FileTypeAssociation Name="kicad_pro">
+            <uap:SupportedFileTypes>
+              <uap:FileType>.kicad_pro</uap:FileType>
+            </uap:SupportedFileTypes>
+            <uap2:SupportedVerbs>
+              <uap3:Verb Id="open" Parameters="&quot;%1&quot;">open</uap3:Verb>
+            </uap2:SupportedVerbs>
+          </uap3:FileTypeAssociation>
+        </uap3:Extension>
+        <uap3:Extension Category="windows.fileTypeAssociation">
+          <uap3:FileTypeAssociation Name="pro">
+            <uap:SupportedFileTypes>
+              <uap:FileType>.pro</uap:FileType>
+            </uap:SupportedFileTypes>
+            <uap2:SupportedVerbs>
+              <uap3:Verb Id="open" Parameters="&quot;%1&quot;">open</uap3:Verb>
+            </uap2:SupportedVerbs>
+          </uap3:FileTypeAssociation>
+        </uap3:Extension>
+      </Extensions>
+    </Application>
+    <Application Id="BITMAP2COMPONENT" Executable="VFS\ProgramFilesX64\KiCad\5.99\bin\bitmap2component.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap3:VisualElements
+        DisplayName="ms-resource:B2CTitle"
+        Description="ms-resource:B2CDescription"
+        BackgroundColor="transparent"
+        Square150x150Logo="bundleassets\png\icon_bitmap2component-Square150x150Logo.png"
+        Square44x44Logo="bundleassets\png\icon_bitmap2component-Square44x44Logo.png"
+        AppListEntry="default"
+        VisualGroup="KiCad [KICAD_VERSION]">
+        <uap:DefaultTile 
+          Wide310x150Logo="bundleassets\png\icon_bitmap2component-Wide310x150Logo.png"  
+          Square71x71Logo="bundleassets\png\icon_bitmap2component-Square71x71Logo.png" 
+          Square310x310Logo="bundleassets\png\icon_bitmap2component-Square310x310Logo.png"
+          ShortName="ms-resource:B2CTitle">
+            <uap:ShowNameOnTiles>
+              <uap:ShowOn Tile="square150x150Logo" />
+              <uap:ShowOn Tile="wide310x150Logo" />
+              <uap:ShowOn Tile="square310x310Logo" />
+            </uap:ShowNameOnTiles>
+        </uap:DefaultTile>
+      </uap3:VisualElements>
+    </Application>
+    <Application Id="EESCHEMA" Executable="VFS\ProgramFilesX64\KiCad\5.99\bin\eeschema.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap3:VisualElements
+        DisplayName="ms-resource:EeschemaTitle"
+        Description="ms-resource:EeschemaDescription"
+        BackgroundColor="transparent"
+        Square150x150Logo="bundleassets\png\icon_eeschema-Square150x150Logo.png"
+        Square44x44Logo="bundleassets\png\icon_eeschema-Square44x44Logo.png"
+        AppListEntry="default"
+        VisualGroup="ms-resource:EeschemaTitle">
+        <uap:DefaultTile 
+          Wide310x150Logo="bundleassets\png\icon_eeschema-Wide310x150Logo.png"  
+          Square71x71Logo="bundleassets\png\icon_eeschema-Square71x71Logo.png" 
+          Square310x310Logo="bundleassets\png\icon_eeschema-Square310x310Logo.png"
+          ShortName="Schematic Editor">
+            <uap:ShowNameOnTiles>
+              <uap:ShowOn Tile="square150x150Logo" />
+              <uap:ShowOn Tile="wide310x150Logo" />
+              <uap:ShowOn Tile="square310x310Logo" />
+            </uap:ShowNameOnTiles>
+        </uap:DefaultTile>
+      </uap3:VisualElements>
+      <Extensions>
+        <uap3:Extension Category="windows.fileTypeAssociation">
+          <uap3:FileTypeAssociation Name="kicad_sch">
+            <uap:SupportedFileTypes>
+              <uap:FileType>.kicad_sch</uap:FileType>
+            </uap:SupportedFileTypes>
+            <uap2:SupportedVerbs>
+              <uap3:Verb Id="open" Parameters="&quot;%1&quot;">open</uap3:Verb>
+            </uap2:SupportedVerbs>
+          </uap3:FileTypeAssociation>
+        </uap3:Extension>
+        <uap3:Extension Category="windows.fileTypeAssociation">
+          <uap3:FileTypeAssociation Name="sch">
+            <uap:SupportedFileTypes>
+              <uap:FileType>.sch</uap:FileType>
+            </uap:SupportedFileTypes>
+            <uap2:SupportedVerbs>
+              <uap3:Verb Id="open" Parameters="&quot;%1&quot;">open</uap3:Verb>
+            </uap2:SupportedVerbs>
+          </uap3:FileTypeAssociation>
+        </uap3:Extension>
+      </Extensions>
+    </Application>
+    <Application Id="GERBVIEW" Executable="VFS\ProgramFilesX64\KiCad\5.99\bin\gerbview.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap3:VisualElements
+        DisplayName="ms-resource:GerbviewTitle"
+        Description="ms-resource:GerbviewDescription"
+        BackgroundColor="transparent"
+        Square150x150Logo="bundleassets\png\icon_gerbview-Square150x150Logo.png"
+        Square44x44Logo="bundleassets\png\icon_gerbview-Square44x44Logo.png"
+        AppListEntry="default"
+        VisualGroup="KiCad [KICAD_VERSION]">
+        <uap:DefaultTile 
+          Wide310x150Logo="bundleassets\png\icon_gerbview-Wide310x150Logo.png"  
+          Square71x71Logo="bundleassets\png\icon_gerbview-Square71x71Logo.png" 
+          Square310x310Logo="bundleassets\png\icon_gerbview-Square310x310Logo.png"
+          ShortName="ms-resource:GerbviewTitle">
+            <uap:ShowNameOnTiles>
+              <uap:ShowOn Tile="square150x150Logo" />
+              <uap:ShowOn Tile="wide310x150Logo" />
+              <uap:ShowOn Tile="square310x310Logo" />
+            </uap:ShowNameOnTiles>
+        </uap:DefaultTile>
+      </uap3:VisualElements>
+    </Application>
+    <Application Id="PCBCALCULATOR" Executable="VFS\ProgramFilesX64\KiCad\5.99\bin\pcb_calculator.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap3:VisualElements
+        DisplayName="ms-resource:PcbCalcTitle"
+        Description="ms-resource:PcbCalcDescription"
+        BackgroundColor="transparent"
+        Square150x150Logo="bundleassets\png\icon_pcbcalculator-Square150x150Logo.png"
+        Square44x44Logo="bundleassets\png\icon_pcbcalculator-Square44x44Logo.png"
+        AppListEntry="default"
+        VisualGroup="KiCad [KICAD_VERSION]">
+        <uap:DefaultTile 
+          Wide310x150Logo="bundleassets\png\icon_pcbcalculator-Wide310x150Logo.png"  
+          Square71x71Logo="bundleassets\png\icon_pcbcalculator-Square71x71Logo.png" 
+          Square310x310Logo="bundleassets\png\icon_pcbcalculator-Square310x310Logo.png"
+          ShortName="ms-resource:PcbCalcTitle">
+            <uap:ShowNameOnTiles>
+              <uap:ShowOn Tile="square150x150Logo" />
+              <uap:ShowOn Tile="wide310x150Logo" />
+              <uap:ShowOn Tile="square310x310Logo" />
+            </uap:ShowNameOnTiles>
+        </uap:DefaultTile>
+      </uap3:VisualElements>
+    </Application>
+    <Application Id="PCBNEW" Executable="VFS\ProgramFilesX64\KiCad\5.99\bin\pcbnew.exe" EntryPoint="Windows.FullTrustApplication">
+      <uap3:VisualElements
+        DisplayName="ms-resource:PcbNewTitle"
+        Description="ms-resource:PcbNewDescription"
+        BackgroundColor="transparent"
+        Square150x150Logo="bundleassets\png\icon_pcbnew-Square150x150Logo.png"
+        Square44x44Logo="bundleassets\png\icon_pcbnew-Square44x44Logo.png"
+        AppListEntry="default"
+        VisualGroup="KiCad [KICAD_VERSION]">
+        <uap:DefaultTile 
+          Wide310x150Logo="bundleassets\png\icon_pcbnew-Wide310x150Logo.png"  
+          Square71x71Logo="bundleassets\png\icon_pcbnew-Square71x71Logo.png" 
+          Square310x310Logo="bundleassets\png\icon_pcbnew-Square310x310Logo.png"
+          ShortName="ms-resource:PcbNewTitle">
+            <uap:ShowNameOnTiles>
+              <uap:ShowOn Tile="square150x150Logo" />
+              <uap:ShowOn Tile="wide310x150Logo" />
+              <uap:ShowOn Tile="square310x310Logo" />
+            </uap:ShowNameOnTiles>
+        </uap:DefaultTile>
+      </uap3:VisualElements>
+      <Extensions>
+        <uap3:Extension Category="windows.fileTypeAssociation">
+          <uap3:FileTypeAssociation Name="kicad_pcb">
+            <uap:SupportedFileTypes>
+              <uap:FileType>.kicad_pcb</uap:FileType>
+            </uap:SupportedFileTypes>
+            <uap2:SupportedVerbs>
+              <uap3:Verb Id="open" Parameters="&quot;%1&quot;">open</uap3:Verb>
+            </uap2:SupportedVerbs>
+          </uap3:FileTypeAssociation>
+        </uap3:Extension>
+      </Extensions>
+    </Application>
+  </Applications>
+  <Capabilities>
+    <rescap:Capability Name="runFullTrust" />
+  </Capabilities>
+</Package>

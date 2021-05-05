@@ -17,7 +17,13 @@
 #   ./build.ps1 -Build [-Latest] [-Arch x64] [-BuildType Release]
 #
 #   Triggers a package operation
-#   ./build.ps1 -Package [-Arch x64] [-BuildType Release] [-Lite] [-IncludeDebugSymbols]
+#   ./build.ps1 -PreparePackage [-Arch x64] [-BuildType Release] [-Lite] [-IncludeDebugSymbols]
+#
+#   Triggers a package operation
+#   ./build.ps1 -Package [-PackType Nsis] [-Arch x64] [-BuildType Release] [-Lite] [-IncludeDebugSymbols]
+#
+#   Triggers a msix assets generation
+#   ./build.ps1 -MsixAssets
 #
 #   IncludeDebugSymbols will include PDBs (off by default)
 #   Lite will build the light version of the installer (no libraries)
@@ -38,6 +44,16 @@ param(
 
     [Parameter(Position = 0, Mandatory=$True, ParameterSetName="package")]
     [Switch]$Package,
+    
+    [Parameter(Position = 0, Mandatory=$True, ParameterSetName="preparepackage")]
+    [Switch]$PreparePackage,
+
+    [Parameter(Position = 0, Mandatory=$True, ParameterSetName="msixassets")]
+    [Switch]$MsixAssets,
+
+    [Parameter(Mandatory=$True, ParameterSetName="msixassets")]
+    [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [string]$Version,
 
     [Parameter(Mandatory=$False, ParameterSetName="build")]
     [Parameter(Mandatory=$False, ParameterSetName="vcpkg")]
@@ -46,11 +62,17 @@ param(
     [Parameter(Mandatory=$False, ParameterSetName="build")]
     [Parameter(Mandatory=$False, ParameterSetName="vcpkg")]
     [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
     [ValidateSet('x86', 'x64', 'arm64', 'arm')]
     [string]$Arch = 'x64',
 
+    [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [ValidateSet('nsis', 'msix')]
+    [string]$PackType = 'nsis',
+
     [Parameter(Mandatory=$False, ParameterSetName="build")]
     [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
     [ValidateSet('Release', 'Debug')]
     [string]$BuildType = 'Release',
 
@@ -59,10 +81,18 @@ param(
     [string]$VcpkgPath,
 
     [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
     [switch]$IncludeDebugSymbols,
 
     [Parameter(Mandatory=$False, ParameterSetName="package")]
-    [switch]$Lite
+    [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
+    [switch]$Lite,
+    
+    [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [bool]$Prepare = $True,
+    
+    [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [bool]$PostCleanup = $False
 )
 
 enum Arch {
@@ -87,6 +117,11 @@ enum ExitCodes {
     GitResetFailure = 11
     GitCleanFailure = 12
     GitPullRebaseFailure = 13
+    UnsupportedSwitch = 14
+    InkscapeSvgConversion = 15
+    InvalidMsixVersion = 16
+    MakePriFailure = 17
+    MakeAppxFailure = 18
 }
 
 # Load the .NET compression library, powershell's expand-archive is horrid in performance
@@ -988,7 +1023,20 @@ function Get-KiCad-Version {
     return $result
 }
 
-function Start-Package {
+function Get-KiCad-PackageVersion-Msix {
+
+    $base = Get-KiCad-Version
+    
+    Push-Location (Get-Source-Path kicad)
+    $revCount = (git rev-list --count --first-parent HEAD)
+    Pop-Location
+
+    # SPECIAL REQUIREMENT
+    # MSIX package version must always end with .0
+    return "${base}.${revCount}.0"
+}
+
+function Start-Prepare-Package {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$True)]
@@ -1154,6 +1202,43 @@ function Start-Package {
     Write-Host "Copying $xsltprocSource to $destBin"
     Copy-Item $xsltprocSource -Destination $destBin -Recurse  -Force
 
+    Write-Host "Package prep complete" -ForegroundColor Green
+}
+
+function Start-Package-Nsis {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [Arch]$arch,
+        [Parameter(Mandatory=$False)]
+        [ValidateSet('Release', 'Debug')]
+        [string]$buildType = "Release",
+        [Parameter(Mandatory=$False)]
+        [bool]$includeDebugSymbols = $False,
+        [Parameter(Mandatory=$False)]
+        [bool]$lite = $False,
+        [Parameter(Mandatory=$False)]
+        [bool]$postCleanup = $False
+    )
+
+    $packageVersion = Get-KiCad-PackageVersion
+    $kicadVersion = Get-KiCad-Version
+
+    $nsisArch = Get-NSIS-Arch -Arch $arch
+
+    Write-Host "Package Version: $packageVersion"
+    Write-Host "KiCad Version: $kicadVersion"
+    if($lite) {
+        Write-Host "Lite package"
+    }
+    else {
+        Write-Host "Full package"
+    }
+
+    $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
+
+    $destRoot = Join-Path -Path $PSScriptRoot -ChildPath ".out\$buildName\"
+
     ## now nsis
     $nsisSource = Join-Path -Path $PSScriptRoot -ChildPath "nsis\"
     Write-Host "Copying nsis $nsisSource to $nsisDest"
@@ -1208,11 +1293,368 @@ function Start-Package {
             "$nsisScript"
     }
 
+    if($postCleanup) {
+        $nsisFolder = Join-Path -Path $destRoot -ChildPath "nsis"
+        Remove-Item $nsisFolder -Recurse -Force
+    }
+
 
     if ($LastExitCode -ne 0) {
         Write-Error "Error building nsis package"
         Exit [ExitCodes]::NsisFailure
     }
+
+}
+
+
+function Create-AppxManifest {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [string]$SourcePath,
+        [Parameter(Mandatory=$True)]
+        [string]$DestPath,
+        [Parameter(Mandatory=$True)]
+        [string]$KiCadVersion,
+        [Parameter(Mandatory=$True)]
+        [string]$Arch,
+        [Parameter(Mandatory=$True)]
+        [string]$PackageVersion,
+        [Parameter(Mandatory=$True)]
+        [string]$IdentityPublisher,
+        [Parameter(Mandatory=$True)]
+        [string]$IdentityName,
+        [Parameter(Mandatory=$True)]
+        [string]$PublisherDisplayName
+    )
+
+    $manifest = Get-Content -Path $SourcePath
+
+    $manifest = $manifest.replace("[PACKAGE_VERSION]", $PackageVersion)
+    $manifest = $manifest.replace("[ARCH]", $Arch)
+    $manifest = $manifest.replace("[KICAD_VERSION]", $KiCadVersion)
+    
+
+    $manifest = $manifest.replace("[IDENTITY_PUBLISHER]", $IdentityPublisher)
+    $manifest = $manifest.replace("[IDENTITY_NAME]", $IdentityName)
+    $manifest = $manifest.replace("[PUBLISHER_DISPLAY_NAME]", $PublisherDisplayName)
+    Set-Content -Path $DestPath -Value $manifest
+}
+
+function Start-Package-Msix {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [Arch]$arch,
+        [Parameter(Mandatory=$False)]
+        [ValidateSet('Release', 'Debug')]
+        [string]$buildType = "Release",
+        [Parameter(Mandatory=$False)]
+        [bool]$includeDebugSymbols = $False,
+        [Parameter(Mandatory=$False)]
+        [bool]$lite = $False,
+        [Parameter(Mandatory=$False)]
+        [bool]$postCleanup = $False,
+        [Parameter(Mandatory=$False)]
+        [string]$version = ""
+    )
+
+    # need msix packaging tools
+    Set-VC-Environment -Arch $arch
+    
+    # TODO handle this better for nightlies
+    $packageVersion = Get-KiCad-PackageVersion-Msix
+    $kicadVersion = Get-KiCad-Version
+
+    Write-Host "Package Version: $packageVersion"
+    Write-Host "KiCad Version: $kicadVersion"
+    if($lite) {
+        Write-Host "Lite package"
+    }
+    else {
+        Write-Host "Full package"
+    }
+
+    $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
+
+    $buildSource = Join-Path -Path $PSScriptRoot -ChildPath ".out\$buildName\"
+
+    $destRoot = Join-Path -Path $outPathRoot -ChildPath "\msix-$buildName"
+    $destRootVfs = Join-Path -Path $destRoot -ChildPath "\VFS\ProgramFilesX64\KiCad\5.99\"
+
+    if( -not (Test-Path $destRootVfs) )
+    {
+        New-Item -Path $destRootVfs -ItemType "directory"
+    }
+
+    Copy-Item "${buildSource}\*" -Destination $destRootVfs -Recurse -Force
+
+
+    ## now nsis
+    $msixSource = Join-Path -Path $PSScriptRoot -ChildPath "msix\$version"
+    Write-Host "Copying msix $msixSource to $destRoot"
+    Copy-Item "${msixSource}\*" -Exclude "*.template" -Destination $destRoot -Recurse -Force
+
+    $msixManifestSource = Join-Path -Path $PSScriptRoot -ChildPath "msix\$version\AppxManifest.xml.template"
+    $msixManifestDest= Join-Path -Path $destRoot -ChildPath "AppxManifest.xml" 
+    Create-AppxManifest -SourcePath $msixManifestSource `
+                        -DestPath $msixManifestDest `
+                        -KiCadVersion $kicadVersion `
+                        -PackageVersion $packageVersion `
+                        -Arch "x64" `
+                        -IdentityPublisher "CN=069DD09B-C97F-4C04-9248-7A7FA0D53E48" `
+                        -IdentityName "KiCad.KiCad" `
+                        -PublisherDisplayName "KiCad Services Corporation"
+
+    $priFilePath = Join-Path -Path $destRoot -ChildPath "priconfig.xml"
+    #makepri createconfig /cf priconfig.xml /dq en-US
+    Push-Location $destRoot
+    Write-Host "Running makepri"
+    makepri new /pr "$destRoot" /cf "$priFilePath" /o
+    if( $LastExitCode -ne 0 )
+    {
+        Write-Error "Error generating resource pack"
+        Exit [ExitCodes]::MakePriFailure
+    }
+    Pop-Location
+    
+    Write-Host "Running makeappx"
+    $outFileName = "kicad-$packageVersion-$arch.msix"
+    $outFilePath = Join-Path -Path $outPathRoot -ChildPath $outFileName
+    makeappx pack /d "$destRoot" /p "$outFilePath" /o 
+    if( $LastExitCode -ne 0 )
+    {
+        Write-Error "Error generating appx package"
+        Exit [ExitCodes]::MakeAppxFailure
+    }
+
+    Write-Host "Msix built!" -ForegroundColor Green
+    if( $postCleanup )
+    {
+        Write-Host "Cleanup: Removing intermediate build folder $destRoot"
+        Remove-Item $destRoot -Recurse -ErrorAction SilentlyContinue
+    }
+}
+
+function Convert-Svg {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [string]$Svg,
+        [Parameter(Mandatory=$True)]
+        [int]$Width,
+        [Parameter(Mandatory=$True)]
+        [int]$Height,
+        [Parameter(Mandatory=$True)]
+        [string]$Out
+    )
+
+    Write-Host "Converting $Svg to $Out, w: $Width, h: $Height"
+
+    inkscape --export-area-snap --export-type=png "$Svg" --export-filename "$Out" -w $Width -h $Height 2>$null
+
+    if( $LastExitCode -ne 0 )
+    {
+        Write-Error "Error generating png from svg"
+        Exit [ExitCodes]::InkscapeSvgConversion
+    }
+}
+
+function Generate-Target-Size-Icon {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [string]$Svg,
+        [Parameter(Mandatory=$True)]
+        [int]$Size,
+        [Parameter(Mandatory=$True)]
+        [string]$OutBase
+    )
+
+    $out = "${OutBase}.targetsize-${Size}.png"
+    Convert-Svg -Svg $svg -Width $Size -Height $Size -Out $out
+
+    $out = "${OutBase}.targetsize-${Size}_altform-unplated.png"
+    Convert-Svg -Svg $svg -Width $Size -Height $Size -Out $out
+}
+
+
+# Target size are specific 16,24,32,48,256
+function Generate-Target-Size-Icons {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [string]$Svg,
+        [Parameter(Mandatory=$True)]
+        [string]$OutBase
+    )
+
+    Generate-Target-Size-Icon -Svg $Svg -OutBase $OutBase -Size 16
+    Generate-Target-Size-Icon -Svg $Svg -OutBase $OutBase -Size 24
+    Generate-Target-Size-Icon -Svg $Svg -OutBase $OutBase -Size 32
+    Generate-Target-Size-Icon -Svg $Svg -OutBase $OutBase -Size 48
+    Generate-Target-Size-Icon -Svg $Svg -OutBase $OutBase -Size 256
+}
+
+
+$imageHelper = @"
+    using System;
+    using System.Drawing;
+    using System.Drawing.Imaging;
+
+    public class ImageHelper
+    {
+        public static void TilizeIcon(string sourcePath, int finalWidth, int finalHeight, string finalPath)
+        {
+            using (var finalImage = new Bitmap(finalWidth, finalHeight))
+            {
+                using (var source = new Bitmap(sourcePath))
+                {
+                    if(source.Width > finalWidth)
+                    {
+                        throw new ArgumentOutOfRangeException("Source width is larger than the final width");
+                    }
+
+                    if (source.Height > finalHeight)
+                    {
+                        throw new ArgumentOutOfRangeException("Source height is larger than the final height");
+                    }
+
+                    using (Graphics g = Graphics.FromImage(finalImage))
+                    {
+                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                        g.DrawImage(source, (finalWidth-source.Width)/2, (finalHeight-source.Height)/2, source.Width, source.Height);
+                    }
+                }
+
+                finalImage.Save(finalPath, ImageFormat.Png);
+            }
+        }
+    }
+"@
+
+$assemblies = ("System.Drawing")
+Add-Type -ReferencedAssemblies $assemblies -TypeDefinition $imageHelper -Language CSharp 
+
+function Generate-Tile-Icon-Sub {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [string]$Svg,
+        [Parameter(Mandatory=$True)]
+        [int]$Width,
+        [Parameter(Mandatory=$True)]
+        [int]$Height,
+        [Parameter(Mandatory=$True)]
+        [string]$OutBase,
+        [Parameter(Mandatory=$True)]
+        [int]$Scale,
+        [Parameter(Mandatory=$False)]
+        [bool]$Padding = $False
+    )
+
+    $shape = 'Square';
+    if( $Width -ne $Height )
+    {
+        $shape = 'Wide';
+    }
+
+    $OutBase = "${OutBase}-${shape}${Width}x${Height}Logo";
+
+    $out = "${OutBase}.scale-${Scale}.png"
+    $finalWidth = $Width * ($Scale/100.0)
+    $finalHeight = $Height* ($Scale/100.0)
+    if( $Padding )
+    {
+        $iconWidth = $finalWidth*0.66
+        $iconHeight = $finalHeight*0.50
+        $iconDim = [math]::Min($iconHeight,$iconWidth)
+        $iconDim = [math]::Round($iconDim, 0)
+        
+        Convert-Svg -Svg $svg -Width $iconDim -Height $iconDim -Out $out
+        [ImageHelper]::TilizeIcon($out, $finalWidth, $finalHeight, $out)
+    }
+    else {
+        Convert-Svg -Svg $svg -Width $finalHeight -Height $finalHeight -Out $out
+        if( $finalWidth -eq 44 )
+        {
+            Generate-Target-Size-Icons -Svg $f.FullName -OutBase $OutBase
+        }
+    }
+}
+
+function Generate-Tile-Icon {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [string]$Svg,
+        [Parameter(Mandatory=$True)]
+        [int]$Width,
+        [Parameter(Mandatory=$True)]
+        [int]$Height,
+        [Parameter(Mandatory=$True)]
+        [string]$OutBase,
+        [Parameter(Mandatory=$False)]
+        [bool]$Padding = $False
+    )
+
+
+    Generate-Tile-Icon-Sub -Svg $Svg -Width $Width -Height $Height -OutBase $OutBase -Padding $Padding -Scale 100
+    Generate-Tile-Icon-Sub -Svg $Svg -Width $Width -Height $Height -OutBase $OutBase -Padding $Padding -Scale 125
+    Generate-Tile-Icon-Sub -Svg $Svg -Width $Width -Height $Height -OutBase $OutBase -Padding $Padding -Scale 150
+    Generate-Tile-Icon-Sub -Svg $Svg -Width $Width -Height $Height -OutBase $OutBase -Padding $Padding -Scale 200
+    Generate-Tile-Icon-Sub -Svg $Svg -Width $Width -Height $Height -OutBase $OutBase -Padding $Padding -Scale 400
+}
+
+function Generate-Tile-Icons {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [string]$Svg,
+        [Parameter(Mandatory=$True)]
+        [string]$OutBase
+    )
+
+    Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 44 -Height 44
+    Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 71 -Height 71 -Padding $True
+    Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 150 -Height 150 -Padding $True
+    Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 310 -Height 310 -Padding $True
+    Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 310 -Height 150 -Padding $True
+}
+
+function Generate-Msix-Assets {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [string]$version
+    )
+
+
+    $iconSources = Join-Path -Path $PSScriptRoot -ChildPath "msix\$version\bundleassets\sources\"
+
+    if( -not (Test-Path $iconSources) )
+    {
+        Write-Error "Version icon msix icon sources do not exist"
+        Exit [ExitCodes]::InvalidMsixVersion
+    }
+
+    
+    $iconDest = Join-Path -Path $PSScriptRoot -ChildPath "msix\$version\bundleassets\png\"
+
+    Remove-Item $iconDest -Recurse -ErrorAction SilentlyContinue
+    New-Item $iconDest -ItemType "directory"
+
+    $kicadStoreIconSource = Join-Path -Path $iconSources -ChildPath "icon_kicad.svg"
+    $kicadStoreIconDest = Join-Path -Path $iconSources -ChildPath "icon_kicad_store.svg"
+    Convert-Svg -Svg $kicadStoreIconSource -Width 300 -Height 300 -Out "$iconDest/icon_kicad_store.png"
+
+    $icons = Get-ChildItem $iconSources -Filter icon*.svg
+    foreach ($f in $icons){
+        $basePath = "$iconDest/$($f.BaseName)"
+        Generate-Tile-Icons  -Svg $f.FullName -Out $basePath
+    }
+    
 }
 
 
@@ -1253,7 +1695,30 @@ if( $Build )
     Start-Build -arch $Arch -buildType $BuildType -latest $Latest
 }
 
+if( $MsixAssets )
+{
+    Generate-Msix-Assets -version $Version
+}
+
+if( $PreparePackage -or ($Package -and $Prepare) )
+{
+    Start-Prepare-Package -arch $Arch -buildType $BuildType -includeDebugSymbols $IncludeDebugSymbols -lite $Lite
+}
+
 if( $Package )
 {
-    Start-Package -arch $Arch -buildType $BuildType -includeDebugSymbols $IncludeDebugSymbols -lite $Lite
+    if( $PackType -eq 'nsis' )
+    {
+        Start-Package-Nsis -arch $Arch -buildType $BuildType -includeDebugSymbols $IncludeDebugSymbols -lite $Lite -postCleanup $PostCleanup
+    }
+    elseif( $PackType -eq 'msix' )
+    {
+        if( $Lite )
+        {
+            Write-Error "-Lite switched not supported for Msix build types"
+            Exit [ExitCodes]::UnsupportedSwitch
+        }
+
+        Start-Package-Msix -arch $Arch -buildType $BuildType -includeDebugSymbols $IncludeDebugSymbols -version $Version -postCleanup $PostCleanup
+    }
 }
