@@ -467,7 +467,7 @@ Section $(TITLE_SEC_MAIN) SEC01
 
   ; delete contents of \bin\ itself to avoid any weird conflicts between versions
   ; not a foolproof solution for all conflicts that could occur
-  Delete $INSTDIR\bin\*
+  Delete "$INSTDIR\bin\*"
   SetOutPath "$INSTDIR\bin"
   File /r "..\bin\*"
 
