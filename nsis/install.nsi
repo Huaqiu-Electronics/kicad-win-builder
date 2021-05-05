@@ -285,18 +285,24 @@ Function .onInit
       MessageBox MB_OK $(ERROR_WIN_MIN)
       Quit
   ${EndIf}
+  !endif
 
   ; Check if we already have an install (MSYS2)
   ; Refuse to run until its uninstalled
   ReadRegStr $0 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "DisplayName"
   ${If} $0 != ""
     ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "MSVC"
+  !ifdef MSVC
+    ; MSVC over MSYS2 is bad
     ${If} $1 != 1
+  !else
+    ; MSYS2 OVER MSVC is bad
+    ${If} $1 == 1
+  !endif
       MessageBox MB_OK $(ERROR_UNINSTALL_FIRST)
       Quit
     ${EndIf}
   ${EndIf}
-  !endif
 
   !ifdef LIBRARIES_TAG
   StrCpy $DELETE_DOWNLOADED_FILES "unknown"
