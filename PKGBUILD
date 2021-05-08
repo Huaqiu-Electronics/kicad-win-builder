@@ -88,7 +88,7 @@ build() {
     -DKICAD_USE_OCE=ON \
     -DKICAD_SPICE=ON \
     -DKICAD_BUILD_I18N=ON \
-	-DKICAD_BUILD_QA_TESTS=OFF \
+    -DKICAD_BUILD_QA_TESTS=OFF \
     -DPYTHON_EXECUTABLE=${MINGW_PREFIX}/bin/python2.exe \
     ${EXTRA_FLAGS} \
     ../${_realname}
