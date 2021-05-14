@@ -461,6 +461,11 @@ Section $(TITLE_SEC_MAIN) SEC01
   ; delete contents of \bin\ itself to avoid any weird conflicts between versions
   ; not a foolproof solution for all conflicts that could occur
   Delete "$INSTDIR\bin\*.*"
+  
+  ; clean contents of python because otherwise out of date things can remain and get loaded
+  RMDir /r "$INSTDIR\bin\DLLs\"
+  RMDir /r "$INSTDIR\bin\Lib\"
+  RMDir /r "$INSTDIR\bin\Scripts\"
 
   SetOutPath "$INSTDIR"
   !insertmacro ExclusiveDetailPrint $(INSTALLING_APPS)
