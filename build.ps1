@@ -964,6 +964,7 @@ function Build-Vcpkg {
 
 
     $dependencies = @( "boost",
+                        "pixman", # required for cairo
                         "cairo",
                         "curl",
                         "glew",
