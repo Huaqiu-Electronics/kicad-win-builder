@@ -951,7 +951,10 @@ function Build-Vcpkg {
     if( $latest )
     {
         Write-Host "Updating vcpkg git repo" -ForegroundColor Yellow
-        & git pull --rebase
+
+        git fetch
+        git checkout kicad
+        git reset --hard origin/kicad
     }
 
     .\bootstrap-vcpkg.bat
