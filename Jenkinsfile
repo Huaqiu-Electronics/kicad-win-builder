@@ -1,4 +1,4 @@
-archs = ['x86', 'x64']
+archs = ['x64','x86']
 build_type = 'Release'
 
 def do_init(list) {
