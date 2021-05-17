@@ -105,8 +105,8 @@ RequestExecutionLevel admin
 ; Define a variable with start menu path for later use
 !define SMPATH "$SMPROGRAMS\KiCad ${KICAD_VERSION}"
 
-ShowInstDetails hide
-ShowUnInstDetails hide
+ShowInstDetails nevershow
+ShowUnInstDetails nevershow
 BrandingText "KiCad installer for Windows"
 
 ; MUI 2 compatible ------
@@ -417,7 +417,7 @@ FunctionEnd
 !macro ExclusiveDetailPrint Msg
 	SetDetailsPrint textonly
 	DetailPrint "${Msg}"
-	SetDetailsPrint listonly
+	SetDetailsPrint none
 !macroend
 
 Function onDirectoryPageLeave
