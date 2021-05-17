@@ -458,6 +458,7 @@ Section $(TITLE_SEC_MAIN) SEC01
   SectionIn RO
   SetOverwrite try
   
+  !insertmacro ExclusiveDetailPrint $(INSTALLING_APPS)
   ; delete contents of \bin\ itself to avoid any weird conflicts between versions
   ; not a foolproof solution for all conflicts that could occur
   Delete "$INSTDIR\bin\*.*"
@@ -468,7 +469,6 @@ Section $(TITLE_SEC_MAIN) SEC01
   RMDir /r "$INSTDIR\bin\Scripts\"
 
   SetOutPath "$INSTDIR"
-  !insertmacro ExclusiveDetailPrint $(INSTALLING_APPS)
   File /nonfatal "..\AUTHORS.txt"
   File /nonfatal "..\COPYRIGHT.txt"
   File /nonfatal "..\license_for_documentation.txt"
