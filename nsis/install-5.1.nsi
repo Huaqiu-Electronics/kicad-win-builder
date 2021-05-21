@@ -739,7 +739,7 @@ Section Uninstall
 SectionEnd
 
 Function PreventMultiInstances
-  System::Call 'kernel32::CreateMutexA(i 0, i 0, t "myMutex") i .r1 ?e'
+  System::Call 'kernel32::CreateMutexA(i 0, i 0, t "kicad-installer") i .r1 ?e'
   Pop $R0
   StrCmp $R0 0 +3
   MessageBox MB_OK|MB_ICONEXCLAMATION $(INSTALLER_RUNNING) /SD IDOK
@@ -747,7 +747,7 @@ Function PreventMultiInstances
 FunctionEnd
 
 Function un.PreventMultiInstances
-  System::Call 'kernel32::CreateMutexA(i 0, i 0, t "myMutex") i .r1 ?e'
+  System::Call 'kernel32::CreateMutexA(i 0, i 0, t "kicad-installer") i .r1 ?e'
   Pop $R0
   StrCmp $R0 0 +3
   MessageBox MB_OK|MB_ICONEXCLAMATION $(UNINSTALLER_RUNNING) /SD IDOK
