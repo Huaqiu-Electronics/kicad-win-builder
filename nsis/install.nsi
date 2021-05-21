@@ -307,22 +307,6 @@ Function .onInit
   !ifdef LIBRARIES_TAG
   StrCpy $DELETE_DOWNLOADED_FILES "unknown"
   !endif
-  ; Request that we get elevated rights to install so that we don't end up in
-  ; the virtual store
-  ClearErrors
-  UserInfo::GetName
-  IfErrors Win9x
-  Pop $0
-  UserInfo::GetAccountType
-  Pop $1
-  UserInfo::GetOriginalAccountType
-  Pop $2
-  StrCmp $1 "Admin" 0 AdminQuit
-    Goto LangDisplay
-
-  AdminQuit:
-    MessageBox MB_OK $(ERROR_ADMIN_REQ)
-    Quit
 
   LangDisplay:
     ReserveFile "install.ico"
