@@ -29,7 +29,7 @@
 !addplugindir /x86-unicode "./plugins/x86-unicode"
 
 !include "winmessages.nsh"
-!include "nsProcess.nsh"
+!include "includes\nsProcess.nsh"
 
 ; General Product Description Definitions
 !define PRODUCT_NAME "KiCad"
@@ -153,12 +153,12 @@ BrandingText "KiCad installer for Windows"
 !insertmacro MUI_LANGUAGE "Greek"
 !insertmacro MUI_LANGUAGE "SimpChinese"
 
-!include "English.nsh"
-!include "German.nsh"
-!include "Italian.nsh"
-!include "Spanish.nsh"
-!include "Greek.nsh"
-!include "Chinese.nsh"
+!include "lang\English.nsh"
+!include "lang\German.nsh"
+!include "lang\Italian.nsh"
+!include "lang\Spanish.nsh"
+!include "lang\Greek.nsh"
+!include "lang\Chinese.nsh"
 
 VIProductVersion "0.0.0.0" ; Dummy version, because this can only be X.X.X.X
 VIAddVersionKey "ProductName" "${COMPANY_NAME}"
