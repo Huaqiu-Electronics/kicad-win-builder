@@ -92,6 +92,10 @@ param(
     [bool]$Prepare = $True,
     
     [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
+    [switch]$Sign,
+    
+    [Parameter(Mandatory=$False, ParameterSetName="package")]
     [bool]$PostCleanup = $False
 )
 
@@ -122,6 +126,7 @@ enum ExitCodes {
     InvalidMsixVersion = 16
     MakePriFailure = 17
     MakeAppxFailure = 18
+    SignFail = 19
 }
 
 # Load the .NET compression library, powershell's expand-archive is horrid in performance
@@ -203,6 +208,7 @@ $settingDefault = @{
     VcpkgPath = ''
     VcpkgPlatformToolset = 'v142'
     VsVersion = '16.0'
+    SignSubjectName = 'KiCad Services Corporation'
 }
 
 $settingsSaved = @{}
@@ -1040,6 +1046,24 @@ function Get-KiCad-PackageVersion-Msix {
     return "${base}.${revCount}.0"
 }
 
+
+function Sign-File {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [string]$File
+    )
+
+    Write-Host "Signing file: $File" -ForegroundColor Blue
+
+    signtool.exe sign /a /n "$($settings.SignSubjectName)" /fd sha256 /tr http://timestamp.sectigo.com /td sha256 /q $File
+
+    if ($LastExitCode -ne 0) {
+        Write-Error "Error signing file $File"
+        Exit [ExitCodes]::SignFail
+    }
+}
+
 function Start-Prepare-Package {
     [CmdletBinding()]
     param(
@@ -1051,8 +1075,16 @@ function Start-Prepare-Package {
         [Parameter(Mandatory=$False)]
         [bool]$includeDebugSymbols = $False,
         [Parameter(Mandatory=$False)]
-        [bool]$lite = $False
+        [bool]$lite = $False,
+        [Parameter(Mandatory=$False)]
+        [bool]$sign = $False
     )
+
+    # Required for signing
+    if( $sign )
+    {
+        Set-VC-Environment -Arch $arch
+    }
 
     $packageVersion = Get-KiCad-PackageVersion
     $kicadVersion = Get-KiCad-Version
@@ -1205,6 +1237,17 @@ function Start-Prepare-Package {
     Write-Host "Copying $xsltprocSource to $destBin"
     Copy-Item $xsltprocSource -Destination $destBin -Recurse  -Force
 
+    if( $sign ) {
+        Sign-File -File (Join-Path -Path $destBin -ChildPath "kicad.exe")
+        Sign-File -File (Join-Path -Path $destBin -ChildPath "eeschema.exe")
+        Sign-File -File (Join-Path -Path $destBin -ChildPath "pcbnew.exe")
+        Sign-File -File (Join-Path -Path $destBin -ChildPath "gerbview.exe")
+        Sign-File -File (Join-Path -Path $destBin -ChildPath "pl_editor.exe")
+        Sign-File -File (Join-Path -Path $destBin -ChildPath "bitmap2component.exe")
+        Sign-File -File (Join-Path -Path $destBin -ChildPath "pcb_calculator.exe")
+        Sign-File -File (Join-Path -Path $destBin -ChildPath "kicad2step.exe")
+    }
+
     Write-Host "Package prep complete" -ForegroundColor Green
 }
 
@@ -1221,7 +1264,9 @@ function Start-Package-Nsis {
         [Parameter(Mandatory=$False)]
         [bool]$lite = $False,
         [Parameter(Mandatory=$False)]
-        [bool]$postCleanup = $False
+        [bool]$postCleanup = $False,
+        [Parameter(Mandatory=$False)]
+        [bool]$sign = $False
     )
 
     $packageVersion = Get-KiCad-PackageVersion
@@ -1707,14 +1752,14 @@ if( $MsixAssets )
 
 if( $PreparePackage -or ($Package -and $Prepare) )
 {
-    Start-Prepare-Package -arch $Arch -buildType $BuildType -includeDebugSymbols $IncludeDebugSymbols -lite $Lite
+    Start-Prepare-Package -arch $Arch -buildType $BuildType -includeDebugSymbols $IncludeDebugSymbols -lite $Lite -sign $Sign
 }
 
 if( $Package )
 {
     if( $PackType -eq 'nsis' )
     {
-        Start-Package-Nsis -arch $Arch -buildType $BuildType -includeDebugSymbols $IncludeDebugSymbols -lite $Lite -postCleanup $PostCleanup
+        Start-Package-Nsis -arch $Arch -buildType $BuildType -includeDebugSymbols $IncludeDebugSymbols -lite $Lite -postCleanup $PostCleanup -sign $Sign
     }
     elseif( $PackType -eq 'msix' )
     {
