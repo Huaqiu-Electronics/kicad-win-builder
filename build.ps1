@@ -1348,6 +1348,9 @@ function Start-Package-Nsis {
         Remove-Item $nsisFolder -Recurse -Force
     }
 
+    if($sign) {
+        Sign-File -File (Join-Path -Path $outPathRoot -ChildPath $outFileName)
+    }
 
     if ($LastExitCode -ne 0) {
         Write-Error "Error building nsis package"
