@@ -22,10 +22,10 @@ def do_package(list) {
     list.each { item ->
       powershell "Write-Host Doing package for ${item} ${build_type}"
       if (params.LITE_PKG_ONLY != true) {
-        powershell "Write-Host Building full packge, be patient!"
-        powershell ".\\build.ps1 -Package -Arch ${item} -BuildType ${build_type}"
+        powershell "Write-Host Building full package, be patient!"
+        powershell ".\\build.ps1 -Package -Arch ${item} -BuildType ${build_type} -Sign"
       }
-      powershell ".\\build.ps1 -Package -Arch ${item} -BuildType ${build_type} -Lite"
+      powershell ".\\build.ps1 -Package -Arch ${item} -BuildType ${build_type} -Lite -Sign"
     }
 }
 
