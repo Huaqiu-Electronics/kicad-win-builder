@@ -981,7 +981,6 @@ function Build-Vcpkg {
                         "ngspice",
                         "opencascade",
                         "opengl",
-                        "openssl",
                         "python3",
                         "wxwidgets",
                         "wxpython",
