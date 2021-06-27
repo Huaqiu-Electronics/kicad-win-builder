@@ -193,7 +193,7 @@ Function .onInit
   !ifdef MSVC
   ; MSVC builds use python 3.8+ which dropped windows 7 support and will crash
   ${IfNot} ${AtLeastWin8.1}
-      MessageBox MB_OK $(ERROR_WIN_MIN)
+      MessageBox MB_OK|MB_TOPMOST $(ERROR_WIN_MIN)
       Quit
   ${EndIf}
   !endif
@@ -210,7 +210,7 @@ Function .onInit
     ; MSYS2 OVER MSVC is bad
     ${If} $1 == 1
   !endif
-      MessageBox MB_OK $(ERROR_UNINSTALL_FIRST)
+      MessageBox MB_OK|MB_TOPMOST $(ERROR_UNINSTALL_FIRST)
       Quit
     ${EndIf}
   ${EndIf}
@@ -268,7 +268,7 @@ FunctionEnd
   ${If} $DELETE_DOWNLOADED_FILES == "unknown"
     StrCpy $DELETE_DOWNLOADED_FILES "no"
     ; ask this only once
-    MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON1 $(CLEANUP_PROMPT) /SD IDYES IDNO +2
+    MessageBox MB_ICONQUESTION|MB_YESNO|MB_DEFBUTTON1|MB_TOPMOST $(CLEANUP_PROMPT) /SD IDYES IDNO +2
       StrCpy $DELETE_DOWNLOADED_FILES "yes"
   ${Endif}
 
@@ -281,7 +281,7 @@ FunctionEnd
   inetc::get /caption "Downloading ${What}" /popup "" ${Url} "$EXEDIR\${File}" /end
   Pop $R0
   StrCmp $R0 "OK" complete
-    MessageBox MB_ICONEXCLAMATION|MB_ABORTRETRYIGNORE|MB_DEFBUTTON2 "Download failed: $R0" /SD IDIGNORE IDRETRY download IDIGNORE +2
+    MessageBox MB_ICONEXCLAMATION|MB_ABORTRETRYIGNORE|MB_DEFBUTTON2|MB_TOPMOST "Download failed: $R0" /SD IDIGNORE IDRETRY download IDIGNORE +2
       Abort "Installation aborted."
       Return
 
@@ -299,7 +299,7 @@ FunctionEnd
     ${EndIf}
   ${Else}
     !insertmacro ExclusiveDetailPrint "Extracting ${What} failed: $R0"
-    MessageBox MB_ICONEXCLAMATION|MB_OK "Extracting ${What} failed: $R0"
+    MessageBox MB_ICONEXCLAMATION|MB_OK|MB_TOPMOST "Extracting ${What} failed: $R0"
     Abort "Installation aborted."
   ${EndIf}
 !macroend
@@ -599,13 +599,13 @@ Function un.onMyGuiInit
 
   !insertmacro KiCadRunningProccessesCheck
 
-  MessageBox MB_ICONEXCLAMATION|MB_YESNO|MB_DEFBUTTON2 $(UNINST_PROMPT) /SD IDYES IDYES +2
+  MessageBox MB_ICONEXCLAMATION|MB_YESNO|MB_DEFBUTTON2|MB_TOPMOST $(UNINST_PROMPT) /SD IDYES IDYES +2
   Abort
 FunctionEnd
 
 Function un.onUninstSuccess
   HideWindow
-  MessageBox MB_ICONINFORMATION|MB_OK $(UNINST_SUCCESS) /SD IDOK
+  MessageBox MB_ICONINFORMATION|MB_OK|MB_TOPMOST $(UNINST_SUCCESS) /SD IDOK
 FunctionEnd
 
 Section Uninstall
@@ -694,7 +694,7 @@ Function PreventMultiInstances
   System::Call 'kernel32::CreateMutexA(i 0, i 0, t "kicad-installer-${KICAD_VERSION}") i .r1 ?e'
   Pop $R0
   StrCmp $R0 0 +3
-  MessageBox MB_OK|MB_ICONEXCLAMATION $(INSTALLER_RUNNING) /SD IDOK
+  MessageBox MB_OK|MB_ICONEXCLAMATION|MB_TOPMOST $(INSTALLER_RUNNING) /SD IDOK
   Abort
 FunctionEnd
 
@@ -702,14 +702,14 @@ Function un.PreventMultiInstances
   System::Call 'kernel32::CreateMutexA(i 0, i 0, t "kicad-installer-${KICAD_VERSION}") i .r1 ?e'
   Pop $R0
   StrCmp $R0 0 +3
-  MessageBox MB_OK|MB_ICONEXCLAMATION $(UNINSTALLER_RUNNING) /SD IDOK
+  MessageBox MB_OK|MB_ICONEXCLAMATION|MB_TOPMOST $(UNINSTALLER_RUNNING) /SD IDOK
   Abort
 FunctionEnd
 
 Function CheckAlreadyInstalled
   ReadRegStr $R0 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "DisplayName"
   StrCmp $R0 "" +3
-  MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION $(ALREADY_INSTALLED) /SD IDOK IDOK +2
+  MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION|MB_TOPMOST $(ALREADY_INSTALLED) /SD IDOK IDOK +2
   Abort
 FunctionEnd
 
