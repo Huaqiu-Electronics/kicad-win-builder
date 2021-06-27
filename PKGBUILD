@@ -17,7 +17,7 @@ depends=("${MINGW_PACKAGE_PREFIX}-boost"
          "${MINGW_PACKAGE_PREFIX}-wxPython"
          "${MINGW_PACKAGE_PREFIX}-wxWidgets"
          "${MINGW_PACKAGE_PREFIX}-libxslt"
-         "${MINGW_PACKAGE_PREFIX}-oce"
+         "${MINGW_PACKAGE_PREFIX}-opencascade"
          "${MINGW_PACKAGE_PREFIX}-ngspice"
          "${MINGW_PACKAGE_PREFIX}-fftw"
          "${MINGW_PACKAGE_PREFIX}-zlib")
@@ -83,7 +83,7 @@ build() {
     -DKICAD_SCRIPTING_MODULES=ON \
     -DKICAD_SCRIPTING_WXPYTHON=ON \
     -DKICAD_SCRIPTING_ACTION_MENU=ON \
-    -DKICAD_USE_OCE=ON \
+    -DKICAD_USE_OCC=ON \
     -DKICAD_SPICE=ON \
     -DKICAD_BUILD_I18N=ON \
     -DKICAD_BUILD_QA_TESTS=OFF \
