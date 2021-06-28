@@ -232,7 +232,8 @@ copystuff() {
         "libzstd.dll" \
         "libssp-0.dll" \
         "libdeflate.dll" \
-        "libwebp*.dll" )
+        "libwebp*.dll" \
+        "libjbig*.dll" )
 
     #echo Copying kicad binaries and stuff...
     #cp -r $MSYSDIR/bin/* $TARGETDIR/bin
