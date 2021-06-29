@@ -43,11 +43,11 @@ source=("${_realname}::git+https://gitlab.com/kicad/code/kicad.git#branch=5.1"
        )
 md5sums=('SKIP'
          'SKIP'
-         '0b188320767cbdff54936b8f80f4f34f'
-         '80a148bf8cfd42d8e3397b728f8fc5c9'
-         'ae6febc2019c9171ab31e6966bdf2745'
-         '79e2fd6ccd0f44127777353f704ae62a'
-         'ab0e3b7125531640781af6ff336cdcff')
+         '1d11e15b8e19cde771352801d86262ee'
+         '2fc41850a9c1ab0cd4fb9f52f5ffcb9f'
+         'e1d02d5de14bc905ee509a7e2dd4eb9f'
+         '70dccb0c5128077e22e7db80d598072d'
+         '388e573c524c55da08b119879d5d4d8d')
 
 prepare() {
   if [ -d ${srcdir}/arch ]; then
@@ -89,6 +89,7 @@ build() {
     -DKICAD_SCRIPTING_WXPYTHON=ON \
     -DKICAD_SCRIPTING_ACTION_MENU=ON \
     -DKICAD_USE_OCC=ON \
+    -DOCC_INCLUDE_DIR=${MINGW_PREFIX}/include/opencascade \
     -DKICAD_SPICE=ON \
     -DPYTHON_EXECUTABLE=${MINGW_PREFIX}/bin/python2 \
     ${EXTRA_FLAGS} \
