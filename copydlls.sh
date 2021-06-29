@@ -239,7 +239,32 @@ copystuff() {
         "avutil*.dll" \
         "libfreeimage*.dll" \
         "libopenvr*.dll" \
-        "swscale*.dll" )
+        "swscale*.dll" \
+        "libaom.dll" \
+        "libcelt*.dll" \
+        "libdav1d.dll" \
+        "libgsm.dll" \
+        "libmp3lame*.dll" \
+        "libopencore*.dll" \
+        "libopus*.dll" \
+        "libspeex.dll" \
+        "libtheora*.dll" \
+        "libvorbis*.dll" \
+        "libvpx*.dll" \
+        "libx264*.dll" \
+        "libx265*.dll" \
+        "xvidcore.dll" \
+        "swresample*.dll" \
+        "libbluray*.dll" \
+        "libmodplug*.dll" \
+        "libsrt.dll" \
+        "libmfx*.dll" \
+        "libvulkan*.dll" \
+        "libHalf*.dll" \
+        "libIex*.dll" \
+        "libIlmImf*.dll" \
+        "libjxrglue*.dll" \
+        "libraw*.dll" )
 
     #echo Copying kicad binaries and stuff...
     #cp -r $MSYSDIR/bin/* $TARGETDIR/bin
