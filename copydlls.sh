@@ -268,6 +268,7 @@ copystuff() {
         "libsoxr.dll" \
         "libImath*.dll" \
         "libIlmThread*.dll" \
+        "libjasper*.dll" \
         "libraw*.dll" )
 
     #echo Copying kicad binaries and stuff...
