@@ -247,7 +247,7 @@ copystuff() {
         "libmp3lame*.dll" \
         "libopencore*.dll" \
         "libopus*.dll" \
-        "libspeex.dll" \
+        "libspeex*.dll" \
         "libtheora*.dll" \
         "libvorbis*.dll" \
         "libvpx*.dll" \
