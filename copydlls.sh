@@ -269,7 +269,9 @@ copystuff() {
         "libImath*.dll" \
         "libIlmThread*.dll" \
         "libjasper*.dll" \
-        "libraw*.dll" )
+        "libraw*.dll" \
+        "libopenjp*dll" \
+        "liblcms*dll" )
 
     #echo Copying kicad binaries and stuff...
     #cp -r $MSYSDIR/bin/* $TARGETDIR/bin
