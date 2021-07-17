@@ -81,8 +81,11 @@ param(
     [string]$VcpkgPath,
 
     [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [switch]$DebugSymbols,
+
+    [Parameter(Mandatory=$False, ParameterSetName="package")]
     [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
-    [switch]$IncludeDebugSymbols,
+    [switch]$IncludeVcpkgDebugSymbols,
 
     [Parameter(Mandatory=$False, ParameterSetName="package")]
     [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
@@ -127,6 +130,7 @@ enum ExitCodes {
     MakePriFailure = 17
     MakeAppxFailure = 18
     SignFail = 19
+    PdbPackageFail = 20
 }
 
 # Load the .NET compression library, powershell's expand-archive is horrid in performance
@@ -157,6 +161,8 @@ $gettextChecksum = "721395C2E057EEED321F0C793311732E57CB4FA30D5708672A13902A69A7
 $doxygenDownload = "https://doxygen.nl/files/doxygen-1.9.1.windows.x64.bin.zip"
 $doxygenChecksum = "DEB8E6E5F21C965EC07FD32589D0332EFF047F2C8658B5C56BE4839A5DD43353"
 $doxygenFolderName = "doxygen-1.9.1.windows.x64.bin"
+
+$7zaFolderName = "7z2102-extra"
 
 $downloadsPathRoot = ($PSScriptRoot+"/.downloads/")
 $supportPathRoot = ($PSScriptRoot+"/.support/")
@@ -286,6 +292,12 @@ function Set-Aliases()
     {
         $tmp = Join-Path -Path $supportPathRoot -ChildPath "nsis/bin/makensis.exe"
         Set-Alias makensis $tmp -Option AllScope -Scope Global
+    }
+    
+    if( -not (Test-Path alias:7za ) )
+    {
+        $tmp = Join-Path -Path $supportPathRoot -ChildPath "$7zaFolderName/7za.exe"
+        Set-Alias 7za $tmp -Option AllScope -Scope Global
     }
 }
 
@@ -649,6 +661,7 @@ function Build-Kicad {
 
     $installPath = Join-Path -Path $outPathRoot -ChildPath "$buildName/"
     $toolchainPath = Join-Path -Path $settings["VcpkgPath"] -ChildPath "/scripts/buildsystems/vcpkg.cmake"
+    $installPdbPath = Join-Path -Path $outPathRoot -ChildPath "$buildName-pdb"
 
     Write-Host "Starting build"
     Write-Host "arch: $arch"
@@ -667,6 +680,7 @@ function Build-Kicad {
             -DCMAKE_BUILD_TYPE="$buildType" `
             -DCMAKE_TOOLCHAIN_FILE="$toolchainPath" `
             -DCMAKE_INSTALL_PREFIX="$installPath" `
+            -DCMAKE_PDB_OUTPUT_DIRECTORY:PATH="$installPdbPath" `
             -DKICAD_SPICE="ON" `
             -DKICAD_USE_OCE="OFF" `
             -DKICAD_USE_OCC="ON" `
@@ -763,6 +777,51 @@ function Unzip([string] $zip, [string] $dest) {
     }
 }
 
+function Extract-Tool {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [string]$ToolName,
+        [Parameter(Mandatory=$True)]
+        [string]$SourcePath,
+        [Parameter(Mandatory=$True)]
+        [string]$DestPath,
+        [Parameter(Mandatory=$False)]
+        [bool]$ZipRelocate = $False,
+        [Parameter(Mandatory=$False)]
+        [string]$ZipRelocateFilter = "",
+        [Parameter(Mandatory=$False)]
+        [bool]$ExtractInSupportRoot = $False
+    )
+
+    if( -not (Test-Path $DestPath) )
+    {
+        Write-Host "Extracting $ToolName" -ForegroundColor Yellow
+        if( $ExtractInSupportRoot )
+        {
+            Unzip $SourcePath $supportPathRoot
+        }
+        else
+        {
+            Unzip $SourcePath $DestPath
+        }
+
+        if (!$?) {
+            Write-Error "Unable to extract $ToolName"
+            Exit 2
+        }
+
+        if( $ZipRelocate )
+        {
+            $folders = Get-ChildItem $ZipRelocateFilter -Directory
+            Move-Item $folders $DestPath
+        }
+    }
+    else
+    {
+        Write-Host "$ToolName already exists" -ForegroundColor Green
+    }
+}
 
 function Get-Tool {
     [CmdletBinding()]
@@ -888,7 +947,12 @@ function Start-Init {
              -DestPath ($supportPathRoot+"$gettextFolderName/") `
              -DownloadPath ($downloadsPathRoot+"$gettextFolderName.zip") `
              -Checksum $gettextChecksum `
-             -ExtractZip $true `
+             -ExtractZip $true
+
+    $7zaSource = Join-Path -Path $PSScriptRoot -ChildPath "\support\7z2102-extra.zip"
+    Extract-Tool -ToolName "7za" `
+             -SourcePath $7zaSource `
+             -DestPath ($supportPathRoot+"$7zaFolderName/")
 
     # Restore progress bar
     $ProgressPreference = 'Continue'
@@ -1072,7 +1136,7 @@ function Start-Prepare-Package {
         [ValidateSet('Release', 'Debug')]
         [string]$buildType = "Release",
         [Parameter(Mandatory=$False)]
-        [bool]$includeDebugSymbols = $False,
+        [bool]$includeVcpkgDebugSymbols = $False,
         [Parameter(Mandatory=$False)]
         [bool]$lite = $False,
         [Parameter(Mandatory=$False)]
@@ -1175,7 +1239,7 @@ function Start-Prepare-Package {
     {
         $source = "$vcpkgInstalledBin\$copyFilter"
 
-        if(!$includeDebugSymbols)
+        if(!$includeVcpkgDebugSymbols)
         {
             $source += ".dll";
         }
@@ -1259,7 +1323,7 @@ function Start-Package-Nsis {
         [ValidateSet('Release', 'Debug')]
         [string]$buildType = "Release",
         [Parameter(Mandatory=$False)]
-        [bool]$includeDebugSymbols = $False,
+        [bool]$includeVcpkgDebugSymbols = $False,
         [Parameter(Mandatory=$False)]
         [bool]$lite = $False,
         [Parameter(Mandatory=$False)]
@@ -1358,6 +1422,34 @@ function Start-Package-Nsis {
 
 }
 
+function Start-Package-Pdb() {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [Arch]$arch,
+        [Parameter(Mandatory=$False)]
+        [ValidateSet('Release', 'Debug')]
+        [string]$buildType = "Release"
+    )
+    
+    $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
+    $sourceFolder = Join-Path -Path $PSScriptRoot -ChildPath ".out\$buildName-pdb\"
+
+    $packageVersion = Get-KiCad-PackageVersion
+    $kicadVersion = Get-KiCad-Version
+
+    $nsisArch = Get-NSIS-Arch -Arch $arch
+    $outFileName = "kicad-$packageVersion-$nsisArch-pdbs.zip"
+
+    $outPath = Join-Path -Path $outPathRoot -ChildPath $outFileName
+
+    7za a -tzip -mm=lzma -bsp0 $outPath $sourceFolder
+    
+    if ($LastExitCode -ne 0) {
+        Write-Error "Error packaging PDBs"
+        Exit [ExitCodes]::PdbPackageFail
+    }
+}
 
 function Create-AppxManifest {
     [CmdletBinding()]
@@ -1402,7 +1494,7 @@ function Start-Package-Msix {
         [ValidateSet('Release', 'Debug')]
         [string]$buildType = "Release",
         [Parameter(Mandatory=$False)]
-        [bool]$includeDebugSymbols = $False,
+        [bool]$includeVcpkgDebugSymbols = $False,
         [Parameter(Mandatory=$False)]
         [bool]$lite = $False,
         [Parameter(Mandatory=$False)]
@@ -1754,14 +1846,14 @@ if( $MsixAssets )
 
 if( $PreparePackage -or ($Package -and $Prepare) )
 {
-    Start-Prepare-Package -arch $Arch -buildType $BuildType -includeDebugSymbols $IncludeDebugSymbols -lite $Lite -sign $Sign
+    Start-Prepare-Package -arch $Arch -buildType $BuildType -includeVcpkgDebugSymbols $IncludeVcpkgDebugSymbols.IsPresent -lite $Lite -sign $Sign
 }
 
 if( $Package )
 {
     if( $PackType -eq 'nsis' )
     {
-        Start-Package-Nsis -arch $Arch -buildType $BuildType -includeDebugSymbols $IncludeDebugSymbols -lite $Lite -postCleanup $PostCleanup -sign $Sign
+        Start-Package-Nsis -arch $Arch -buildType $BuildType -includeVcpkgDebugSymbols $IncludeVcpkgDebugSymbols -lite $Lite -postCleanup $PostCleanup -sign $Sign
     }
     elseif( $PackType -eq 'msix' )
     {
@@ -1771,6 +1863,11 @@ if( $Package )
             Exit [ExitCodes]::UnsupportedSwitch
         }
 
-        Start-Package-Msix -arch $Arch -buildType $BuildType -includeDebugSymbols $IncludeDebugSymbols -version $Version -postCleanup $PostCleanup
+        Start-Package-Msix -arch $Arch -buildType $BuildType -includeVcpkgDebugSymbols $IncludeVcpkgDebugSymbols -version $Version -postCleanup $PostCleanup
+    }
+    
+    if( $DebugSymbols )
+    {
+        Start-Package-Pdb -arch $Arch -buildType $BuildType
     }
 }
