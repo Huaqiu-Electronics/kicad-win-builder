@@ -23,7 +23,7 @@ def do_package(list) {
       powershell "Write-Host Doing package for ${item} ${build_type}"
       if (params.LITE_PKG_ONLY != true) {
         powershell "Write-Host Building full package, be patient!"
-        powershell ".\\build.ps1 -Package -Arch ${item} -BuildType ${build_type}"
+        powershell ".\\build.ps1 -Package -Arch ${item} -BuildType ${build_type} -DebugSymbols"
       }
       powershell ".\\build.ps1 -Package -Arch ${item} -BuildType ${build_type} -Lite"
     }
@@ -100,6 +100,7 @@ pipeline {
                       }
                       dir (".out") {
                         stash includes: 'kicad*exe', name: 'installer_exe'
+                        stash includes: 'kicad*-pdbs.zip', name: 'pdbs'
                       }
                   }
               }
@@ -131,6 +132,10 @@ dir
               sh "pwd"
               archiveArtifacts allowEmptyArchive: false, artifacts: 'kicad*.exe', caseSensitive: true, defaultExcludes: true, fingerprint: true, onlyIfSuccessful: true
               sh "s3cmd put kicad-*.exe s3://kicad-downloads/windows/nightly/"
+			  
+              unstash 'pdbs'
+              archiveArtifacts allowEmptyArchive: false, artifacts: 'kicad*-pdbs.zip', caseSensitive: true, defaultExcludes: true, fingerprint: true, onlyIfSuccessful: true
+              sh "s3cmd put kicad*-pdbs.zip s3://kicad-downloads/windows/nightly/"
           }
       }
 
