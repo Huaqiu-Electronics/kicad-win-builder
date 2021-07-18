@@ -11,7 +11,7 @@ def do_init(list) {
 
 def do_build(list) {
     powershell "Write-Host NICK DBEUG Removing .out"
-    powershell "Remove-Item .out -Recurse -ErrorAction SilentlyContinue"
+    powershell "Get-ChildItem .out -Exclude '*-pdb' | Remove-Item -Recurse -ErrorAction SilentlyContinue"
     list.each { item ->
       powershell "Write-Host Doing build for ${item} ${build_type}"
       powershell ".\\build.ps1 -Build -Latest -Arch ${item} -BuildType ${build_type}"
