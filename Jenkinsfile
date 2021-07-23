@@ -118,7 +118,6 @@ set SIGNTOOL="C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.18362.0\\x86\
 REM cd .out
 dir
 %SIGNTOOL% sign /a /a /n "KiCad Services Corporation" /fd sha256 /tr http://timestamp.sectigo.com /td sha256 /v kicad-*exe
-%SIGNTOOL% sign /as /n "Simon Richter" /fd sha256 /tr http://timestamp.digicert.com /td sha256 /v kicad-*exe
  """
               stash includes: 'kicad*exe', name: 'signed_installer_exe'
           }
@@ -132,7 +131,7 @@ dir
               sh "pwd"
               archiveArtifacts allowEmptyArchive: false, artifacts: 'kicad*.exe', caseSensitive: true, defaultExcludes: true, fingerprint: true, onlyIfSuccessful: true
               sh "s3cmd put kicad-*.exe s3://kicad-downloads/windows/nightly/"
-			  
+
               unstash 'pdbs'
               archiveArtifacts allowEmptyArchive: false, artifacts: 'kicad*-pdbs.zip', caseSensitive: true, defaultExcludes: true, fingerprint: true, onlyIfSuccessful: true
               sh "s3cmd put kicad*-pdbs.zip s3://kicad-downloads/windows/nightly/"
