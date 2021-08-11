@@ -1055,7 +1055,7 @@ function Build-Vcpkg {
         $dependencies[$i] = $dependencies[$i]+":$triplet"
     }
 
-    vcpkg install $dependencies --recurse
+    vcpkg install $dependencies --recurse 2>&1
 
     if ($LastExitCode -ne 0) {
         Write-Error "Failure installing vcpkg ports"
@@ -1066,7 +1066,7 @@ function Build-Vcpkg {
 
     # Unforunately, theres no "install or upgrade" command
     # We can safely however run ugprade and install and it'll just do nothing in the worse case
-    vcpkg upgrade $dependencies --no-dry-run
+    vcpkg upgrade $dependencies --no-dry-run 2>&1
 
     if ($LastExitCode -ne 0) {
         Write-Error "Failure upgrading vcpkg ports"
