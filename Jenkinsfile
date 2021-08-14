@@ -11,6 +11,7 @@ def do_init(list) {
         powershell ".\\build.ps1 -Vcpkg -Latest -Arch ${item}"
         archs_to_build.add( item )
       } catch (err) {
+        currentBuild.result='UNSTABLE'
         powershell "Write-Host 'Failed vcpkg for ${item}' -ForegroundColor Red"
       }
     }
@@ -25,6 +26,7 @@ def do_build(list) {
         powershell ".\\build.ps1 -Build -Latest -Arch ${item} -BuildType ${build_type}"
         archs_to_pack.add( item )
       } catch (err) {
+        currentBuild.result='UNSTABLE'
         powershell "Write-Host 'Failed build for ${item} ${build_type}' -ForegroundColor Red"
       }
     }
@@ -40,6 +42,7 @@ def do_package(list) {
         }
         powershell ".\\build.ps1 -Package -Arch ${item} -BuildType ${build_type} -Lite"
       } catch (err) {
+        currentBuild.result='UNSTABLE'
         powershell "Write-Host 'Failed package for ${item} ${build_type}' -ForegroundColor Red"
       }
     }
