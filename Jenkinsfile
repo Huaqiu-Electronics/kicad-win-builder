@@ -1,11 +1,18 @@
 archs = ['x64','x86']
 build_type = 'Release'
+archs_to_build = []
+archs_to_pack = []
 
 def do_init(list) {
+    powershell ".\\build.ps1 -Init"
     list.each { item ->
       powershell "Write-Host Doing init for ${item}"
-      powershell ".\\build.ps1 -Init"
-      powershell ".\\build.ps1 -Vcpkg -Latest -Arch ${item}"
+      try {
+        powershell ".\\build.ps1 -Vcpkg -Latest -Arch ${item}"
+        archs_to_build.add( item )
+      } catch (err) {
+        powershell "Write-Host 'Failed vcpkg for ${item}' -ForegroundColor Red"
+      }
     }
 }
 
@@ -14,18 +21,27 @@ def do_build(list) {
     powershell "Get-ChildItem .out -Exclude '*-pdb' | Remove-Item -Recurse -ErrorAction SilentlyContinue"
     list.each { item ->
       powershell "Write-Host Doing build for ${item} ${build_type}"
-      powershell ".\\build.ps1 -Build -Latest -Arch ${item} -BuildType ${build_type}"
+      try {
+        powershell ".\\build.ps1 -Build -Latest -Arch ${item} -BuildType ${build_type}"
+        archs_to_pack.add( item )
+      } catch (err) {
+        powershell "Write-Host 'Failed build for ${item} ${build_type}' -ForegroundColor Red"
+      }
     }
 }
 
 def do_package(list) {
     list.each { item ->
       powershell "Write-Host Doing package for ${item} ${build_type}"
-      if (params.LITE_PKG_ONLY != true) {
-        powershell "Write-Host Building full package, be patient!"
-        powershell ".\\build.ps1 -Package -Arch ${item} -BuildType ${build_type} -DebugSymbols"
+      try {
+        if (params.LITE_PKG_ONLY != true) {
+          powershell "Write-Host Building full package, be patient!"
+          powershell ".\\build.ps1 -Package -Arch ${item} -BuildType ${build_type} -DebugSymbols"
+        }
+        powershell ".\\build.ps1 -Package -Arch ${item} -BuildType ${build_type} -Lite"
+      } catch (err) {
+        powershell "Write-Host 'Failed package for ${item} ${build_type}' -ForegroundColor Red"
       }
-      powershell ".\\build.ps1 -Package -Arch ${item} -BuildType ${build_type} -Lite"
     }
 }
 
@@ -75,7 +91,7 @@ pipeline {
       stage ('Build KiCad') {
           steps {
               script {
-                do_build(archs)
+                do_build(archs_to_build)
               }
           }
       }
@@ -96,7 +112,7 @@ pipeline {
               stage ('Package KiCad') {
                   steps {
                       script {
-                        do_package(archs)
+                        do_package(archs_to_pack)
                       }
                       dir (".out") {
                         stash includes: 'kicad*exe', name: 'installer_exe'
