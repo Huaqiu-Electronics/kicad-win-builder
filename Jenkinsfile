@@ -15,6 +15,11 @@ def do_init(list) {
         powershell "Write-Host 'Failed vcpkg for ${item}' -ForegroundColor Red"
       }
     }
+
+    if( archs_to_build.size() == 0 )
+    {
+      currentBuild.result='FAILURE'
+    }
 }
 
 def do_build(list) {
@@ -29,6 +34,11 @@ def do_build(list) {
         currentBuild.result='UNSTABLE'
         powershell "Write-Host 'Failed build for ${item} ${build_type}' -ForegroundColor Red"
       }
+    }
+    
+    if( archs_to_pack.size() == 0 )
+    {
+      currentBuild.result='FAILURE'
     }
 }
 
