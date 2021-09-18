@@ -536,7 +536,7 @@ Section -CreateShortcuts
   CreateShortCut "${SMPATH}\Uninstall.lnk" "$INSTDIR\uninstaller.exe"
   CreateShortCut "${SMPATH}\KiCad.lnk" "$INSTDIR\bin\kicad.exe"
   CreateShortCut "${SMPATH}\Schematic Editor.lnk" "$INSTDIR\bin\eeschema.exe"
-  CreateShortCut "${SMPATH}\Pcb Editor.lnk" "$INSTDIR\bin\pcbnew.exe"
+  CreateShortCut "${SMPATH}\PCB Editor.lnk" "$INSTDIR\bin\pcbnew.exe"
   CreateShortCut "${SMPATH}\Gerber Viewer.lnk" "$INSTDIR\bin\gerbview.exe"
   CreateShortCut "${SMPATH}\Image Converter.lnk" "$INSTDIR\bin\bitmap2component.exe"
   CreateShortCut "${SMPATH}\Calculator Tools.lnk" "$INSTDIR\bin\pcb_calculator.exe"
