@@ -358,6 +358,10 @@ Section $(TITLE_SEC_MAIN) SEC01
   RMDir /r "$INSTDIR\bin\Lib\"
   RMDir /r "$INSTDIR\bin\Scripts\"
 
+  ; clean contents of old names for symbols/footprints
+  RMDir /r "$INSTDIR\share\kicad\library"
+  RMDir /r "$INSTDIR\share\kicad\modules"
+
   SetOutPath "$INSTDIR"
   File /nonfatal "..\AUTHORS.txt"
   File /nonfatal "..\COPYRIGHT.txt"
@@ -400,27 +404,27 @@ SectionGroup /e $(TITLE_SEC_LIBRARIES) SEC03
   Section $(TITLE_SEC_SCHLIB) SEC03_SCHLIB
     SetOverwrite try
 	!insertmacro ExclusiveDetailPrint $(INSTALLING_SCH_LIBS)
-    SetOutPath "$INSTDIR\share\kicad\library"
-    File /nonfatal /r "..\share\kicad\library\*"
+    SetOutPath "$INSTDIR\share\kicad\symbols"
+    File /nonfatal /r "..\share\kicad\symbols\*"
   SectionEnd
   !else
   Section /o $(TITLE_SEC_SCHLIB) SEC03_SCHLIB
     AddSize 24576 ; 24MB
-    !insertmacro DownloadAndExtract "${KICAD_SYMBOLS_FILE}" "${KICAD_SYMBOLS_URL}" "symbols" "${KICAD_SYMBOLS_FOLDER}" "$INSTDIR\share\kicad\" "library"
+    !insertmacro DownloadAndExtract "${KICAD_SYMBOLS_FILE}" "${KICAD_SYMBOLS_URL}" "symbols" "${KICAD_SYMBOLS_FOLDER}" "$INSTDIR\share\kicad\" "symbols"
   SectionEnd
   !endif
 
   !ifndef LIBRARIES_TAG
-  Section $(TITLE_SEC_FPLIB) SEC03_MODULES
+  Section $(TITLE_SEC_FPLIB) SEC03_FOOTPRINTS
     SetOverwrite try
 	!insertmacro ExclusiveDetailPrint $(INSTALLING_PCB_LIBS)
-    SetOutPath "$INSTDIR\share\kicad\modules"
-    File /nonfatal /r "..\share\kicad\modules\*"
+    SetOutPath "$INSTDIR\share\kicad\footprints"
+    File /nonfatal /r "..\share\kicad\footprints\*"
   SectionEnd
   !else
-  Section /o $(TITLE_SEC_FPLIB) SEC03_MODULES
+  Section /o $(TITLE_SEC_FPLIB) SEC03_FOOTPRINTS
     AddSize 81920 ; 80MB
-    !insertmacro DownloadAndExtract "${KICAD_FOOTPRINTS_FILE}" "${KICAD_FOOTPRINTS_URL}" "footprints" "${KICAD_FOOTPRINTS_FOLDER}" "$INSTDIR\share\kicad\" "modules"
+    !insertmacro DownloadAndExtract "${KICAD_FOOTPRINTS_FILE}" "${KICAD_FOOTPRINTS_URL}" "footprints" "${KICAD_FOOTPRINTS_FOLDER}" "$INSTDIR\share\kicad\" "footprints"
   SectionEnd
   !endif
 
@@ -569,11 +573,11 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC01} $(DESC_SEC_MAIN)
   !ifdef LIBRARIES_TAG
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC03_SCHLIB} $(DESC_SEC_SCHLIB_DOWNLOAD)
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC03_MODULES} $(DESC_SEC_FPLIB_DOWNLOAD)
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC03_FOOTPRINTS} $(DESC_SEC_FPLIB_DOWNLOAD)
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC03_PACKAGES3D} $(DESC_SEC_PACKAGES3D_DOWNLOAD)
   !else
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC03_SCHLIB} $(DESC_SEC_SCHLIB)
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC03_MODULES} $(DESC_SEC_FPLIB)
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC03_FOOTPRINTS} $(DESC_SEC_FPLIB)
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC03_PACKAGES3D} $(DESC_SEC_PACKAGES3D)
   !endif
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC04} $(DESC_SEC_FPWIZ)
@@ -623,8 +627,8 @@ Section Uninstall
   !insertmacro ExclusiveDetailPrint $(REMOVING_APP)
   RMDir /r "$INSTDIR\bin"
   RMDir /r "$INSTDIR\lib"
-  RMDir /r "$INSTDIR\library"
-  RMDir /r "$INSTDIR\modules"
+  RMDir /r "$INSTDIR\footprints"
+  RMDir /r "$INSTDIR\symbols"
   RMDir /r "$INSTDIR\template"
   RMDir /r "$INSTDIR\internat"
   RMDir /r "$INSTDIR\demos"
@@ -634,8 +638,8 @@ Section Uninstall
   RMDir /r "$INSTDIR\ssl"
   
   !insertmacro ExclusiveDetailPrint $(REMOVING_LIBRARIES)
-  RMDir /r "$INSTDIR\share\library"
-  RMDir /r "$INSTDIR\share\modules"
+  RMDir /r "$INSTDIR\share\symbols"
+  RMDir /r "$INSTDIR\share\footprints"
   RMDir /r "$INSTDIR\share\kicad\template"
   RMDir /r "$INSTDIR\share\kicad\internat"
   RMDir /r "$INSTDIR\share\kicad\demos"
@@ -724,16 +728,16 @@ FunctionEnd
 
 Function EnableLiteMode
   ; TODO: Add override string for lite mode
-  !insertmacro CompileTimeIfFileExist "..\share\kicad\library" ADD_LIBS
+  !insertmacro CompileTimeIfFileExist "..\share\kicad\symbols" ADD_LIBS
   !ifndef ADD_LIBS
     !insertmacro SetSectionFlag ${SEC03_SCHLIB} ${SF_RO}
     !insertmacro UnselectSection ${SEC03_SCHLIB}
   !endif
 
-  !insertmacro CompileTimeIfFileExist "..\share\kicad\modules" ADD_MODULES
+  !insertmacro CompileTimeIfFileExist "..\share\kicad\footprints" ADD_MODULES
   !ifndef ADD_MODULES
-    !insertmacro SetSectionFlag ${SEC03_MODULES} ${SF_RO}
-    !insertmacro UnselectSection ${SEC03_MODULES}
+    !insertmacro SetSectionFlag ${SEC03_FOOTPRINTS} ${SF_RO}
+    !insertmacro UnselectSection ${SEC03_FOOTPRINTS}
   !endif
 
   !insertmacro CompileTimeIfFileExist "..\share\doc\kicad\help" ADD_HELP

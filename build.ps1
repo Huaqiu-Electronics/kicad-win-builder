@@ -682,13 +682,8 @@ function Build-Kicad {
             -DCMAKE_INSTALL_PREFIX="$installPath" `
             -DCMAKE_PDB_OUTPUT_DIRECTORY:PATH="$installPdbPath" `
             -DKICAD_SPICE="ON" `
-            -DKICAD_USE_OCE="OFF" `
             -DKICAD_USE_OCC="ON" `
-            -DKICAD_SCRIPTING="ON" `
-            -DKICAD_SCRIPTING_PYTHON3="ON" `
             -DKICAD_SCRIPTING_WXPYTHON="ON" `
-            -DKICAD_SCRIPTING_WXPYTHON_PHOENIX="ON" `
-            -DKICAD_SCRIPTING_MODULES="ON" `
             -DKICAD_BUILD_QA_TESTS="OFF" `
             -DKICAD_WIN32_DPI_AWARE="ON" `
             -DKICAD_BUILD_I18N="ON" `
@@ -1379,9 +1374,9 @@ function Start-Package-Nsis {
 
     if( $lite )
     {
-        # needed for lite mode to enable modules and libraries, why? who knows for now
-        New-Item -ItemType "directory" -Path (Join-Path -Path $destKicadShare -ChildPath "\modules")
-        New-Item -ItemType "directory" -Path (Join-Path -Path $destKicadShare -ChildPath "\library")
+        # needed for lite mode to enable footprints and symbols, why? who knows for now
+        New-Item -ItemType "directory" -Path (Join-Path -Path $destKicadShare -ChildPath "\footprints")
+        New-Item -ItemType "directory" -Path (Join-Path -Path $destKicadShare -ChildPath "\symbols")
         $liteGitTag = "master"
         $found = $packageVersion -match '^\d+\.\d+\.\d+'
         if ($found) {
