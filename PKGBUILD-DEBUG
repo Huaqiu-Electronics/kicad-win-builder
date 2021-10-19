@@ -6,7 +6,7 @@ pkgver=r6023.cb629e0
 pkgrel=1
 pkgdesc="Software for the creation of electronic schematic diagrams and printed circuit board artwork (mingw-w64)"
 arch=('any')
-url="http://www.kicad-pcb.org"
+url="http://www.kicad.org"
 license=("GPL2+")
 options=(!debug !strip)
 provides=("${MINGW_PACKAGE_PREFIX}-${_realname}")
@@ -34,8 +34,8 @@ makedepends=("${MINGW_PACKAGE_PREFIX}-cmake"
 source=("${_realname}"::"git+https://github.com/KiCad/kicad-source-mirror.git"
         "${_realname}-i18n"::"git+https://github.com/KiCad/kicad-i18n.git"
         "${_realname}-libs"::"git+https://github.com/KiCad/kicad-library.git"
-        "${_realname}-footprints.zip"::"http://ci.kicad-pcb.org/job/any-kicad-pretty-lib-nightlies/lastSuccessfulBuild/artifact/*zip*/archive.zip"
-        "http://docs.kicad-pcb.org/kicad-doc-HEAD.tar.gz"
+        "${_realname}-footprints.zip"::"http://ci.kicad.org/job/any-kicad-pretty-lib-nightlies/lastSuccessfulBuild/artifact/*zip*/archive.zip"
+        "http://docs.kicad.org/kicad-doc-HEAD.tar.gz"
        )
 md5sums=('SKIP'
          'SKIP'

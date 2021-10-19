@@ -34,7 +34,7 @@
 ; General Product Description Definitions
 !define PRODUCT_NAME "KiCad"
 !define LIBRARIES_WEB_SITE "https://kicad.github.io/"
-!define KICAD_MAIN_SITE "www.kicad-pcb.org/"
+!define KICAD_MAIN_SITE "www.kicad.org/"
 !define COMPANY_NAME "KiCad"
 !define TRADE_MARKS ""
 !define COPYRIGHT "Kicad Developers Team"
