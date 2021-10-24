@@ -131,6 +131,7 @@ enum ExitCodes {
     MakeAppxFailure = 18
     SignFail = 19
     PdbPackageFail = 20
+    PythonManifestPatchFailure = 21
 }
 
 # Load the .NET compression library, powershell's expand-archive is horrid in performance
@@ -1137,12 +1138,8 @@ function Start-Prepare-Package {
         [Parameter(Mandatory=$False)]
         [bool]$sign = $False
     )
-
     # Required for signing
-    if( $sign )
-    {
-        Set-VC-Environment -Arch $arch
-    }
+    Set-VC-Environment -Arch $arch
 
     $packageVersion = Get-KiCad-PackageVersion
     $kicadVersion = Get-KiCad-Version
@@ -1290,6 +1287,9 @@ function Start-Prepare-Package {
         Exit [ExitCodes]::WxPythonRequirements
     }
 
+    ### patch python manifest
+    Patch-Python-Manifest -PythonRoot $destBin
+
     ## now libxslt
     $xsltprocSource = "$vcpkgInstalledRootPrimary\tools\libxslt\xsltproc.exe"
     Write-Host "Copying $xsltprocSource to $destBin"
@@ -1307,6 +1307,22 @@ function Start-Prepare-Package {
     }
 
     Write-Host "Package prep complete" -ForegroundColor Green
+}
+
+function Patch-Python-Manifest {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [string]$PythonRoot
+    )
+
+    $pythonManifest = Join-Path -Path $PSScriptRoot -ChildPath "\support\python.manifest"
+
+    & mt.exe -nologo -manifest $pythonManifest -outputresource:"$PythonRoot\python.exe;#1"
+    if ($LastExitCode -ne 0) {
+        Write-Error "Error patching python manifest"
+        Exit [ExitCodes]::PythonManifestPatchFailure
+    }
 }
 
 function Start-Package-Nsis {
