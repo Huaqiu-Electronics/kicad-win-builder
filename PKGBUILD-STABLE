@@ -2,9 +2,9 @@
 
 _realname=kicad
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}-git"
-pkgver=5.1.9_1
+pkgver=5.1.11_1
 _upver=`echo ${pkgver} | sed -e 's/_.*//g'`
-_basever=5.1.9
+_basever=5.1.11
 _rcver=`echo ${pkgver} | sed -e 's/.*_//g'`
 pkgrel=1
 pkgdesc="Software for the creation of electronic schematic diagrams and printed circuit board artwork (mingw-w64)"
@@ -42,12 +42,12 @@ source=("${_realname}::git+https://gitlab.com/kicad/code/kicad.git#tag=${_upver}
         "${_realname}-doc-${_upver}.tar.gz"::"https://kicad-downloads.s3.cern.ch/docs/kicad-doc-${_basever}.tar.gz"
        )
 md5sums=('SKIP'
-         '4fceb1f3080b7db7d66d40d1a61551df'
-         'c6c31ca3981075d86c57d51945fea849'
-         '0070c182e5659dbcb571b18c02f7315c'
-         '7704fff25247b21e94a5ecd4dd377757'
-         'a86503efe64a1b29337f9da3cf4cc8c1'
-         '41f201bcd0a6a3ffd450185f7f51ef3b')
+         'cc62599ffd512e7ba19e7b0e78faa8ce'
+         '0a2374fbb3e964a1e28fa3f0b00116bd'
+         '9f2ee2a7c9d09cdf6af36e19c65cf1ad'
+         '30002660818ddc8367d6a0daffee5788'
+         '6de9bb6f1ff18d360f15060716c610d3'
+         '6d12910fb4c0c7b465acd4289133512a')
 
 prepare() {
   # Hack to get UTF8 support for paths with mingw
@@ -94,9 +94,9 @@ build() {
     -DKICAD_SCRIPTING_WXPYTHON=ON \
     -DKICAD_SCRIPTING_ACTION_MENU=ON \
     -DKICAD_USE_OCC=ON \
+    -DOCC_INCLUDE_DIR=${MINGW_PREFIX}/include/opencascade \
     -DKICAD_SPICE=ON \
     -DPYTHON_EXECUTABLE=${MINGW_PREFIX}/bin/python2 \
-    -DwxWidgets_CONFIG_EXECUTABLE=${MINGW_PREFIX}/bin/wx-config \
     ${EXTRA_FLAGS} \
     ../${_realname}
   make
