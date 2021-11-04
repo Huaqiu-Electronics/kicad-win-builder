@@ -2,9 +2,9 @@
 
 _realname=kicad
 pkgname="${MINGW_PACKAGE_PREFIX}-${_realname}-git"
-pkgver=5.1.11_1
+pkgver=5.1.12_1
 _upver=`echo ${pkgver} | sed -e 's/_.*//g'`
-_basever=5.1.11
+_basever=5.1.12
 _rcver=`echo ${pkgver} | sed -e 's/.*_//g'`
 pkgrel=1
 pkgdesc="Software for the creation of electronic schematic diagrams and printed circuit board artwork (mingw-w64)"
@@ -43,11 +43,11 @@ source=("${_realname}::git+https://gitlab.com/kicad/code/kicad.git#branch=5.1"
        )
 md5sums=('SKIP'
          'SKIP'
-         '0a2374fbb3e964a1e28fa3f0b00116bd'
-         '9f2ee2a7c9d09cdf6af36e19c65cf1ad'
-         '30002660818ddc8367d6a0daffee5788'
-         '6de9bb6f1ff18d360f15060716c610d3'
-         '6d12910fb4c0c7b465acd4289133512a')
+         'ff964a338c56ac6079c17d234fbd2a52'
+         '07ab9e5ba19b0346f867fb79da377168'
+         '91d021114aa91a30ebdbec06b4b3f21a'
+         'a1e1c332b8b1acc69a3e4c2e44cbb440'
+         '0b752d915d9c979dfde4051dc878f256')
 
 prepare() {
   if [ -d ${srcdir}/arch ]; then
