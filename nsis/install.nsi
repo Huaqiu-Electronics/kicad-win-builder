@@ -385,6 +385,9 @@ Section $(TITLE_SEC_MAIN) SEC01
   SetOutPath "$INSTDIR\share\kicad\resources"
   File /nonfatal /r "..\share\kicad\resources\*"
 
+  SetOutPath "$INSTDIR\share\kicad\schemas"
+  File /nonfatal /r "..\share\kicad\schemas\*"
+
 !ifdef MSVC
   !insertmacro ExclusiveDetailPrint "Installing pip"
   nsExec::Exec '"$INSTDIR\bin\python.exe" -m pip install --upgrade --force-reinstall pip'
