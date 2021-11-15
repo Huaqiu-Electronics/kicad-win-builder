@@ -132,6 +132,7 @@ enum ExitCodes {
     SignFail = 19
     PdbPackageFail = 20
     PythonManifestPatchFailure = 21
+    ExtraRequirements = 22
 }
 
 # Load the .NET compression library, powershell's expand-archive is horrid in performance
@@ -1273,18 +1274,28 @@ function Start-Prepare-Package {
     ### lets setup pip
     Write-Host "Ensuring pip is bundled and installed"
     $pythonBin = Join-Path -Path $destBin -ChildPath "python.exe"
-    $wxRequirements = Join-Path -Path $PSScriptRoot -ChildPath "\support\wxrequirements.txt"
     & $pythonBin -m ensurepip --upgrade
     if ($LastExitCode -ne 0) {
         Write-Error "Error ensuring pip"
         Exit [ExitCodes]::EnsurePip
     }
 
+    $wxRequirements = Join-Path -Path $PSScriptRoot -ChildPath "\support\wxrequirements.txt"
+
     Write-Host "Making sure the wxPython requirements are included"
     & $pythonBin -m pip install -r $wxRequirements
     if ($LastExitCode -ne 0) {
         Write-Error "Error installing wxpython requirements"
         Exit [ExitCodes]::WxPythonRequirements
+    }
+
+    $extraRequirements = Join-Path -Path $PSScriptRoot -ChildPath "\support\extrarequirements.txt"
+
+    Write-Host "Making sure the wxPython requirements are included"
+    & $pythonBin -m pip install -r $extraRequirements
+    if ($LastExitCode -ne 0) {
+        Write-Error "Error installing extra requirements"
+        Exit [ExitCodes]::ExtraRequirements
     }
 
     ### patch python manifest
