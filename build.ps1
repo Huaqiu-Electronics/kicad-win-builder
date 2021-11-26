@@ -1270,6 +1270,9 @@ function Start-Prepare-Package {
     $siteCustomizeSource = Join-Path -Path $PSScriptRoot -ChildPath "\support\sitecustomize.py"
     $siteCustomizeDest = Join-Path -Path $destBin -ChildPath "Lib/site-packages"
     Copy-Item $siteCustomizeSource -Destination $siteCustomizeDest -Force
+    
+    $kicadCmdSource = Join-Path -Path $PSScriptRoot -ChildPath "\support\kicad-cmd.bat"
+    Copy-Item $kicadCmdSource -Destination $destBin -Force
 
     ### lets setup pip
     Write-Host "Ensuring pip is bundled and installed"

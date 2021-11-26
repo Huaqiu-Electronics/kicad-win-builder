@@ -548,6 +548,8 @@ Section -CreateShortcuts
   CreateShortCut "${SMPATH}\Image Converter.lnk" "$INSTDIR\bin\bitmap2component.exe"
   CreateShortCut "${SMPATH}\Calculator Tools.lnk" "$INSTDIR\bin\pcb_calculator.exe"
   CreateShortCut "${SMPATH}\Drawing Sheet Editor.lnk" "$INSTDIR\bin\pl_editor.exe"
+  CreateShortCut "${SMPATH}\KiCad Command Prompt.lnk" "%comspec%" '/k "$INSTDIR\bin\kicad-cmd.bat"'
+
   CreateShortCut "$DESKTOP\KiCad ${KICAD_VERSION}.lnk" "$INSTDIR\bin\kicad.exe"
 SectionEnd
 
