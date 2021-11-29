@@ -6,7 +6,7 @@
 	</packaging>
 	<index root="\" startIndexAt="\">
 		<default>
-			<qualifier name="Language" value="en;es;fr"/>
+			<qualifier name="Language" value="en;es;fr;zh-CN;zh-TW"/>
 			<qualifier name="Contrast" value="standard"/>
 			<qualifier name="Scale" value="100"/>
 			<qualifier name="HomeRegion" value="001"/>
