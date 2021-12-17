@@ -18,19 +18,29 @@
 
 @echo off
 
-@REM Get KiCad exe version to reproduce
-for /f "USEBACKQ" %%a in (`powershell -NoProfile -Command ^(Get-Item "kicad.exe"^).VersionInfo.ProductVersion`) do set kicadVersion=%%a
-
-@echo ************************************
-@echo * KiCad %kicadVersion% Command Prompt
-@echo ************************************
-
 @REM We assume this script is located in the bin directory
 set _BIN_DIR=%~dp0
+set _KICAD_EXE_PATH=%_BIN_DIR%kicad.exe
+
+set KICAD_VERSION=
+
+@REM Get KiCad exe version to reproduce
+for /f "USEBACKQ" %%a in (`powershell -NoProfile -NoLogo -Command ^(Get-Item '%_KICAD_EXE_PATH%'^).VersionInfo.ProductVersion`) do (
+ set KICAD_VERSION=%%a
+)
+
+break
+:header
+
+@echo ************************************
+@echo * KiCad %KICAD_VERSION% Command Prompt
+@echo ************************************
+
 set _PYTHON_SCRIPTS_DIR=%_BIN_DIR%Scripts
+set _PYTHON_USER_SCRIPTS_DIR=%USERPROFILE%\Documents\KiCad\%KICAD_VERSION%\3rdparty\Python39\Scripts
 
 @REM Now adjust PATH to gurantee our python/pip executables are found first
-set PATH=%_BIN_DIR%;%_PYTHON_SCRIPTS_DIR%;%PATH%
+set PATH=%_BIN_DIR%;%_PYTHON_USER_SCRIPTS_DIR%;%_PYTHON_SCRIPTS_DIR%;%PATH%
 set PYTHONHOME=%_BIN_DIR%
 
 @REM We patch python into utf8 mode by default because kicad is utf8 heavy
@@ -39,9 +49,10 @@ set PYTHONUTF8=1
 
 @echo You may now invoke python or pip targeting kicad's install
 
-cd /d %USERPROFILE%\Documents\KiCad\%kicadVersion%
+cd /d %USERPROFILE%\Documents\KiCad\%KICAD_VERSION%
 
 set _BIN_DIR=
 set _PYTHON_SCRIPTS_DIR=
+set _KICAD_EXE_PATH=
 
 exit /B 0
