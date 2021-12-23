@@ -69,6 +69,11 @@ param(
     [Parameter(Mandatory=$False, ParameterSetName="package")]
     [ValidateSet('nsis', 'msix')]
     [string]$PackType = 'nsis',
+    
+    [Parameter(Mandatory=$False, ParameterSetName="build")]
+    [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
+    [string]$ReleaseConfigName = '',
 
     [Parameter(Mandatory=$False, ParameterSetName="build")]
     [Parameter(Mandatory=$False, ParameterSetName="package")]
@@ -133,6 +138,10 @@ enum ExitCodes {
     PdbPackageFail = 20
     PythonManifestPatchFailure = 21
     ExtraRequirements = 22
+    ReleaseDoesNotExit = 23
+    GitCheckoutBranch = 24
+    GitCheckoutTag = 25
+    GitFetch = 26
 }
 
 # Load the .NET compression library, powershell's expand-archive is horrid in performance
@@ -215,7 +224,8 @@ $settingsPath = $PSScriptRoot + "\settings.json";
 $settingDefault = @{
     VcpkgPath = ''
     VcpkgPlatformToolset = 'v142'
-    VsVersion = '16.0'
+    VsVersionMin = '16.0'
+    VsVersionMax = '16.99'
     SignSubjectName = 'KiCad Services Corporation'
 }
 
@@ -234,6 +244,30 @@ if ( Test-Path $settingsPath ) {
 } else {
     Write-Host "Existing settings not found" -ForegroundColor DarkYellow
 }
+
+
+###
+# Load release if set
+###
+
+$releaseConfigured = $false
+$releaseConfig = @{}
+$releasesPath = Join-Path -Path $PSScriptRoot -ChildPath "\releases"
+
+if( $ReleaseConfigName ) {
+    $releasePath = Join-Path -Path $releasesPath -ChildPath "$ReleaseConfigName.json"
+    
+    if ( -Not (Test-Path $releasePath) ) {
+        Write-Error "Release $Release not found"
+        Exit [ExitCodes]::ReleaseDoesNotExit
+    }
+    
+    $releaseConfig = Get-Content -Path $releasePath | ConvertFrom-Json
+    $releaseConfigured = $true
+
+    Write-Host "Loaded release config $($releaseConfig.name)" -ForegroundColor Yellow
+}
+
 
 function Merge-HashTable {
     param(
@@ -399,8 +433,7 @@ function Set-VC-Environment()
     # prepare the arguments array with the arch info
     $Arguments = @("-arch=$msvcArch") + @("-host_arch=$msvcHostArch") + $Arguments
 
-    $version = $settings.VsVersion
-    $installDir = vswhere -version "$version" -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+    $installDir = vswhere -version "[$($settings.VsVersionMin),$($settings.VsVersionMax)]" -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
 
     $installDir = $installDir | Select-Object -first 1
     if ($installDir) {
@@ -457,7 +490,7 @@ enum SourceType {
     tar
 }
 
-function Get-Source {
+function script:Get-Source {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$True)]
@@ -467,7 +500,9 @@ function Get-Source {
         [Parameter(Mandatory=$True)]
         [SourceType]$sourceType,
         [Parameter(Mandatory=$False)]
-        [bool]$latest = $False
+        [bool]$latest = $False,
+        [Parameter(Mandatory=$False)]
+        [string]$tag = ""
     )
 
     if(![System.IO.Directory]::Exists($dest))
@@ -486,7 +521,34 @@ function Get-Source {
 
         }
     }
-    elseif($latest)
+
+    if( $tag )
+    {
+        git -C "$dest" fetch --tags
+        if ($LastExitCode -ne 0) {
+            Write-Error "Error git clean"
+            Exit [ExitCodes]::GitFetch
+        }
+
+        git -C "$dest" reset --hard
+        if ($LastExitCode -ne 0) {
+            Write-Error "Error git reset"
+            Exit [ExitCodes]::GitResetFailure
+        }
+        
+        git -C "$dest" clean -f
+        if ($LastExitCode -ne 0) {
+            Write-Error "Error git clean"
+            Exit [ExitCodes]::GitCleanFailure
+        }
+
+        git -C "$dest" checkout tags/$tag
+        if ($LastExitCode -ne 0) {
+            Write-Error "Error git clean"
+            Exit [ExitCodes]::GitCheckoutTag
+        }
+    }
+    else
     {
         if($sourceType -eq [SourceType]::git)
         {
@@ -497,22 +559,26 @@ function Get-Source {
             }
 
             git -C "$dest" clean -f
-            
             if ($LastExitCode -ne 0) {
                 Write-Error "Error git clean"
                 Exit [ExitCodes]::GitCleanFailure
             }
 
-            git -C "$dest" pull --rebase
-
+            git -C "$dest" checkout master
             if ($LastExitCode -ne 0) {
-                Write-Error "Error pull rebase"
-                Exit [ExitCodes]::GitPullRebaseFailure
+                Write-Error "Error git checkout branch"
+                Exit [ExitCodes]::GitCheckoutBranch
             }
-        }
-        elseif($sourceType -eq [SourceType]::tar)
-        {
 
+            if($latest)
+            {
+                git -C "$dest" pull --rebase
+
+                if ($LastExitCode -ne 0) {
+                    Write-Error "Error pull rebase"
+                    Exit [ExitCodes]::GitPullRebaseFailure
+                }
+            }
         }
     }
 
@@ -717,6 +783,16 @@ function Build-Kicad {
     Pop-Location
 }
 
+function script:Get-Source-Tag ([string] $sourceKey) {
+    if(  $releaseConfigured -and $releaseConfig.sources.PSObject.Properties.Match($sourceKey) )
+    {
+        return $releaseConfig.sources.$sourceKey.tag
+    }
+    else {
+        return ""
+    }
+}
+
 function Start-Build {
     [CmdletBinding()]
     param(
@@ -732,27 +808,32 @@ function Start-Build {
     Get-Source -url https://gitlab.com/kicad/code/kicad.git `
                -dest (Get-Source-Path kicad) `
                -sourceType git `
-               -latest $latest
+               -latest $latest `
+               -tag (Get-Source-Tag -sourceKey "kicad")
 
     Get-Source -url https://gitlab.com/kicad/libraries/kicad-symbols.git `
                -dest (Get-Source-Path kicad-symbols) `
                -sourceType git `
-               -latest $latest
+               -latest $latest `
+               -tag (Get-Source-Tag -sourceKey "symbols")
 
     Get-Source -url https://gitlab.com/kicad/libraries/kicad-footprints.git `
                -dest (Get-Source-Path kicad-footprints) `
                -sourceType git `
-               -latest $latest
+               -latest $latest `
+               -tag (Get-Source-Tag -sourceKey "footprints")
 
     Get-Source -url https://gitlab.com/kicad/libraries/kicad-packages3D.git `
                -dest (Get-Source-Path kicad-packages3D) `
                -sourceType git `
-               -latest $latest
+               -latest $latest `
+               -tag (Get-Source-Tag -sourceKey "3dmodels")
 
     Get-Source -url https://gitlab.com/kicad/libraries/kicad-templates.git `
                -dest (Get-Source-Path kicad-templates) `
                -sourceType git `
-               -latest $latest
+               -latest $latest `
+               -tag (Get-Source-Tag -sourceKey "templates")
 
     Build-KiCad -arch $arch -buildType $buildType
     Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-symbols
@@ -1076,14 +1157,23 @@ function Build-Vcpkg {
 }
 
 function Get-KiCad-PackageVersion {
-    Push-Location (Get-Source-Path kicad)
 
-    $revCount = (git rev-list --count --first-parent HEAD)
-    $commitHash = (git rev-parse --short HEAD)
+    if( $releaseConfigured )
+    {
+        return $releaseConfig.package_version
+    }
+    else
+    {
 
-    Pop-Location
-
-    return "msvc.r$revCount.$commitHash"
+        Push-Location (Get-Source-Path kicad)
+    
+        $revCount = (git rev-list --count --first-parent HEAD)
+        $commitHash = (git rev-parse --short HEAD)
+    
+        Pop-Location
+    
+        return "msvc.r$revCount.$commitHash"
+    }
 }
 
 function Get-KiCad-Version {
@@ -1323,13 +1413,7 @@ function Start-Prepare-Package {
     Write-Host "Package prep complete" -ForegroundColor Green
 }
 
-function Patch-Python-Manifest {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$True)]
-        [string]$PythonRoot
-    )
-
+function script:Patch-Python-Manifest([string]$PythonRoot) {
     $pythonManifest = Join-Path -Path $PSScriptRoot -ChildPath "\support\python.manifest"
 
     & mt.exe -nologo -manifest $pythonManifest -outputresource:"$PythonRoot\python.exe;#1"
@@ -1861,7 +1945,14 @@ if( $Vcpkg )
 
 if( $Build )
 {
-    Start-Build -arch $Arch -buildType $BuildType -latest $Latest
+    if( $releaseConfigured )
+    {
+        Start-Build -arch $Arch -buildType $releaseConfig.build_mode -latest $true
+    }
+    else 
+    {
+        Start-Build -arch $Arch -buildType $BuildType -latest $Latest
+    }
 }
 
 if( $MsixAssets )
@@ -1871,14 +1962,26 @@ if( $MsixAssets )
 
 if( $PreparePackage -or ($Package -and $Prepare) )
 {
-    Start-Prepare-Package -arch $Arch -buildType $BuildType -includeVcpkgDebugSymbols $IncludeVcpkgDebugSymbols.IsPresent -lite $Lite -sign $Sign
+    if( $releaseConfigured )
+    {
+        Start-Prepare-Package -arch $Arch -buildType $BuildType -includeVcpkgDebugSymbols $false -lite $false -sign $Sign
+    }
+    else {
+        Start-Prepare-Package -arch $Arch -buildType $BuildType -includeVcpkgDebugSymbols $IncludeVcpkgDebugSymbols.IsPresent -lite $Lite -sign $Sign
+    }
 }
 
 if( $Package )
 {
     if( $PackType -eq 'nsis' )
     {
-        Start-Package-Nsis -arch $Arch -buildType $BuildType -includeVcpkgDebugSymbols $IncludeVcpkgDebugSymbols -lite $Lite -postCleanup $PostCleanup -sign $Sign
+        if( $releaseConfigured )
+        {
+            Start-Package-Nsis -arch $Arch -buildType $releaseConfig.build_mode -includeVcpkgDebugSymbols $false -lite $false -postCleanup $false -sign $Sign
+        }
+        else {
+            Start-Package-Nsis -arch $Arch -buildType $BuildType -includeVcpkgDebugSymbols $IncludeVcpkgDebugSymbols -lite $Lite -postCleanup $PostCleanup -sign $Sign
+        }
     }
     elseif( $PackType -eq 'msix' )
     {
@@ -1893,6 +1996,12 @@ if( $Package )
     
     if( $DebugSymbols )
     {
-        Start-Package-Pdb -arch $Arch -buildType $BuildType
+        if( $releaseConfigured )
+        {
+            Start-Package-Pdb -arch $Arch -buildType $releaseConfig.build_mode
+        }
+        else {
+            Start-Package-Pdb -arch $Arch -buildType $BuildType
+        }
     }
 }

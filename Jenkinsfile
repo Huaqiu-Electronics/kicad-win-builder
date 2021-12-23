@@ -22,17 +22,23 @@ def do_init(list) {
     }
 }
 
-def do_build(list) {
+def do_build(arches) {
     powershell "Write-Host NICK DBEUG Removing .out"
     powershell "Get-ChildItem .out -Exclude '*-pdb' | Remove-Item -Recurse -ErrorAction SilentlyContinue"
-    list.each { item ->
-      powershell "Write-Host Doing build for ${item} ${build_type}"
+    
+    arches.each { arch ->
+      powershell "Write-Host Doing build for ${arch} ${build_type}"
       try {
-        powershell ".\\build.ps1 -Build -Latest -Arch ${item} -BuildType ${build_type}"
-        archs_to_pack.add( item )
+        if(params.RELEASE) {
+          powershell ".\\build.ps1 -Build -Arch ${arch} -ReleaseConfigName ${releaseconfig}"
+        }
+        else {
+          powershell ".\\build.ps1 -Build -Latest -Arch ${arch} -BuildType ${build_type}"
+        }
+        archs_to_pack.add( arch )
       } catch (err) {
         currentBuild.result='UNSTABLE'
-        powershell "Write-Host 'Failed build for ${item} ${build_type}' -ForegroundColor Red"
+        powershell "Write-Host 'Failed build for ${arch} ${build_type}' -ForegroundColor Red"
       }
     }
     
@@ -42,24 +48,26 @@ def do_build(list) {
     }
 }
 
-def do_package(list) {
-    list.each { item ->
-      powershell "Write-Host Doing package for ${item} ${build_type}"
+def do_package(arches) {
+    arches.each { arch ->
+      powershell "Write-Host Doing package for ${arch} ${build_type}"
       try {
-        if (params.LITE_PKG_ONLY != true) {
-          powershell "Write-Host Building full package, be patient!"
-          powershell ".\\build.ps1 -Package -Arch ${item} -BuildType ${build_type} -DebugSymbols"
+        if(params.RELEASE) {
+            powershell "Write-Host Packaging full release"
+            powershell ".\\build.ps1 -Package -Arch ${arch} -ReleaseConfigName ${params.RELEASE_CONFIG}"
+        } else {
+          if (params.LITE_PKG_ONLY != true) {
+            powershell "Write-Host Building full package, be patient!"
+            powershell ".\\build.ps1 -Package -Arch ${arch} -BuildType ${build_type} -DebugSymbols"
+          }
+          powershell ".\\build.ps1 -Package -Arch ${arch} -BuildType ${build_type} -Lite"
         }
-        powershell ".\\build.ps1 -Package -Arch ${item} -BuildType ${build_type} -Lite"
       } catch (err) {
         currentBuild.result='UNSTABLE'
-        powershell "Write-Host 'Failed package for ${item} ${build_type}' -ForegroundColor Red"
+        powershell "Write-Host 'Failed package for ${arch} ${build_type}' -ForegroundColor Red"
       }
     }
 }
-
-
-
 
 pipeline {
     agent { label 'msvc' }
@@ -73,6 +81,8 @@ pipeline {
     parameters {
         booleanParam(name: 'LITE_PKG_ONLY', defaultValue: false, description: 'Skip building the full installer')
         booleanParam(name: 'CLEAN_WS', defaultValue: false, description: 'Clean workspace')
+        booleanParam(name: 'RELEASE', defaultValue: false, description: 'Build a release')
+        text(name: 'RELEASE_CONFIG', defaultValue: '', description: '')
     }
 
 
@@ -155,15 +165,31 @@ dir
       stage ('Archive') {
           agent { label 'master' }
           steps {
+
               cleanWs()
               unstash 'signed_installer_exe'
               sh "pwd"
               archiveArtifacts allowEmptyArchive: false, artifacts: 'kicad*.exe', caseSensitive: true, defaultExcludes: true, fingerprint: true, onlyIfSuccessful: true
-              sh "s3cmd put kicad-*.exe s3://kicad-downloads/windows/nightly/"
+              
+              script {
+                if (params.RELEASE == true) {
+               //   sh "s3cmd put kicad-*.exe s3://kicad-downloads/windows/stable/"
+                } else {
+                  sh "s3cmd put kicad-*.exe s3://kicad-downloads/windows/nightly/"
+                }
+              }
 
               unstash 'pdbs'
               archiveArtifacts allowEmptyArchive: false, artifacts: 'kicad*-pdbs.zip', caseSensitive: true, defaultExcludes: true, fingerprint: true, onlyIfSuccessful: true
-              sh "s3cmd put kicad*-pdbs.zip s3://kicad-downloads/windows/nightly/"
+              
+              script {
+                if (params.RELEASE == true) {
+                //  sh "s3cmd put kicad*-pdbs.zip s3://kicad-downloads/windows/stable/"
+                } else {
+                  sh "s3cmd put kicad*-pdbs.zip s3://kicad-downloads/windows/nightly/"
+                }
+              }
+              
           }
       }
 
