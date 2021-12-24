@@ -54,7 +54,7 @@ def do_package(arches) {
       try {
         if(params.RELEASE) {
             powershell "Write-Host Packaging full release"
-            powershell ".\\build.ps1 -Package -Arch ${arch} -ReleaseConfigName ${params.RELEASE_CONFIG}"
+            powershell ".\\build.ps1 -Package -Arch ${arch} -ReleaseConfigName ${params.RELEASE_CONFIG} -DebugSymbols"
         } else {
           if (params.LITE_PKG_ONLY != true) {
             powershell "Write-Host Building full package, be patient!"
