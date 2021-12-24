@@ -30,7 +30,7 @@ def do_build(arches) {
       powershell "Write-Host Doing build for ${arch} ${build_type}"
       try {
         if(params.RELEASE) {
-          powershell ".\\build.ps1 -Build -Arch ${arch} -ReleaseConfigName ${releaseconfig}"
+          powershell ".\\build.ps1 -Build -Arch ${arch} -ReleaseConfigName ${params.RELEASE_CONFIG}"
         }
         else {
           powershell ".\\build.ps1 -Build -Latest -Arch ${arch} -BuildType ${build_type}"
