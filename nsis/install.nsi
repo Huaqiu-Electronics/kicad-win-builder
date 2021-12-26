@@ -357,6 +357,7 @@ Section $(TITLE_SEC_MAIN) SEC01
   RMDir /r "$INSTDIR\bin\DLLs\"
   RMDir /r "$INSTDIR\bin\Lib\"
   RMDir /r "$INSTDIR\bin\Scripts\"
+  RMDir /r "$INSTDIR\bin\plugins\"
 
   ; clean contents of old names for symbols/footprints
   RMDir /r "$INSTDIR\share\kicad\library"
