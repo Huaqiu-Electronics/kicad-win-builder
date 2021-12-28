@@ -12,6 +12,7 @@ def do_init(list) {
         archs_to_build.add( item )
       } catch (err) {
         currentBuild.result='UNSTABLE'
+        echo 'Exception occurred: ' + err.toString()
         powershell "Write-Host 'Failed vcpkg for ${item}' -ForegroundColor Red"
       }
     }
@@ -38,6 +39,7 @@ def do_build(arches) {
         archs_to_pack.add( arch )
       } catch (err) {
         currentBuild.result='UNSTABLE'
+        echo 'Exception occurred: ' + err.toString()
         powershell "Write-Host 'Failed build for ${arch} ${build_type}' -ForegroundColor Red"
       }
     }
@@ -59,6 +61,7 @@ def do_prepackage(arches, lite) {
         }
       } catch (err) {
         currentBuild.result='UNSTABLE'
+        echo 'Exception occurred: ' + err.toString()
         powershell "Write-Host 'Failed package for ${arch} ${build_type}' -ForegroundColor Red"
       }
     }
@@ -79,6 +82,7 @@ def do_package(arches, lite) {
         }
       } catch (err) {
         currentBuild.result='UNSTABLE'
+        echo 'Exception occurred: ' + err.toString()
         powershell "Write-Host 'Failed package for ${arch} ${build_type}' -ForegroundColor Red"
       }
     }
