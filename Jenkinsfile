@@ -74,8 +74,7 @@ def do_package(arches, lite) {
         } else if( lite ) {
             powershell "Write-Host Building lite package"
             powershell ".\\build.ps1 -Package -Arch ${arch} -BuildType ${build_type} -Lite -Prepare $False"
-        }
-        else {
+        } else {
             powershell ".\\build.ps1 -Package -Arch ${arch} -BuildType ${build_type} -DebugSymbols -Prepare $False"
         }
       } catch (err) {
@@ -169,6 +168,7 @@ pipeline {
                   }
               }
               stage ('Package Lite') {
+                  agent { label 'msvc' }
                   steps {
                       unstash 'signed_exe_dlls'
                       script {
@@ -200,6 +200,7 @@ pipeline {
       stage('Package Full') {
           stages {
               stage ('Prepare Full') {
+                  agent { label 'msvc' }
                   steps {
                       script {
                         do_prepackage(archs_to_pack, false)
@@ -228,6 +229,7 @@ pipeline {
                   }
               }
               stage ('Package Full') {
+                  agent { label 'msvc' }
                   steps {
                       unstash 'signed_exe_dlls'
                       script {
