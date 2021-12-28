@@ -73,12 +73,12 @@ def do_package(arches, lite) {
       try {
         if(params.RELEASE) {
             powershell "Write-Host Packaging full release"
-            powershell ".\\build.ps1 -Package -Arch ${arch} -ReleaseConfigName ${params.RELEASE_CONFIG} -DebugSymbols -Prepare $False"
+            powershell ".\\build.ps1 -Package -Arch ${arch} -ReleaseConfigName ${params.RELEASE_CONFIG} -DebugSymbols -Prepare \$False"
         } else if( lite ) {
             powershell "Write-Host Building lite package"
-            powershell ".\\build.ps1 -Package -Arch ${arch} -BuildType ${build_type} -Lite -Prepare $False"
+            powershell ".\\build.ps1 -Package -Arch ${arch} -BuildType ${build_type} -Lite -Prepare \$False"
         } else {
-            powershell ".\\build.ps1 -Package -Arch ${arch} -BuildType ${build_type} -DebugSymbols -Prepare $False"
+            powershell ".\\build.ps1 -Package -Arch ${arch} -BuildType ${build_type} -DebugSymbols -Prepare \$False"
         }
       } catch (err) {
         currentBuild.result='UNSTABLE'
