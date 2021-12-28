@@ -48,19 +48,35 @@ def do_build(arches) {
     }
 }
 
-def do_package(arches) {
+def do_prepackage(arches, lite) {
+    arches.each { arch ->
+      powershell "Write-Host Doing pre-package for ${arch} ${build_type}"
+      try {
+        if(lite) {
+            powershell ".\\build.ps1 -PreparePackage -Arch ${arch} -BuildType ${build_type} -Lite"
+        } else {
+            powershell ".\\build.ps1 -PreparePackage -Arch ${arch} -BuildType ${build_type}"
+        }
+      } catch (err) {
+        currentBuild.result='UNSTABLE'
+        powershell "Write-Host 'Failed package for ${arch} ${build_type}' -ForegroundColor Red"
+      }
+    }
+}
+
+def do_package(arches, lite) {
     arches.each { arch ->
       powershell "Write-Host Doing package for ${arch} ${build_type}"
       try {
         if(params.RELEASE) {
             powershell "Write-Host Packaging full release"
-            powershell ".\\build.ps1 -Package -Arch ${arch} -ReleaseConfigName ${params.RELEASE_CONFIG} -DebugSymbols"
-        } else {
-          if (params.LITE_PKG_ONLY != true) {
-            powershell "Write-Host Building full package, be patient!"
-            powershell ".\\build.ps1 -Package -Arch ${arch} -BuildType ${build_type} -DebugSymbols"
-          }
-          powershell ".\\build.ps1 -Package -Arch ${arch} -BuildType ${build_type} -Lite"
+            powershell ".\\build.ps1 -Package -Arch ${arch} -ReleaseConfigName ${params.RELEASE_CONFIG} -DebugSymbols -Prepare $False"
+        } else if( lite ) {
+            powershell "Write-Host Building lite package"
+            powershell ".\\build.ps1 -Package -Arch ${arch} -BuildType ${build_type} -Lite -Prepare $False"
+        }
+        else {
+            powershell ".\\build.ps1 -Package -Arch ${arch} -BuildType ${build_type} -DebugSymbols -Prepare $False"
         }
       } catch (err) {
         currentBuild.result='UNSTABLE'
@@ -119,23 +135,97 @@ pipeline {
           }
       }
 
-      stage('Package & Test') {
-          parallel {
-              stage ('Test KiCad') {
+      stage('Package Lite') {
+          when {
+             expression { params.RELEASE == false }
+          }
+          stages {
+              stage ('Prepare') {
                   steps {
                       script {
-                          dir (".build/kicad") {
-                            powershell "dir"
-                            //powershell "../../.support/cmake-3.16.6-win64-x64/bin/ctest python"
-                            //powershell "../../.support/cmake-3.16.6-win64-x64/bin/ctest -T all"
-                          }
+                        do_prepackage(archs_to_pack, true)
+                      }
+                      stash includes: '.out/**/bin/*.exe', name: 'unsigned_exe'
+                      stash includes: '.out/**/bin/*.dll', name: 'unsigned_dll'
+                  }
+              }
+              stage ('Sign') {
+                  agent { label 'msys2' }
+                  steps {
+                      cleanWs()
+                      unstash 'unsigned_exe'
+                      unstash 'unsigned_dll'
+
+                      script {
+                        archs_to_pack.each { arch ->
+                          set SIGNTOOL="C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.18362.0\\x86\\signtool.exe"
+                          jenkins-filesign-helper.bat %SIGNTOOL% ${arch}-windows-Release
+                        }
+                      }
+                      stash includes: '.out/**/bin/*', name: 'signed_exe_dlls'
+                  }
+              }
+              stage ('Package') {
+                  steps {
+                      unstash 'signed_exe_dlls'
+                      script {
+                        do_package(archs_to_pack, true)
+                      }
+                      dir (".out") {
+                        stash includes: 'kicad*exe', name: 'installer_exe'
                       }
                   }
               }
-              stage ('Package KiCad') {
+              stage ('Sign Installer') {
+                  agent { label 'msys2' }
+                  steps {
+                      cleanWs()
+                      unstash 'installer_exe'
+                      bat "dir"
+                      bat """
+        set SIGNTOOL="C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.18362.0\\x86\\signtool.exe"
+        REM cd .out
+        dir
+        %SIGNTOOL% sign /a /a /n "KiCad Services Corporation" /fd sha256 /tr http://timestamp.sectigo.com /td sha256 /v kicad-*exe
+        """
+                      stash includes: 'kicad*exe', name: 'signed_installer_exe'
+                  }
+              }
+          }
+      }
+
+      stage('Package Full') {
+          stages {
+              stage ('Prepare') {
                   steps {
                       script {
-                        do_package(archs_to_pack)
+                        do_prepackage(archs_to_pack, false)
+                      }
+                      stash includes: '.out/**/bin/*.exe', name: 'unsigned_exe'
+                      stash includes: '.out/**/bin/*.dll', name: 'unsigned_dll'
+                  }
+              }
+              stage ('Sign') {
+                  agent { label 'msys2' }
+                  steps {
+                      cleanWs()
+                      unstash 'unsigned_exe'
+                      unstash 'unsigned_dll'
+
+                      script {
+                        archs_to_pack.each { arch ->
+                          set SIGNTOOL="C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.18362.0\\x86\\signtool.exe"
+                          jenkins-filesign-helper.bat %SIGNTOOL% ${arch}-windows-Release
+                        }
+                      }
+                      stash includes: '.out/**/bin/*', name: 'signed_exe_dlls'
+                  }
+              }
+              stage ('Package') {
+                  steps {
+                      unstash 'signed_exe_dlls'
+                      script {
+                        do_package(archs_to_pack, false)
                       }
                       dir (".out") {
                         stash includes: 'kicad*exe', name: 'installer_exe'
@@ -143,24 +233,24 @@ pipeline {
                       }
                   }
               }
+              stage ('Sign Installer') {
+                  agent { label 'msys2' }
+                  steps {
+                      cleanWs()
+                      unstash 'installer_exe'
+                      bat "dir"
+                      bat """
+        set SIGNTOOL="C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.18362.0\\x86\\signtool.exe"
+        REM cd .out
+        dir
+        %SIGNTOOL% sign /a /a /n "KiCad Services Corporation" /fd sha256 /tr http://timestamp.sectigo.com /td sha256 /v kicad-*exe
+        """
+                      stash includes: 'kicad*exe', name: 'signed_installer_exe'
+                  }
+              }
           }
       }
 
-      stage ('Sign') {
-          agent { label 'msys2' }
-          steps {
-              cleanWs()
-              unstash 'installer_exe'
-              bat "dir"
-              bat """
-set SIGNTOOL="C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.18362.0\\x86\\signtool.exe"
-REM cd .out
-dir
-%SIGNTOOL% sign /a /a /n "KiCad Services Corporation" /fd sha256 /tr http://timestamp.sectigo.com /td sha256 /v kicad-*exe
- """
-              stash includes: 'kicad*exe', name: 'signed_installer_exe'
-          }
-      }
 
       stage ('Archive') {
           agent { label 'master' }
