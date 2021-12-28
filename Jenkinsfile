@@ -168,7 +168,6 @@ pipeline {
                   }
               }
               stage ('Package Lite') {
-                  agent { label 'msvc' }
                   steps {
                       unstash 'signed_exe_dlls'
                       script {
@@ -200,7 +199,6 @@ pipeline {
       stage('Package Full') {
           stages {
               stage ('Prepare Full') {
-                  agent { label 'msvc' }
                   steps {
                       script {
                         do_prepackage(archs_to_pack, false)
@@ -229,7 +227,6 @@ pipeline {
                   }
               }
               stage ('Package Full') {
-                  agent { label 'msvc' }
                   steps {
                       unstash 'signed_exe_dlls'
                       script {
