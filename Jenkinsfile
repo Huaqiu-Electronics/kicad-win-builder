@@ -147,6 +147,7 @@ pipeline {
                       }
                       stash includes: '.out/**/bin/*.exe', name: 'unsigned_exe'
                       stash includes: '.out/**/bin/*.dll', name: 'unsigned_dll'
+                      stash includes: 'jenkins-filesign-helper.bat', name: 'filesign_helper'
                   }
               }
               stage ('Sign Lite Files') {
@@ -155,6 +156,7 @@ pipeline {
                       cleanWs()
                       unstash 'unsigned_exe'
                       unstash 'unsigned_dll'
+                      unstash 'filesign_helper'
 
                       script {
                         archs_to_pack.each { arch ->
@@ -202,6 +204,7 @@ pipeline {
                       }
                       stash includes: '.out/**/bin/*.exe', name: 'unsigned_exe'
                       stash includes: '.out/**/bin/*.dll', name: 'unsigned_dll'
+                      stash includes: 'jenkins-filesign-helper.bat', name: 'filesign-helper'
                   }
               }
               stage ('Sign Full Files') {
@@ -210,6 +213,7 @@ pipeline {
                       cleanWs()
                       unstash 'unsigned_exe'
                       unstash 'unsigned_dll'
+                      unstash 'filesign_helper'
 
                       script {
                         archs_to_pack.each { arch ->
