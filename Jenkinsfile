@@ -140,7 +140,7 @@ pipeline {
              expression { params.RELEASE == false }
           }
           stages {
-              stage ('Prepare') {
+              stage ('Prepare Lite') {
                   steps {
                       script {
                         do_prepackage(archs_to_pack, true)
@@ -149,7 +149,7 @@ pipeline {
                       stash includes: '.out/**/bin/*.dll', name: 'unsigned_dll'
                   }
               }
-              stage ('Sign') {
+              stage ('Sign Lite Files') {
                   agent { label 'msys2' }
                   steps {
                       cleanWs()
@@ -158,29 +158,28 @@ pipeline {
 
                       script {
                         archs_to_pack.each { arch ->
-                          set SIGNTOOL="C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.18362.0\\x86\\signtool.exe"
-                          jenkins-filesign-helper.bat %SIGNTOOL% ${arch}-windows-Release
+                          bat "jenkins-filesign-helper.bat \"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.18362.0\\x86\\signtool.exe\" ${arch}-windows-Release"
                         }
                       }
                       stash includes: '.out/**/bin/*', name: 'signed_exe_dlls'
                   }
               }
-              stage ('Package') {
+              stage ('Package Lite') {
                   steps {
                       unstash 'signed_exe_dlls'
                       script {
                         do_package(archs_to_pack, true)
                       }
                       dir (".out") {
-                        stash includes: 'kicad*exe', name: 'installer_exe'
+                        stash includes: 'kicad*exe', name: 'installer_exe_lite'
                       }
                   }
               }
-              stage ('Sign Installer') {
+              stage ('Sign Lite Installer') {
                   agent { label 'msys2' }
                   steps {
                       cleanWs()
-                      unstash 'installer_exe'
+                      unstash 'installer_exe_lite'
                       bat "dir"
                       bat """
         set SIGNTOOL="C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.18362.0\\x86\\signtool.exe"
@@ -188,7 +187,7 @@ pipeline {
         dir
         %SIGNTOOL% sign /a /a /n "KiCad Services Corporation" /fd sha256 /tr http://timestamp.sectigo.com /td sha256 /v kicad-*exe
         """
-                      stash includes: 'kicad*exe', name: 'signed_installer_exe'
+                      stash includes: 'kicad*-lite.exe', name: 'signed_installer_exe_lite'
                   }
               }
           }
@@ -196,7 +195,7 @@ pipeline {
 
       stage('Package Full') {
           stages {
-              stage ('Prepare') {
+              stage ('Prepare Full') {
                   steps {
                       script {
                         do_prepackage(archs_to_pack, false)
@@ -205,7 +204,7 @@ pipeline {
                       stash includes: '.out/**/bin/*.dll', name: 'unsigned_dll'
                   }
               }
-              stage ('Sign') {
+              stage ('Sign Full Files') {
                   agent { label 'msys2' }
                   steps {
                       cleanWs()
@@ -214,30 +213,29 @@ pipeline {
 
                       script {
                         archs_to_pack.each { arch ->
-                          set SIGNTOOL="C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.18362.0\\x86\\signtool.exe"
-                          jenkins-filesign-helper.bat %SIGNTOOL% ${arch}-windows-Release
+                          bat "jenkins-filesign-helper.bat \"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.18362.0\\x86\\signtool.exe\" ${arch}-windows-Release"
                         }
                       }
                       stash includes: '.out/**/bin/*', name: 'signed_exe_dlls'
                   }
               }
-              stage ('Package') {
+              stage ('Package Full') {
                   steps {
                       unstash 'signed_exe_dlls'
                       script {
                         do_package(archs_to_pack, false)
                       }
                       dir (".out") {
-                        stash includes: 'kicad*exe', name: 'installer_exe'
+                        stash includes: 'kicad*exe', name: 'installer_exe_full'
                         stash includes: 'kicad*-pdbs.zip', name: 'pdbs'
                       }
                   }
               }
-              stage ('Sign Installer') {
+              stage ('Sign Full Installer') {
                   agent { label 'msys2' }
                   steps {
                       cleanWs()
-                      unstash 'installer_exe'
+                      unstash 'installer_exe_full'
                       bat "dir"
                       bat """
         set SIGNTOOL="C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.18362.0\\x86\\signtool.exe"
@@ -245,7 +243,7 @@ pipeline {
         dir
         %SIGNTOOL% sign /a /a /n "KiCad Services Corporation" /fd sha256 /tr http://timestamp.sectigo.com /td sha256 /v kicad-*exe
         """
-                      stash includes: 'kicad*exe', name: 'signed_installer_exe'
+                      stash includes: 'kicad*exe', name: 'signed_installer_exe_full'
                   }
               }
           }
@@ -257,7 +255,7 @@ pipeline {
           steps {
 
               cleanWs()
-              unstash 'signed_installer_exe'
+              unstash 'signed_installer_exe_full'
               sh "pwd"
               archiveArtifacts allowEmptyArchive: false, artifacts: 'kicad*.exe', caseSensitive: true, defaultExcludes: true, fingerprint: true, onlyIfSuccessful: true
               
