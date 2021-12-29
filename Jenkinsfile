@@ -179,6 +179,7 @@ pipeline {
                       }
                       dir (".out") {
                         stash includes: 'kicad*exe', name: 'installer_exe_lite'
+                        bat "DEL /Q /F \"kicad*-lite.exe\"" 
                       }
                   }
               }
