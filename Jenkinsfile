@@ -150,7 +150,12 @@ pipeline {
                       }
                       stash includes: '.out/**/bin/*.exe', name: 'unsigned_exe'
                       stash includes: '.out/**/bin/*.dll', name: 'unsigned_dll'
-                      stash includes: '.out/**/bin/*.kiface', name: 'unsigned_kiface'
+                      script {
+                        try {
+                          stash includes: '.out/**/bin/*.kiface', name: 'unsigned_kiface'
+                        } catch (err) {
+                        }
+                      }
                       stash includes: 'jenkins-filesign-helper.bat', name: 'filesign_helper'
                   }
               }
@@ -160,7 +165,12 @@ pipeline {
                       cleanWs()
                       unstash 'unsigned_exe'
                       unstash 'unsigned_dll'
-                      unstash 'unsigned_kiface'
+                      script {
+                        try {
+                          unstash 'unsigned_kiface'
+                        } catch (err) {
+                        }
+                      }
                       unstash 'filesign_helper'
 
                       script {
@@ -210,7 +220,14 @@ pipeline {
                       }
                       stash includes: '.out/**/bin/*.exe', name: 'unsigned_exe'
                       stash includes: '.out/**/bin/*.dll', name: 'unsigned_dll'
-                      stash includes: '.out/**/bin/*.kiface', name: 'unsigned_kiface'
+                      
+                      script {
+                        try {
+                          stash includes: '.out/**/bin/*.kiface', name: 'unsigned_kiface'
+                        } catch (err) {
+                        }
+                      }
+                  
                       stash includes: 'jenkins-filesign-helper.bat', name: 'filesign-helper'
                   }
               }
@@ -220,7 +237,14 @@ pipeline {
                       cleanWs()
                       unstash 'unsigned_exe'
                       unstash 'unsigned_dll'
-                      unstash 'unsigned_kiface'
+                      
+                      script {
+                        try {
+                          unstash 'unsigned_kiface'
+                        } catch (err) {
+                        }
+                      }
+                    
                       unstash 'filesign_helper'
 
                       script {
