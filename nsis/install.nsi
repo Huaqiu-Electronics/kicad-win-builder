@@ -397,10 +397,10 @@ Section $(TITLE_SEC_MAIN) SEC01
   DetailPrint "$1"
 !endif
 
-  ${RegisterApplication} "kicad.exe" $(APP_FRIENDLY_KICAD)
-  ${RegisterApplication} "pcbnew.exe" $(APP_FRIENDLY_PCBNEW)
-  ${RegisterApplication} "eeschema.exe" $(APP_FRIENDLY_EESCHEMA)
-  ${RegisterApplication} "pl_editor.exe" $(APP_FRIENDLY_PLEDITOR)
+  ${RegisterApplication} "kicad.exe" "$(APP_FRIENDLY_KICAD) ${KICAD_VERSION}"
+  ${RegisterApplication} "pcbnew.exe" "$(APP_FRIENDLY_PCBNEW) ${KICAD_VERSION}"
+  ${RegisterApplication} "eeschema.exe" "$(APP_FRIENDLY_EESCHEMA) ${KICAD_VERSION}"
+  ${RegisterApplication} "pl_editor.exe" "$(APP_FRIENDLY_PLEDITOR) ${KICAD_VERSION}"
 SectionEnd
 
 SectionGroup /e $(TITLE_SEC_LIBRARIES) SEC03
@@ -524,12 +524,12 @@ SectionGroupEnd
 
 Section $(TITLE_SEC_FILE_ASSOC) SEC07
   !insertmacro ExclusiveDetailPrint $(SETTING_FILE_ASSOCS)
-  ${CreateFileAssociation} "kicad_pcb" "pcbnew.exe" $(FILE_DESC_KICAD_PCB) "icon_pcbnew"
-  ${CreateFileAssociation} "sch" "eeschema.exe" $(FILE_DESC_SCH) "icon_eeschema"
-  ${CreateFileAssociation} "kicad_sch" "eeschema.exe" $(FILE_DESC_SCH) "icon_eeschema"
-  ${CreateFileAssociation} "pro" "kicad.exe" $(FILE_DESC_PRO) "icon_kicad"
-  ${CreateFileAssociation} "kicad_pro" "kicad.exe" $(FILE_DESC_PRO) "icon_kicad"
-  ${CreateFileAssociation} "kicad_wks" "pl_editor.exe" $(FILE_DESC_KICAD_WKS) "icon_pagelayout_editor"
+  ${CreateFileAssociation} "kicad_pcb" "pcbnew.exe" "$(FILE_DESC_KICAD_PCB) ${KICAD_VERSION}" "icon_pcbnew"
+  ${CreateFileAssociation} "sch" "eeschema.exe" "$(FILE_DESC_SCH) ${KICAD_VERSION}" "icon_eeschema"
+  ${CreateFileAssociation} "kicad_sch" "eeschema.exe" "$(FILE_DESC_SCH) ${KICAD_VERSION}" "icon_eeschema"
+  ${CreateFileAssociation} "pro" "kicad.exe" "$(FILE_DESC_PRO) ${KICAD_VERSION}" "icon_kicad"
+  ${CreateFileAssociation} "kicad_pro" "kicad.exe" "$(FILE_DESC_PRO) ${KICAD_VERSION}" "icon_kicad"
+  ${CreateFileAssociation} "kicad_wks" "pl_editor.exe" "$(FILE_DESC_KICAD_WKS) ${KICAD_VERSION}" "icon_pagelayout_editor"
 
   WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "FileAssocInstalled" "1"
 SectionEnd
