@@ -292,6 +292,7 @@ pipeline {
 
               cleanWs()
               unstash 'signed_installer_exe_full'
+              unstash 'signed_installer_exe_lite'
               sh "pwd"
               archiveArtifacts allowEmptyArchive: false, artifacts: 'kicad*.exe', caseSensitive: true, defaultExcludes: true, fingerprint: true, onlyIfSuccessful: true
               
