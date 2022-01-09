@@ -1294,6 +1294,7 @@ function Start-Prepare-Package {
                         "libxslt*",  #xsltproc
                         "libxml*",
                         "lzma*",
+                        "harfbuzz*",
                         "fontconfig*",
                         "freetype*",
                         "bz2*",
