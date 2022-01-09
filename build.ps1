@@ -1115,6 +1115,7 @@ function Build-Vcpkg {
                         "pixman", # required for cairo
                         "cairo",
                         "curl",
+                        "harfbuzz",
                         "glew",
                         "gettext",
                         "glm",
