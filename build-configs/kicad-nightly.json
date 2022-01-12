@@ -1,0 +1,81 @@
+{
+    "name:": "KiCad Nightly",
+    "output_prefix": "kicad-nightly-",
+    "package_version": "6.99",
+    "train": "nightly",
+    "build_mode": "Release",
+    "sources": {
+        "kicad": {
+            "ref": "branch/master"
+        },
+        "symbols": {
+            "ref": "branch/master"
+        },
+        "footprints": {
+            "ref": "branch/master"
+        },
+        "3dmodels": {
+            "ref": "branch/master"
+        },
+        "templates": {
+            "ref": "branch/master"
+        }
+    },
+    "vcpkg": {
+        "dependencies": [
+            "boost",
+            "pixman",
+            "cairo",
+            "curl",
+            "harfbuzz",
+            "glew",
+            "gettext",
+            "glm",
+            "icu",
+            "libxslt",
+            "ngspice",
+            "opencascade",
+            "opengl",
+            "python3",
+            "wxwidgets",
+            "wxpython",
+            "zlib"
+        ],
+        "package_globs": [
+            "boost*",
+            "TK*",
+            "wx*",
+            "jpeg62*",
+            "libpng16*",
+            "tiff*",
+            "zlib*",
+            "libcurl*",
+            "python*",
+            "glew32*",
+            "cairo*",
+            "libexpat*",
+            "libexslt*",
+            "libxslt*",
+            "libxml*",
+            "lzma*",
+            "harfbuzz*",
+            "fontconfig*",
+            "freetype*",
+            "bz2*",
+            "brotli*",
+            "charset*",
+            "libwebpmux*",
+            "libcrypto*",
+            "libssl*",
+            "libffi*",
+            "ngspice*",
+            "pthread*",
+            "turbojpeg*",
+            "zstd*",
+            "sqlite*",
+            "icu*",
+            "iconv*",
+            "intl*"
+        ]
+    }
+}

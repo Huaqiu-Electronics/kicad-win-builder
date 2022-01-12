@@ -1,0 +1,79 @@
+{
+    "name:": "KiCad 6.0.0",
+    "output_prefix": "kicad-",
+    "package_version": "6.0.0",
+    "train": "stable",
+    "build_mode": "Release",
+    "sources": {
+        "kicad": {
+            "ref": "tag/6.0.0"
+        },
+        "symbols": {
+            "ref": "tag/6.0.0"
+        },
+        "footprints": {
+            "ref": "tag/6.0.0"
+        },
+        "3dmodels": {
+            "ref": "tag/6.0.0"
+        },
+        "templates": {
+            "ref": "tag/6.0.0"
+        }
+    }, 
+    "vcpkg": {
+        "dependencies": [
+            "boost",
+            "pixman",
+            "cairo",
+            "curl",
+            "glew",
+            "gettext",
+            "glm",
+            "icu",
+            "libxslt",
+            "ngspice",
+            "opencascade",
+            "opengl",
+            "python3",
+            "wxwidgets",
+            "wxpython",
+            "zlib"
+        ],
+        "package_globs": [
+            "boost*",
+            "TK*",
+            "wx*",
+            "jpeg62*",
+            "libpng16*",
+            "tiff*",
+            "zlib*",
+            "libcurl*",
+            "python*",
+            "glew32*",
+            "cairo*",
+            "libexpat*",
+            "libexslt*",
+            "libxslt*",
+            "libxml*",
+            "lzma*",
+            "fontconfig*",
+            "freetype*",
+            "bz2*",
+            "brotli*",
+            "charset*",
+            "libwebpmux*",
+            "libcrypto*",
+            "libssl*",
+            "libffi*",
+            "ngspice*",
+            "pthread*",
+            "turbojpeg*",
+            "zstd*",
+            "sqlite*",
+            "icu*",
+            "iconv*",
+            "intl*"
+        ]
+    }
+}

@@ -71,9 +71,10 @@ param(
     [string]$PackType = 'nsis',
     
     [Parameter(Mandatory=$False, ParameterSetName="build")]
+    [Parameter(Mandatory=$False, ParameterSetName="vcpkg")]
     [Parameter(Mandatory=$False, ParameterSetName="package")]
     [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
-    [string]$ReleaseConfigName = '',
+    [string]$BuildConfigName = 'kicad-nightly',
 
     [Parameter(Mandatory=$False, ParameterSetName="build")]
     [Parameter(Mandatory=$False, ParameterSetName="package")]
@@ -250,22 +251,22 @@ if ( Test-Path $settingsPath ) {
 # Load release if set
 ###
 
-$releaseConfigured = $false
-$releaseConfig = @{}
-$releasesPath = Join-Path -Path $PSScriptRoot -ChildPath "\releases"
+$buildConfigured = $false
+$buildConfig = @{}
+$buildConfigsPath = Join-Path -Path $PSScriptRoot -ChildPath "\build-configs"
 
-if( $ReleaseConfigName ) {
-    $releasePath = Join-Path -Path $releasesPath -ChildPath "$ReleaseConfigName.json"
+if( $BuildConfigName ) {
+    $buildConfigPath = Join-Path -Path $buildConfigsPath -ChildPath "$BuildConfigName.json"
     
-    if ( -Not (Test-Path $releasePath) ) {
-        Write-Error "Release $Release not found"
+    if ( -Not (Test-Path $buildConfigPath) ) {
+        Write-Error "Build Config ""$BuildConfigName"" not found"
         Exit [ExitCodes]::ReleaseDoesNotExit
     }
     
-    $releaseConfig = Get-Content -Path $releasePath | ConvertFrom-Json
-    $releaseConfigured = $true
+    $buildConfig = Get-Content -Path $buildConfigPath | ConvertFrom-Json
+    $BuildConfigName = $true
 
-    Write-Host "Loaded release config $($releaseConfig.name)" -ForegroundColor Yellow
+    Write-Host "Loaded release config $($buildConfig.name)" -ForegroundColor Yellow
 }
 
 
@@ -502,7 +503,7 @@ function script:Get-Source {
         [Parameter(Mandatory=$False)]
         [bool]$latest = $False,
         [Parameter(Mandatory=$False)]
-        [string]$tag = ""
+        [string]$ref = ""
     )
 
     if(![System.IO.Directory]::Exists($dest))
@@ -522,9 +523,23 @@ function script:Get-Source {
         }
     }
 
-    if( $tag )
+    if( ($sourceType -eq [SourceType]::git) -and $ref )
     {
-        git -C "$dest" fetch --tags
+        $gitCheckTag = ""
+        $gitCheckBranch = ""
+        if( $ref )
+        {
+            if( $ref.StartsWith("branch/") )
+            {
+                $gitCheckBranch = $ref.Replace("branch/", "")
+            }
+            elseif ($ref.StartsWith("tag/") )
+            {
+                $gitCheckTag = $ref.Replace("branch/", "")
+            }
+        }
+
+        git -C "$dest" fetch --all --tags
         if ($LastExitCode -ne 0) {
             Write-Error "Error git clean"
             Exit [ExitCodes]::GitFetch
@@ -542,34 +557,11 @@ function script:Get-Source {
             Exit [ExitCodes]::GitCleanFailure
         }
 
-        git -C "$dest" checkout tags/$tag
-        if ($LastExitCode -ne 0) {
-            Write-Error "Error git clean"
-            Exit [ExitCodes]::GitCheckoutTag
-        }
-    }
-    else
-    {
-        if($sourceType -eq [SourceType]::git)
-        {
-            git -C "$dest" reset --hard
-            if ($LastExitCode -ne 0) {
-                Write-Error "Error git reset"
-                Exit [ExitCodes]::GitResetFailure
-            }
-
-            git -C "$dest" clean -f
-            if ($LastExitCode -ne 0) {
-                Write-Error "Error git clean"
-                Exit [ExitCodes]::GitCleanFailure
-            }
-
-            git -C "$dest" checkout master
-            if ($LastExitCode -ne 0) {
-                Write-Error "Error git checkout branch"
-                Exit [ExitCodes]::GitCheckoutBranch
-            }
-
+        if( $gitCheckTag -ne "" ) {
+            git -C "$dest" checkout tags/$gitCheckTag
+        } elseif ( $gitCheckBranch -ne "" ) {
+            git -C "$dest" checkout origin/$gitCheckBranch
+            
             if($latest)
             {
                 git -C "$dest" pull --rebase
@@ -580,9 +572,12 @@ function script:Get-Source {
                 }
             }
         }
+
+        if ($LastExitCode -ne 0) {
+            Write-Error "Error git checkout ref"
+            Exit [ExitCodes]::GitCheckoutTag
+        }
     }
-
-
 }
 
 function Get-Source-Path([string]$subfolder) {
@@ -783,10 +778,10 @@ function Build-Kicad {
     Pop-Location
 }
 
-function script:Get-Source-Tag ([string] $sourceKey) {
-    if(  $releaseConfigured -and $releaseConfig.sources.PSObject.Properties.Match($sourceKey) )
+function script:Get-Source-Ref ([string] $sourceKey) {
+    if(  $buildConfig.sources.PSObject.Properties.Match($sourceKey) )
     {
-        return $releaseConfig.sources.$sourceKey.tag
+        return $buildConfig.sources.$sourceKey.ref
     }
     else {
         return ""
@@ -809,31 +804,31 @@ function Start-Build {
                -dest (Get-Source-Path kicad) `
                -sourceType git `
                -latest $latest `
-               -tag (Get-Source-Tag -sourceKey "kicad")
+               -ref (Get-Source-Ref -sourceKey "kicad")
 
     Get-Source -url https://gitlab.com/kicad/libraries/kicad-symbols.git `
                -dest (Get-Source-Path kicad-symbols) `
                -sourceType git `
                -latest $latest `
-               -tag (Get-Source-Tag -sourceKey "symbols")
+               -ref (Get-Source-Ref -sourceKey "symbols")
 
     Get-Source -url https://gitlab.com/kicad/libraries/kicad-footprints.git `
                -dest (Get-Source-Path kicad-footprints) `
                -sourceType git `
                -latest $latest `
-               -tag (Get-Source-Tag -sourceKey "footprints")
+               -ref (Get-Source-Ref -sourceKey "footprints")
 
     Get-Source -url https://gitlab.com/kicad/libraries/kicad-packages3D.git `
                -dest (Get-Source-Path kicad-packages3D) `
                -sourceType git `
                -latest $latest `
-               -tag (Get-Source-Tag -sourceKey "3dmodels")
+               -ref (Get-Source-Ref -sourceKey "3dmodels")
 
     Get-Source -url https://gitlab.com/kicad/libraries/kicad-templates.git `
                -dest (Get-Source-Path kicad-templates) `
                -sourceType git `
                -latest $latest `
-               -tag (Get-Source-Tag -sourceKey "templates")
+               -ref (Get-Source-Ref -sourceKey "templates")
 
     Build-KiCad -arch $arch -buildType $buildType
     Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-symbols
@@ -1110,24 +1105,8 @@ function Build-Vcpkg {
     # Setup dependencies
     $triplet = Get-Vcpkg-Triplet -Arch $arch
 
-
-    $dependencies = @( "boost",
-                        "pixman", # required for cairo
-                        "cairo",
-                        "curl",
-                        "harfbuzz",
-                        "glew",
-                        "gettext",
-                        "glm",
-                        "icu",
-                        "libxslt",
-                        "ngspice",
-                        "opencascade",
-                        "opengl",
-                        "python3",
-                        "wxwidgets",
-                        "wxpython",
-                        "zlib")
+    $dependencies = @()
+    $dependencies = $dependencies + $buildConfig.vcpkg.dependencies
 
     # Format the dependencies with the triplet
     for ($i = 0; $i -lt $dependencies.Count; $i++) {
@@ -1159,13 +1138,12 @@ function Build-Vcpkg {
 
 function Get-KiCad-PackageVersion {
 
-    if( $releaseConfigured )
+    if( $buildConfig.train -eq "stable" )
     {
-        return $releaseConfig.package_version
+        return $buildConfig.package_version
     }
     else
     {
-
         Push-Location (Get-Source-Path kicad)
     
         $revCount = (git rev-list --count --first-parent HEAD)
@@ -1173,7 +1151,7 @@ function Get-KiCad-PackageVersion {
     
         Pop-Location
     
-        return "msvc.r$revCount.$commitHash"
+        return "r$revCount.$commitHash"
     }
 }
 
@@ -1278,42 +1256,8 @@ function Start-Prepare-Package {
     # All libraries to copy _should use a wildcard at the end
     # This is to copy both the .dll and .pdb
     # Or only .dll based on switch
-    $vcpkgBinCopy = @( "boost*",
-                        "TK*",
-                        "wx*",
-                        "jpeg62*",
-                        "libpng16*",
-                        "tiff*",
-                        "zlib*",
-                        "libcurl*",
-                        "python*",
-                        "glew32*",
-                        "cairo*",
-                        "libexpat*",
-                        "libexslt*", #xsltproc
-                        "libxslt*",  #xsltproc
-                        "libxml*",
-                        "lzma*",
-                        "harfbuzz*",
-                        "fontconfig*",
-                        "freetype*",
-                        "bz2*",
-                        "brotli*",
-                        "charset*",
-                        "libwebpmux*",
-                        "libcrypto*",
-                        "libssl*",
-                        "libffi*",
-                        "ngspice*",
-                        "pthread*",
-                        "turbojpeg*",
-                        "zstd*",
-                        "sqlite*",
-                        "icu*",
-                        "iconv*",
-                        "intl*"
-                    )
-
+    $vcpkgBinCopy = @()
+    $vcpkgBinCopy = $vcpkgBinCopy + $buildConfig.vcpkg.package_globs
 
     $vcpkgInstalledBin = Join-Path -Path $vcpkgInstalledRoot -ChildPath "bin\"
     $destBin = Join-Path -Path $destRoot -ChildPath "bin\"
@@ -1484,7 +1428,7 @@ function Start-Package-Nsis {
         $outTags = "$outTags-lite"
     }
 
-    $outFileName = "kicad-$packageVersion-$nsisArch$outTags.exe"
+    $outFileName = "$($buildConfig.output_prefix)$packageVersion-$nsisArch$outTags.exe"
     
     $destKicadShare = Join-Path -Path $destRoot -ChildPath "share\kicad"
 
@@ -1947,14 +1891,7 @@ if( $Vcpkg )
 
 if( $Build )
 {
-    if( $releaseConfigured )
-    {
-        Start-Build -arch $Arch -buildType $releaseConfig.build_mode -latest $true
-    }
-    else 
-    {
-        Start-Build -arch $Arch -buildType $BuildType -latest $Latest
-    }
+    Start-Build -arch $Arch -buildType $buildConfig.build_mode -latest $Latest
 }
 
 if( $MsixAssets )
@@ -1964,26 +1901,14 @@ if( $MsixAssets )
 
 if( $PreparePackage -or ($Package -and $Prepare) )
 {
-    if( $releaseConfigured )
-    {
-        Start-Prepare-Package -arch $Arch -buildType $BuildType -includeVcpkgDebugSymbols $false -lite $false -sign $Sign
-    }
-    else {
-        Start-Prepare-Package -arch $Arch -buildType $BuildType -includeVcpkgDebugSymbols $IncludeVcpkgDebugSymbols.IsPresent -lite $Lite -sign $Sign
-    }
+    Start-Prepare-Package -arch $Arch -buildType $buildConfig.build_mode -includeVcpkgDebugSymbols $false -lite $Lite -sign $Sign
 }
 
 if( $Package )
 {
     if( $PackType -eq 'nsis' )
     {
-        if( $releaseConfigured )
-        {
-            Start-Package-Nsis -arch $Arch -buildType $releaseConfig.build_mode -includeVcpkgDebugSymbols $false -lite $false -postCleanup $false -sign $Sign
-        }
-        else {
-            Start-Package-Nsis -arch $Arch -buildType $BuildType -includeVcpkgDebugSymbols $IncludeVcpkgDebugSymbols -lite $Lite -postCleanup $PostCleanup -sign $Sign
-        }
+        Start-Package-Nsis -arch $Arch -buildType $buildConfig.build_mode -includeVcpkgDebugSymbols $false -lite $Lite -postCleanup $PostCleanup -sign $Sign
     }
     elseif( $PackType -eq 'msix' )
     {
@@ -1998,12 +1923,6 @@ if( $Package )
     
     if( $DebugSymbols )
     {
-        if( $releaseConfigured )
-        {
-            Start-Package-Pdb -arch $Arch -buildType $releaseConfig.build_mode
-        }
-        else {
-            Start-Package-Pdb -arch $Arch -buildType $BuildType
-        }
+        Start-Package-Pdb -arch $Arch -buildType $buildConfig.build_mode
     }
 }
