@@ -561,16 +561,6 @@ function script:Get-Source {
             git -C "$dest" checkout tags/$gitCheckTag
         } elseif ( $gitCheckBranch -ne "" ) {
             git -C "$dest" checkout origin/$gitCheckBranch
-            
-            if($latest)
-            {
-                git -C "$dest" pull --rebase
-
-                if ($LastExitCode -ne 0) {
-                    Write-Error "Error pull rebase"
-                    Exit [ExitCodes]::GitPullRebaseFailure
-                }
-            }
         }
 
         if ($LastExitCode -ne 0) {
