@@ -31,7 +31,7 @@ def do_build(arches) {
       powershell "Write-Host Doing build for ${arch} ${build_type}"
       try {
         if(params.RELEASE) {
-          powershell ".\\build.ps1 -Build -Arch ${arch} -ReleaseConfigName ${params.RELEASE_CONFIG}"
+          powershell ".\\build.ps1 -Build -Arch ${arch} -BuildConfigName ${params.BUILD_CONFIG}"
         }
         else {
           powershell ".\\build.ps1 -Build -Latest -Arch ${arch} -BuildType ${build_type}"
@@ -73,7 +73,7 @@ def do_package(arches, lite) {
       try {
         if(params.RELEASE) {
             powershell "Write-Host Packaging full release"
-            powershell ".\\build.ps1 -Package -Arch ${arch} -ReleaseConfigName ${params.RELEASE_CONFIG} -DebugSymbols -Prepare \$False"
+            powershell ".\\build.ps1 -Package -Arch ${arch} -BuildConfigName ${params.RELEASE_CONFIG} -DebugSymbols -Prepare \$False"
         } else if( lite ) {
             powershell "Write-Host Building lite package"
             powershell ".\\build.ps1 -Package -Arch ${arch} -BuildType ${build_type} -Lite -Prepare \$False"
@@ -101,7 +101,7 @@ pipeline {
         booleanParam(name: 'LITE_PKG_ONLY', defaultValue: false, description: 'Skip building the full installer')
         booleanParam(name: 'CLEAN_WS', defaultValue: false, description: 'Clean workspace')
         booleanParam(name: 'RELEASE', defaultValue: false, description: 'Build a release')
-        text(name: 'RELEASE_CONFIG', defaultValue: '', description: '')
+        text(name: 'BUILD_CONFIG', defaultValue: '', description: '')
     }
 
 
