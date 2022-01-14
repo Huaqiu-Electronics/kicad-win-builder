@@ -298,7 +298,7 @@ pipeline {
               
               script {
                 if (params.RELEASE == true) {
-                  sh "s3cmd put kicad-*.exe s3://kicad-downloads/windows/stable/"
+              //    sh "s3cmd put kicad-*.exe s3://kicad-downloads/windows/stable/"
                 } else {
                   sh "s3cmd put kicad-*.exe s3://kicad-downloads/windows/nightly/"
                 }
@@ -309,7 +309,7 @@ pipeline {
               
               script {
                 if (params.RELEASE == true) {
-                  sh "s3cmd put kicad*-pdbs.zip s3://kicad-downloads/windows/stable/"
+             //     sh "s3cmd put kicad*-pdbs.zip s3://kicad-downloads/windows/stable/"
                 } else {
                   sh "s3cmd put kicad*-pdbs.zip s3://kicad-downloads/windows/nightly/"
                 }
