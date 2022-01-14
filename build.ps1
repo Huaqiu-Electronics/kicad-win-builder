@@ -535,7 +535,7 @@ function script:Get-Source {
             }
             elseif ($ref.StartsWith("tag/") )
             {
-                $gitCheckTag = $ref.Replace("branch/", "")
+                $gitCheckTag = $ref.Replace("tag/", "")
             }
         }
 
