@@ -73,7 +73,7 @@ def do_package(arches, lite) {
       try {
         if(params.RELEASE) {
             powershell "Write-Host Packaging full release"
-            powershell ".\\build.ps1 -Package -Arch ${arch} -BuildConfigName ${params.RELEASE_CONFIG} -DebugSymbols -Prepare \$False"
+            powershell ".\\build.ps1 -Package -Arch ${arch} -BuildConfigName ${params.BUILD_CONFIG} -DebugSymbols -Prepare \$False"
         } else if( lite ) {
             powershell "Write-Host Building lite package"
             powershell ".\\build.ps1 -Package -Arch ${arch} -BuildType ${build_type} -Lite -Prepare \$False"
