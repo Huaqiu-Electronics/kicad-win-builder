@@ -228,7 +228,7 @@ pipeline {
                         }
                       }
                   
-                      stash includes: 'jenkins-filesign-helper.bat', name: 'filesign-helper'
+                      stash includes: 'jenkins-filesign-helper.bat', name: 'filesign_helper'
                   }
               }
               stage ('Sign Full Files') {
