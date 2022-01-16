@@ -30,7 +30,7 @@ def do_build(arches) {
     arches.each { arch ->
       powershell "Write-Host Doing build for ${arch} ${build_type}"
       try {
-        if(params.RELEASE) {
+        if(params.TRAIN != 'nightly') {
           powershell ".\\build.ps1 -Build -Arch ${arch} -BuildConfigName ${params.BUILD_CONFIG}"
         }
         else {
@@ -71,7 +71,7 @@ def do_package(arches, lite) {
     arches.each { arch ->
       powershell "Write-Host Doing package for ${arch} ${build_type}"
       try {
-        if(params.RELEASE) {
+        if(params.TRAIN != 'nightly') {
             powershell "Write-Host Packaging full release"
             powershell ".\\build.ps1 -Package -Arch ${arch} -BuildConfigName ${params.BUILD_CONFIG} -DebugSymbols -Prepare \$False"
         } else if( lite ) {
@@ -100,7 +100,7 @@ pipeline {
     parameters {
         booleanParam(name: 'LITE_PKG_ONLY', defaultValue: false, description: 'Skip building the full installer')
         booleanParam(name: 'CLEAN_WS', defaultValue: false, description: 'Clean workspace')
-        booleanParam(name: 'RELEASE', defaultValue: false, description: 'Build a release')
+        choice(name: 'TRAIN', choices: ['nightly', 'release', 'testing'], description: '')
         text(name: 'BUILD_CONFIG', defaultValue: '', description: '')
     }
 
@@ -140,7 +140,7 @@ pipeline {
 
       stage('Package Lite') {
           when {
-             expression { params.RELEASE == false }
+             expression { params.TRAIN == 'nightly' }
           }
           stages {
               stage ('Prepare Lite') {
@@ -294,7 +294,7 @@ pipeline {
         
               script {
                 unstash 'signed_installer_exe_full'
-                if( params.RELEASE == false ) {
+                if( params.TRAIN == 'nightly' ) {
                   unstash 'signed_installer_exe_lite'
                 }
               }
@@ -303,10 +303,10 @@ pipeline {
               archiveArtifacts allowEmptyArchive: false, artifacts: 'kicad*.exe', caseSensitive: true, defaultExcludes: true, fingerprint: true, onlyIfSuccessful: true
               
               script {
-                if (params.RELEASE == true) {
-              //    sh "s3cmd put kicad-*.exe s3://kicad-downloads/windows/stable/"
-                } else {
+                if (params.TRAIN == 'nightly') {
                   sh "s3cmd put kicad-*.exe s3://kicad-downloads/windows/nightly/"
+                } else if (params.TRAIN == 'testing') {
+                  sh "s3cmd put kicad-*.exe s3://kicad-downloads/windows/testing/"
                 }
               }
 
@@ -314,10 +314,10 @@ pipeline {
               archiveArtifacts allowEmptyArchive: false, artifacts: 'kicad*-pdbs.zip', caseSensitive: true, defaultExcludes: true, fingerprint: true, onlyIfSuccessful: true
               
               script {
-                if (params.RELEASE == true) {
-             //     sh "s3cmd put kicad*-pdbs.zip s3://kicad-downloads/windows/stable/"
-                } else {
+                if (params.TRAIN == 'nightly') {
                   sh "s3cmd put kicad*-pdbs.zip s3://kicad-downloads/windows/nightly/"
+                } else if (params.TRAIN == 'testing') {
+                  sh "s3cmd put kicad*-pdbs.zip s3://kicad-downloads/windows/testing/"
                 }
               }
               
