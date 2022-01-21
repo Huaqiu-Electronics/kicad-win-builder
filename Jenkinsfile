@@ -102,6 +102,7 @@ pipeline {
         booleanParam(name: 'CLEAN_WS', defaultValue: false, description: 'Clean workspace')
         choice(name: 'TRAIN', choices: ['nightly', 'release', 'testing'], description: '')
         text(name: 'BUILD_CONFIG', defaultValue: '', description: '')
+        text(name: 'TESTING_FOLDER', defaultValue: '', description: '')
     }
 
 
@@ -306,7 +307,7 @@ pipeline {
                 if (params.TRAIN == 'nightly') {
                   sh "s3cmd put kicad-*.exe s3://kicad-downloads/windows/nightly/"
                 } else if (params.TRAIN == 'testing') {
-                  sh "s3cmd put kicad-*.exe s3://kicad-downloads/windows/testing/"
+                  sh "s3cmd put kicad-*.exe s3://kicad-downloads/windows/testing/${params.TESTING_FOLDER}/"
                 }
               }
 
@@ -317,7 +318,7 @@ pipeline {
                 if (params.TRAIN == 'nightly') {
                   sh "s3cmd put kicad*-pdbs.zip s3://kicad-downloads/windows/nightly/"
                 } else if (params.TRAIN == 'testing') {
-                  sh "s3cmd put kicad*-pdbs.zip s3://kicad-downloads/windows/testing/"
+                  sh "s3cmd put kicad*-pdbs.zip s3://kicad-downloads/windows/testing/${params.TESTING_FOLDER}/"
                 }
               }
               
