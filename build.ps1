@@ -740,6 +740,7 @@ function Build-Kicad {
             -DKICAD_BUILD_QA_TESTS="OFF" `
             -DKICAD_WIN32_DPI_AWARE="ON" `
             -DKICAD_BUILD_I18N="ON" `
+            -DKICAD_USE_3DCONNEXION="ON" `
             2>&1 | % ToString
     }
 
