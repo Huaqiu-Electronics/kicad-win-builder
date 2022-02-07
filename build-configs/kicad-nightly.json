@@ -27,6 +27,7 @@
             "pixman",
             "cairo",
             "curl",
+            "freetype",
             "harfbuzz",
             "glew",
             "gettext",
