@@ -105,6 +105,30 @@ param(
     [switch]$Sign,
     
     [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
+    [bool]$SignAKV = $False,
+    
+    [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
+    [string]$AKVAppId = "",
+
+    [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
+    [string]$AKVAppSecret = "",
+
+    [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
+    [string]$AKVTenantId = "",
+
+    [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
+    [string]$AKVCertName = "",
+
+    [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
+    [string]$AKVUrl = "",
+    
+    [Parameter(Mandatory=$False, ParameterSetName="package")]
     [bool]$PostCleanup = $False
 )
 
@@ -206,6 +230,9 @@ $swigWinPath = ($supportPathRoot+"/$swigwinFolder")
 $gettextPath = ($supportPathRoot+"/$gettextFolderName/bin")
 $doxygenPath = ($supportPathRoot+"/$doxygenFolderName")
 $nsisPath = Join-Path -Path $supportPathRoot -ChildPath "nsis/bin/"
+
+$azureSignToolVersion = "3.0.0"
+$azureSignToolPath = Join-Path -Path $supportPathRoot -ChildPath "azuresigntool-$azureSignToolVersion"
 
 $env:Path = $swigWinPath+";"+$gettextPath+";"+$nsisPath+";"+$doxygenPath+";"+$env:PATH
 
@@ -335,6 +362,12 @@ function Set-Aliases()
     {
         $tmp = Join-Path -Path $supportPathRoot -ChildPath "$7zaFolderName/7za.exe"
         Set-Alias 7za $tmp -Option AllScope -Scope Global
+    }
+    
+    if( -not (Test-Path alias:azuresigntool ) )
+    {
+        $tmp = Join-Path -Path $azureSignToolPath -ChildPath "azuresigntool.exe"
+        Set-Alias azuresigntool $tmp -Option AllScope -Scope Global
     }
 }
 
@@ -1013,6 +1046,9 @@ function Start-Init {
              -Checksum $gettextChecksum `
              -ExtractZip $true
 
+    
+    dotnet tool install AzureSignTool --version $azureSignToolVersion --tool-path $azureSignToolPath
+
     $7zaSource = Join-Path -Path $PSScriptRoot -ChildPath "\support\7z2102-extra.zip"
     Extract-Tool -ToolName "7za" `
              -SourcePath $7zaSource `
@@ -1176,11 +1212,24 @@ function Sign-File {
 
     Write-Host "Signing file: $File" -ForegroundColor Blue
 
-    signtool.exe sign /a /n "$($settings.SignSubjectName)" /fd sha256 /tr http://timestamp.sectigo.com /td sha256 /q $File
-
-    if ($LastExitCode -ne 0) {
-        Write-Error "Error signing file $File"
-        Exit [ExitCodes]::SignFail
+    if( $SignAKV ) {
+        azuresigntool sign -kvt "$AKVTenantId" -fd sha256 `
+                            -td sha256 -kvu "$AKVUrl" -kvi "$AKVAppId" `
+                            -kvs "$AKVAppSecret" -kvc "$AKVCertName" `
+                            -tr http://timestamp.digicert.com -q "$File"
+                        
+        if ($LastExitCode -ne 0) {
+            Write-Error "Error signing file $File, exit code $LastExitCode"
+            Exit [ExitCodes]::SignFail
+        }
+    } 
+    else {
+        signtool.exe sign /a /n "$($settings.SignSubjectName)" /fd sha256 /tr http://timestamp.sectigo.com /td sha256 /q $File
+    
+        if ($LastExitCode -ne 0) {
+            Write-Error "Error signing file $File, exit code $LastExitCode"
+            Exit [ExitCodes]::SignFail
+        }
     }
 }
 
@@ -1337,14 +1386,20 @@ function Start-Prepare-Package {
     Copy-Item $xsltprocSource -Destination $destBin -Recurse  -Force
 
     if( $sign ) {
-        Sign-File -File (Join-Path -Path $destBin -ChildPath "kicad.exe")
-        Sign-File -File (Join-Path -Path $destBin -ChildPath "eeschema.exe")
-        Sign-File -File (Join-Path -Path $destBin -ChildPath "pcbnew.exe")
-        Sign-File -File (Join-Path -Path $destBin -ChildPath "gerbview.exe")
-        Sign-File -File (Join-Path -Path $destBin -ChildPath "pl_editor.exe")
-        Sign-File -File (Join-Path -Path $destBin -ChildPath "bitmap2component.exe")
-        Sign-File -File (Join-Path -Path $destBin -ChildPath "pcb_calculator.exe")
-        Sign-File -File (Join-Path -Path $destBin -ChildPath "kicad2step.exe")
+        Get-ChildItem $destBin -Filter *.exe |
+        Foreach-Object {
+            Sign-File -File $_.FullName
+        }
+        
+        Get-ChildItem $destBin -Filter *.dll |
+        Foreach-Object {
+            Sign-File -File $_.FullName
+        }
+        
+        Get-ChildItem $destBin -Filter *.kiface |
+        Foreach-Object {
+            Sign-File -File $_.FullName
+        }
     }
 
     Write-Host "Package prep complete" -ForegroundColor Green

@@ -49,41 +49,32 @@ def do_build(arches) {
     }
 }
 
-def do_prepackage(arches, lite) {
-    arches.each { arch ->
-      powershell "Write-Host Doing pre-package for ${arch} ${build_type}"
-      try {
-        if(lite) {
-            powershell ".\\build.ps1 -PreparePackage -Arch ${arch} -BuildType ${build_type} -Lite"
-        } else {
-            powershell ".\\build.ps1 -PreparePackage -Arch ${arch} -BuildType ${build_type}"
-        }
-      } catch (err) {
-        currentBuild.result='UNSTABLE'
-        echo 'Exception occurred: ' + err.toString()
-        powershell "Write-Host 'Failed package for ${arch} ${build_type}' -ForegroundColor Red"
-      }
-    }
-}
-
 def do_package(arches, lite) {
     arches.each { arch ->
       powershell "Write-Host Doing package for ${arch} ${build_type}"
-      try {
-        if(params.TRAIN != 'nightly') {
-            powershell "Write-Host Packaging full release"
-            powershell ".\\build.ps1 -Package -Arch ${arch} -BuildConfigName ${params.BUILD_CONFIG} -DebugSymbols -Prepare \$False"
-        } else if( lite ) {
-            powershell "Write-Host Building lite package"
-            powershell ".\\build.ps1 -Package -Arch ${arch} -BuildType ${build_type} -Lite -Prepare \$False"
-        } else {
-            powershell ".\\build.ps1 -Package -Arch ${arch} -BuildType ${build_type} -DebugSymbols -Prepare \$False"
+
+      withCredentials([azureServicePrincipal('kicad-azuresigntool')]) {
+        try {
+          $signString = ' -Sign -SignAKV $True -AKVUrl "https://kicad-codesign.vault.azure.net/" -AKVTenantId $Env:AZURE_TENANT_ID -AKVAppId $Env:AZURE_CLIENT_ID -AKVAppSecret $Env:AZURE_CLIENT_SECRET -AKVCertName KiCadCodeSign'
+
+          if(params.TRAIN != 'nightly') {
+              powershell "Write-Host Packaging full release"
+              $cmd = ".\\build.ps1 -Package -Arch ${arch} -BuildConfigName ${params.BUILD_CONFIG} -DebugSymbols -Prepare \$True" + $signString
+          } else if( lite ) {
+              powershell "Write-Host Building lite package"
+              $cmd = ".\\build.ps1 -Package -Arch ${arch} -BuildType ${build_type} -Lite -Prepare \$True" + $signString
+          } else {
+              $cmd = ".\\build.ps1 -Package -Arch ${arch} -BuildType ${build_type} -DebugSymbols -Prepare \$True" + $signString
+          }
+          
+          powershell  $cmd
+        } catch (err) {
+          currentBuild.result='UNSTABLE'
+          echo 'Exception occurred: ' + err.toString()
+          powershell "Write-Host 'Failed package for ${arch} ${build_type}' -ForegroundColor Red"
         }
-      } catch (err) {
-        currentBuild.result='UNSTABLE'
-        echo 'Exception occurred: ' + err.toString()
-        powershell "Write-Host 'Failed package for ${arch} ${build_type}' -ForegroundColor Red"
       }
+
     }
 }
 
@@ -100,7 +91,7 @@ pipeline {
         booleanParam(name: 'LITE_PKG_ONLY', defaultValue: false, description: 'Skip building the full installer')
         booleanParam(name: 'CLEAN_WS', defaultValue: false, description: 'Clean workspace')
         choice(name: 'TRAIN', choices: ['nightly', 'release', 'testing'], description: '')
-        text(name: 'BUILD_CONFIG', defaultValue: '', description: '')
+        text(name: 'BUILD_CONFIG', defaultValue: '', description: 'kicad-nightly')
         text(name: 'TESTING_FOLDER', defaultValue: '', description: '')
         booleanParam(name: 'BUILD_X64', defaultValue: true, description: 'Build 64-bit')
         booleanParam(name: 'BUILD_X86', defaultValue: true, description: 'Build 32-bit')
@@ -115,7 +106,7 @@ pipeline {
                   cleanWs()
                 }
               }
-              checkout([$class: 'GitSCM', branches: [[name: '*/master']],
+              checkout([$class: 'GitSCM', branches: [[name: '*/akv']],
               doGenerateSubmoduleConfigurations: false,
               extensions: [],
               submoduleCfg: [],
@@ -150,153 +141,29 @@ pipeline {
           }
       }
 
-      stage('Package Lite') {
-          when {
-             expression { params.TRAIN == 'nightly' }
-          }
-          stages {
-              stage ('Prepare Lite') {
-                  steps {
-                      script {
-                        do_prepackage(archs_to_pack, true)
-                      }
-                      stash includes: '.out/**/bin/*.exe', name: 'unsigned_exe'
-                      stash includes: '.out/**/bin/*.dll', name: 'unsigned_dll'
-                      script {
-                        try {
-                          stash includes: '.out/**/bin/*.kiface', name: 'unsigned_kiface'
-                        } catch (err) {
-                        }
-                      }
-                      stash includes: 'jenkins-filesign-helper.bat', name: 'filesign_helper'
-                  }
+      stage ('Package Lite') {
+          steps {
+              script {
+                do_package(archs_to_pack, true)
               }
-              stage ('Sign Lite Files') {
-                  agent { label 'msys2' }
-                  steps {
-                      cleanWs()
-                      unstash 'unsigned_exe'
-                      unstash 'unsigned_dll'
-                      script {
-                        try {
-                          unstash 'unsigned_kiface'
-                        } catch (err) {
-                        }
-                      }
-                      unstash 'filesign_helper'
-
-                      script {
-                        archs_to_pack.each { arch ->
-                          bat "jenkins-filesign-helper.bat \"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.18362.0\\x86\\signtool.exe\" ${arch}-windows-Release"
-                        }
-                      }
-                      stash includes: '.out/**/bin/*', name: 'signed_exe_dlls'
-                  }
-              }
-              stage ('Package Lite') {
-                  steps {
-                      unstash 'signed_exe_dlls'
-                      script {
-                        do_package(archs_to_pack, true)
-                      }
-                      dir (".out") {
-                        stash includes: 'kicad*exe', name: 'installer_exe_lite'
-                        bat "DEL /Q /F \"kicad*-lite.exe\"" 
-                      }
-                  }
-              }
-              stage ('Sign Lite Installer') {
-                  agent { label 'msys2' }
-                  steps {
-                      cleanWs()
-                      unstash 'installer_exe_lite'
-                      bat "dir"
-                      bat """
-        set SIGNTOOL="C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.18362.0\\x86\\signtool.exe"
-        REM cd .out
-        dir
-        %SIGNTOOL% sign /a /a /n "KiCad Services Corporation" /fd sha256 /tr http://timestamp.sectigo.com /td sha256 /v kicad-*exe
-        """
-                      stash includes: 'kicad*-lite.exe', name: 'signed_installer_exe_lite'
-                  }
+              dir (".out") {
+                stash includes: 'kicad*exe', name: 'signed_installer_exe_lite'
+                bat "DEL /Q /F \"kicad*-lite.exe\"" 
               }
           }
       }
 
-      stage('Package Full') {
-          stages {
-              stage ('Prepare Full') {
-                  steps {
-                      script {
-                        do_prepackage(archs_to_pack, false)
-                      }
-                      stash includes: '.out/**/bin/*.exe', name: 'unsigned_exe'
-                      stash includes: '.out/**/bin/*.dll', name: 'unsigned_dll'
-                      
-                      script {
-                        try {
-                          stash includes: '.out/**/bin/*.kiface', name: 'unsigned_kiface'
-                        } catch (err) {
-                        }
-                      }
-                  
-                      stash includes: 'jenkins-filesign-helper.bat', name: 'filesign_helper'
-                  }
-              }
-              stage ('Sign Full Files') {
-                  agent { label 'msys2' }
-                  steps {
-                      cleanWs()
-                      unstash 'unsigned_exe'
-                      unstash 'unsigned_dll'
-                      
-                      script {
-                        try {
-                          unstash 'unsigned_kiface'
-                        } catch (err) {
-                        }
-                      }
-                    
-                      unstash 'filesign_helper'
-
-                      script {
-                        archs_to_pack.each { arch ->
-                          bat "jenkins-filesign-helper.bat \"C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.18362.0\\x86\\signtool.exe\" ${arch}-windows-Release"
-                        }
-                      }
-                      stash includes: '.out/**/bin/*', name: 'signed_exe_dlls'
-                  }
-              }
-              stage ('Package Full') {
-                  steps {
-                      unstash 'signed_exe_dlls'
-                      script {
-                        do_package(archs_to_pack, false)
-                      }
-                      dir (".out") {
-                        stash includes: 'kicad*exe', name: 'installer_exe_full'
-                        stash includes: 'kicad*-pdbs.zip', name: 'pdbs'
-                      }
-                  }
-              }
-              stage ('Sign Full Installer') {
-                  agent { label 'msys2' }
-                  steps {
-                      cleanWs()
-                      unstash 'installer_exe_full'
-                      bat "dir"
-                      bat """
-        set SIGNTOOL="C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.18362.0\\x86\\signtool.exe"
-        REM cd .out
-        dir
-        %SIGNTOOL% sign /a /a /n "KiCad Services Corporation" /fd sha256 /tr http://timestamp.sectigo.com /td sha256 /v kicad-*exe
-        """
-                      stash includes: 'kicad*exe', name: 'signed_installer_exe_full'
-                  }
-              }
-          }
+      stage ('Package Full') {
+        steps {
+            script {
+              do_package(archs_to_pack, false)
+            }
+            dir (".out") {
+              stash includes: 'kicad*exe', name: 'signed_installer_exe_full'
+              stash includes: 'kicad*-pdbs.zip', name: 'pdbs'
+            }
+        }
       }
-
 
       stage ('Archive') {
           agent { label 'master' }
