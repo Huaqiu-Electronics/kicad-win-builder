@@ -1047,7 +1047,10 @@ function Start-Init {
              -ExtractZip $true
 
     
-    dotnet tool install AzureSignTool --version $azureSignToolVersion --tool-path $azureSignToolPath
+    if( -not (Test-Path $azureSignToolPath ) )
+    {
+        dotnet tool install AzureSignTool --version $azureSignToolVersion --tool-path $azureSignToolPath
+    }
 
     $7zaSource = Join-Path -Path $PSScriptRoot -ChildPath "\support\7z2102-extra.zip"
     Extract-Tool -ToolName "7za" `
