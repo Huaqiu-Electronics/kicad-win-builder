@@ -198,6 +198,10 @@ $doxygenDownload = "https://www.doxygen.nl/files/doxygen-1.9.3.windows.x64.bin.z
 $doxygenChecksum = "575B1A27CB907675D24F2C348A4D95D9CDD6A2000F6A8D8BFC4C3A20B2E120F5"
 $doxygenFolderName = "doxygen-1.9.3.windows.x64.bin"
 
+$s5cmdDownload = "https://github.com/peak/s5cmd/releases/download/v1.4.0/s5cmd_1.4.0_Windows-64bit.zip"
+$s5cmdChecksum = "085CCD677662C0B4EEA00325AAF04CE62B920D2A37F313AF9616ACE7DDDA537E"
+$s5cmdFolderName = "s5cmd_1.4.0_Windows-64bit"
+
 $7zaFolderName = "7z2102-extra"
 
 $downloadsPathRoot = ($PSScriptRoot+"/.downloads/")
@@ -368,6 +372,12 @@ function Set-Aliases()
     {
         $tmp = Join-Path -Path $azureSignToolPath -ChildPath "azuresigntool.exe"
         Set-Alias azuresigntool $tmp -Option AllScope -Scope Global
+    }
+    
+    if( -not (Test-Path alias:s5cmd ) )
+    {
+        $tmp = Join-Path -Path (Join-Path -Path $supportPathRoot -ChildPath $s5cmdFolderName) -ChildPath "s5cmd.exe"
+        Set-Alias s5cmd $tmp -Option AllScope -Scope Global
     }
 }
 
@@ -1046,6 +1056,14 @@ function Start-Init {
              -Checksum $gettextChecksum `
              -ExtractZip $true
 
+    Get-Tool -ToolName "s5cmd" `
+             -Url $s5cmdDownload `
+             -DestPath (Join-Path -Path $supportPathRoot -ChildPath $s5cmdFolderName) `
+             -DownloadPath ($downloadsPathRoot+"s5cmd.zip") `
+             -Checksum $s5cmdChecksum `
+             -ExtractZip $true `
+             -ZipRelocate $False `
+             -ExtractInSupportRoot $False
     
     if( -not (Test-Path $azureSignToolPath ) )
     {

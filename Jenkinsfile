@@ -147,7 +147,7 @@ pipeline {
                 do_package(archs_to_pack, true)
               }
               dir (".out") {
-                stash includes: 'kicad*exe', name: 'signed_installer_exe_lite'
+                archiveArtifacts allowEmptyArchive: false, artifacts: 'kicad*.exe', caseSensitive: true, defaultExcludes: true, fingerprint: true, onlyIfSuccessful: true
                 bat "DEL /Q /F \"kicad*-lite.exe\"" 
               }
           }
@@ -159,49 +159,14 @@ pipeline {
               do_package(archs_to_pack, false)
             }
             dir (".out") {
-              stash includes: 'kicad*exe', name: 'signed_installer_exe_full'
               stash includes: 'kicad*-pdbs.zip', name: 'pdbs'
+              
+              archiveArtifacts allowEmptyArchive: false, artifacts: 'kicad*.exe', caseSensitive: true, defaultExcludes: true, fingerprint: true, onlyIfSuccessful: true
+              archiveArtifacts allowEmptyArchive: false, artifacts: 'kicad*-pdbs.zip', caseSensitive: true, defaultExcludes: true, fingerprint: true, onlyIfSuccessful: true
+              bat "DEL /Q /F \"kicad*.exe\"" 
+              bat "DEL /Q /F \"kicad*.zip\"" 
             }
         }
       }
-
-      stage ('Archive') {
-          agent { label 'master' }
-          steps {
-
-              cleanWs()
-        
-              script {
-                unstash 'signed_installer_exe_full'
-                if( params.TRAIN == 'nightly' ) {
-                  unstash 'signed_installer_exe_lite'
-                }
-              }
-        
-              sh "pwd"
-              archiveArtifacts allowEmptyArchive: false, artifacts: 'kicad*.exe', caseSensitive: true, defaultExcludes: true, fingerprint: true, onlyIfSuccessful: true
-              
-              script {
-                if (params.TRAIN == 'nightly') {
-                  sh "s3cmd put kicad-*.exe s3://kicad-downloads/windows/nightly/"
-                } else if (params.TRAIN == 'testing') {
-                  sh "s3cmd put kicad-*.exe s3://kicad-downloads/windows/testing/${params.TESTING_FOLDER}/"
-                }
-              }
-
-              unstash 'pdbs'
-              archiveArtifacts allowEmptyArchive: false, artifacts: 'kicad*-pdbs.zip', caseSensitive: true, defaultExcludes: true, fingerprint: true, onlyIfSuccessful: true
-              
-              script {
-                if (params.TRAIN == 'nightly') {
-                  sh "s3cmd put kicad*-pdbs.zip s3://kicad-downloads/windows/nightly/"
-                } else if (params.TRAIN == 'testing') {
-                  sh "s3cmd put kicad*-pdbs.zip s3://kicad-downloads/windows/testing/${params.TESTING_FOLDER}/"
-                }
-              }
-              
-          }
-      }
-
     }
 }
