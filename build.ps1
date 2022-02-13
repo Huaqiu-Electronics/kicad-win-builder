@@ -187,8 +187,9 @@ $swigwinFolder = "swigwin-4.0.2"
 $swigwinDownload = "https://sourceforge.net/projects/swig/files/swigwin/$swigwinFolder/$swigwinFolder.zip/download?use_mirror=pilotfiber"
 $swigwinChecksum = "DAADB32F19FE818CB9B0015243233FC81584844C11A48436385E87C050346559"
 
-$nsisDownload = "https://sourceforge.net/projects/nsis/files/NSIS%203/3.06.1/nsis-3.06.1.zip/download"
-$nsisChecksum = "D463AD11AA191AB5AE64EDB3A439A4A4A7A3E277FCB138254317254F7111FBA7"
+$nsisFolderName = "nsis-3.08"
+$nsisDownload = "https://sourceforge.net/projects/nsis/files/NSIS%203/3.08/nsis-3.08.zip/download"
+$nsisChecksum = "1BB9FC85EE5B220D3869325DBB9D191DFE6537070F641C30FBB275C97051FD0C"
 
 $gettextFolderName = "gettext0.21-iconv1.16-static-64"
 $gettextDownload = "https://github.com/mlocati/gettext-iconv-windows/releases/download/v0.21-v1.16/gettext0.21-iconv1.16-static-64.zip"
@@ -233,7 +234,7 @@ if( -not (Test-Path $outPathRoot ) )
 $swigWinPath = ($supportPathRoot+"/$swigwinFolder")
 $gettextPath = ($supportPathRoot+"/$gettextFolderName/bin")
 $doxygenPath = ($supportPathRoot+"/$doxygenFolderName")
-$nsisPath = Join-Path -Path $supportPathRoot -ChildPath "nsis/bin/"
+$nsisPath = Join-Path -Path (Join-Path -Path $supportPathRoot -ChildPath $nsisFolderName) -ChildPath "bin/"
 
 $azureSignToolVersion = "3.0.0"
 $azureSignToolPath = Join-Path -Path $supportPathRoot -ChildPath "azuresigntool-$azureSignToolVersion"
@@ -358,7 +359,7 @@ function Set-Aliases()
 
     if( -not (Test-Path alias:makensis ) )
     {
-        $tmp = Join-Path -Path $supportPathRoot -ChildPath "nsis/bin/makensis.exe"
+        $tmp = Join-Path -Path (Join-Path -Path $supportPathRoot -ChildPath $nsisFolderName) -ChildPath "bin/makensis.exe"
         Set-Alias makensis $tmp -Option AllScope -Scope Global
     }
     
@@ -1034,12 +1035,10 @@ function Start-Init {
 
     Get-Tool -ToolName "nsis" `
              -Url $nsisDownload `
-             -DestPath ($supportPathRoot+'nsis/') `
+             -DestPath (Join-Path -Path $supportPathRoot -ChildPath $nsisFolderName) `
              -DownloadPath ($downloadsPathRoot+"nsis.zip") `
              -Checksum $nsisChecksum `
              -ExtractZip $true `
-             -ZipRelocate $True `
-             -ZipRelocateFilter ($supportPathRoot+'nsis-*/') `
              -ExtractInSupportRoot $True
 
     Get-Tool -ToolName "vswhere" `
