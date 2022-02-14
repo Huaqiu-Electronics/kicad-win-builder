@@ -57,14 +57,12 @@ def do_package(arches, lite) {
         try {
           $signString = ' -Sign -SignAKV $True -AKVUrl "https://kicad-codesign.vault.azure.net/" -AKVTenantId $Env:AZURE_TENANT_ID -AKVAppId $Env:AZURE_CLIENT_ID -AKVAppSecret $Env:AZURE_CLIENT_SECRET -AKVCertName KiCadCodeSign'
 
-          if(params.TRAIN != 'nightly') {
+          if( lite ) {
+              powershell "Write-Host Building lite package"
+              $cmd = ".\\build.ps1 -Package -Arch ${arch} -BuildConfigName ${params.BUILD_CONFIG} -Lite -Prepare \$True" + $signString
+          } else {
               powershell "Write-Host Packaging full release"
               $cmd = ".\\build.ps1 -Package -Arch ${arch} -BuildConfigName ${params.BUILD_CONFIG} -DebugSymbols -Prepare \$True" + $signString
-          } else if( lite ) {
-              powershell "Write-Host Building lite package"
-              $cmd = ".\\build.ps1 -Package -Arch ${arch} -BuildType ${build_type} -Lite -Prepare \$True" + $signString
-          } else {
-              $cmd = ".\\build.ps1 -Package -Arch ${arch} -BuildType ${build_type} -DebugSymbols -Prepare \$True" + $signString
           }
           
           powershell  $cmd
@@ -142,6 +140,11 @@ pipeline {
       }
 
       stage ('Package Lite') {
+          when {
+              expression {
+                  return params.TRAIN == 'nightly';
+              }
+          }
           steps {
               script {
                 do_package(archs_to_pack, true)
