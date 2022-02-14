@@ -1560,7 +1560,7 @@ function Start-Package-Pdb() {
     $kicadVersion = Get-KiCad-Version
 
     $nsisArch = Get-NSIS-Arch -Arch $arch
-    $outFileName = "kicad-$packageVersion-$nsisArch-pdbs.zip"
+    $outFileName = "$($buildConfig.output_prefix)$packageVersion-$nsisArch-pdbs.zip"
 
     $outPath = Join-Path -Path $outPathRoot -ChildPath $outFileName
 
@@ -1684,7 +1684,7 @@ function Start-Package-Msix {
     Pop-Location
     
     Write-Host "Running makeappx"
-    $outFileName = "kicad-$packageVersion-$arch.msix"
+    $outFileName = "$($buildConfig.output_prefix)$packageVersion-$arch.msix"
     $outFilePath = Join-Path -Path $outPathRoot -ChildPath $outFileName
     makeappx pack /d "$destRoot" /p "$outFilePath" /o 
     if( $LastExitCode -ne 0 )
