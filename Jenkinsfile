@@ -89,7 +89,7 @@ pipeline {
         booleanParam(name: 'LITE_PKG_ONLY', defaultValue: false, description: 'Skip building the full installer')
         booleanParam(name: 'CLEAN_WS', defaultValue: false, description: 'Clean workspace')
         choice(name: 'TRAIN', choices: ['nightly', 'release', 'testing'], description: '')
-        text(name: 'BUILD_CONFIG', defaultValue: '', description: 'kicad-nightly')
+        text(name: 'BUILD_CONFIG', defaultValue: 'kicad-nightly', description: '')
         text(name: 'TESTING_FOLDER', defaultValue: '', description: '')
         booleanParam(name: 'BUILD_X64', defaultValue: true, description: 'Build 64-bit')
         booleanParam(name: 'BUILD_X86', defaultValue: true, description: 'Build 32-bit')
