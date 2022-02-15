@@ -92,7 +92,7 @@ pipeline {
         text(name: 'BUILD_CONFIG', defaultValue: 'kicad-nightly', description: '')
         text(name: 'TESTING_FOLDER', defaultValue: '', description: '')
         booleanParam(name: 'BUILD_X64', defaultValue: true, description: 'Build 64-bit')
-        booleanParam(name: 'BUILD_X86', defaultValue: true, description: 'Build 32-bit')
+        booleanParam(name: 'BUILD_X86', defaultValue: false, description: 'Build 32-bit')
     }
 
 
