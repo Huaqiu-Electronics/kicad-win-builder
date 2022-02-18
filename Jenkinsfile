@@ -104,7 +104,7 @@ pipeline {
                   cleanWs()
                 }
               }
-              checkout([$class: 'GitSCM', branches: [[name: '*/akv']],
+              checkout([$class: 'GitSCM', branches: [[name: '*/master']],
               doGenerateSubmoduleConfigurations: false,
               extensions: [],
               submoduleCfg: [],
