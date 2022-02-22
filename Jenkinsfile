@@ -142,7 +142,7 @@ pipeline {
       stage ('Package Lite') {
           when {
               expression {
-                  return params.TRAIN == 'nightly';
+                  return params.TRAIN == 'nightly' || params.TRAIN == 'testing';
               }
           }
           steps {
