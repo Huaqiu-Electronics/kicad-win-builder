@@ -1,0 +1,73 @@
+
+param(
+    [Parameter(Position = 0, Mandatory=$True, ParameterSetName="publish")]
+    [Switch]$Publish,
+
+    [Parameter(Mandatory=$True, ParameterSetName="publish")]
+	[ValidateScript({Test-Path $_})]
+    [string]$SourceZip,
+
+    [Parameter(Mandatory=$True, ParameterSetName="publish")]
+	[ValidateScript({Test-Path $_})]
+    [string]$SymbolStore,
+    
+    [Parameter(Mandatory=$False, ParameterSetName="publish")]
+    [string]$SymbolStoreProduct = "kicad",
+    
+    [Parameter(Mandatory=$False, ParameterSetName="publish")]
+    [Switch]$CleanOldSymbols
+)
+
+Import-Module ./KiBuild -Force
+
+$supportPathRoot = Join-Path -Path $PSScriptRoot -ChildPath "/.support/"
+$symbolTemp = Join-Path -Path $PSScriptRoot -ChildPath "/.build/symbols-temp/"
+
+$7zaFolderName = "7z2102-extra"
+
+if( -not (Test-Path alias:vswhere ) )
+{
+    $tmp = Join-Path -Path $supportPathRoot -ChildPath "vswhere.exe"
+    Set-Alias vswhere $tmp -Option AllScope -Scope Global
+}
+
+Set-MSVCEnvironment
+
+if( -not (Test-Path alias:7za ) )
+{
+    $tmp = Join-Path -Path $supportPathRoot -ChildPath "$7zaFolderName/7za.exe"
+    Set-Alias 7za $tmp -Option AllScope -Scope Global
+}
+
+if( -not (Test-Path alias:symstore) )
+{
+    $tmp = Join-Path -Path $env:WindowsSdkDir -ChildPath "\Debuggers\x64\symstore.exe"
+    Set-Alias symstore $tmp -Option AllScope -Scope Global
+}
+
+if( -not (Test-Path alias:agestore) )
+{
+    $tmp = Join-Path -Path $env:WindowsSdkDir -ChildPath "\Debuggers\x64\agestore.exe"
+    Set-Alias agestore $tmp -Option AllScope -Scope Global
+}
+
+if( $Publish )
+{
+    Write-Host "Deleting symbol-temp" -ForegroundColor Yellow
+    Remove-Item $symbolTemp -Recurse -ErrorAction SilentlyContinue
+    
+    Write-Host "Extracting $SourceZip" -ForegroundColor Yellow
+    7za e $SourceZip -o"$symbolTemp" *.pdb -r
+    
+    Write-Host "Invoking symstore" -ForegroundColor Yellow
+    symstore add /r /f $symbolTemp /t $SymbolStoreProduct /s $SymbolStore /compress
+
+    Write-Host "Deleting symbol-temp" -ForegroundColor Yellow
+    Remove-Item $symbolTemp -Recurse -ErrorAction SilentlyContinue
+
+    if( $CleanOldSymbols )
+    {
+        Write-Host "Cleaning old symbols in store" -ForegroundColor Yellow
+        agestore $SymbolStore -y -days=30
+    }
+}
