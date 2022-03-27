@@ -200,10 +200,10 @@ $s5cmdFolderName = "s5cmd_1.4.0_Windows-64bit"
 
 $7zaFolderName = "7z2102-extra"
 
-$downloadsPathRoot = ($PSScriptRoot+"/.downloads/")
-$supportPathRoot = ($PSScriptRoot+"/.support/")
-$buildPathRoot = ($PSScriptRoot+"/.build/")
-$outPathRoot = ($PSScriptRoot+"/.out/")
+$downloadsPathRoot = Join-Path -Path $PSScriptRoot -ChildPath "/.downloads/"
+$supportPathRoot = Join-Path -Path $PSScriptRoot -ChildPath "/.support/"
+$buildPathRoot = Join-Path -Path $PSScriptRoot -ChildPath "/.build/"
+$outPathRoot = Join-Path -Path $PSScriptRoot -ChildPath "/.out/"
 
 if( -not (Test-Path $downloadsPathRoot) )
 {
