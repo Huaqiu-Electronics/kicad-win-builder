@@ -132,12 +132,7 @@ param(
     [bool]$PostCleanup = $False
 )
 
-enum Arch {
-    x86
-    x64
-    arm
-    arm64
-}
+Import-Module ./KiBuild -Force
 
 enum ExitCodes {
     Ok = 0
@@ -302,26 +297,6 @@ if( $BuildConfigName ) {
 }
 
 
-function Merge-HashTable {
-    param(
-        [hashtable] $default,
-        [hashtable] $uppend
-    )
-
-    # Clone for idempotence
-    $defaultClone = $default.Clone();
-
-    # Remove keys that exist in both uppend and default from default
-    foreach ($key in $uppend.Keys) {
-        if ($defaultClone.ContainsKey($key)) {
-            $defaultClone.Remove($key);
-        }
-    }
-
-    # Union both sets
-    return $defaultClone + $uppend;
-}
-
 $settings = Merge-HashTable -default $settingDefault -uppend $settingsSaved
 
 
@@ -389,146 +364,6 @@ Set-Aliases
 # General functions
 ##
 
-function Get-MSVC-Arch()
-{
-    [CmdletBinding()]
-    param (
-        [Parameter()]
-        [Arch]$Arch
-    )
-
-    $msvc = "amd64"
-    switch ($Arch)
-    {
-        ([Arch]::x64) {
-            $msvc = "amd64"
-            break
-        }
-        ([Arch]::x86) {
-            $msvc = "x86"
-            break
-        }
-        ([Arch]::arm) {
-            $msvc = "arm"
-            break
-        }
-        ([Arch]::arm64) {
-            $msvc = "arm64"
-            break
-        }
-    }
-
-    return $msvc
-}
-
-function Get-NSIS-Arch()
-{
-    [CmdletBinding()]
-    param (
-        [Parameter()]
-        [Arch]$Arch
-    )
-
-    $nsis = ""
-    switch ($Arch)
-    {
-        ([Arch]::x64) {
-            $nsis = "x86_64"
-            break
-        }
-        ([Arch]::x86) {
-            $nsis = "i686"
-            break
-        }
-        ([Arch]::arm) {
-            $nsis = "arm"
-            break
-        }
-        ([Arch]::arm64) {
-            $nsis = "arm64"
-            break
-        }
-    }
-
-    return $nsis
-}
-
-function Set-VC-Environment()
-{
-    [CmdletBinding()]
-    param (
-        [Parameter()]
-        [Arch]$Arch = [Arch]::x64,
-        [Parameter()]
-        [Arch]$HostArch = [Arch]::x64,
-        [string[]]
-        [Parameter(ValueFromRemainingArguments=$true)]
-        $Arguments
-    )
-
-    if($env:VSCMD_VER)
-    {
-        Write-Host "VS Environment already configured" -ForegroundColor Yellow
-        return
-    }
-
-    $msvcArch = Get-MSVC-Arch -Arch $Arch
-    $msvcHostArch = Get-MSVC-Arch -Arch $HostArch
-
-    # prepare the arguments array with the arch info
-    $Arguments = @("-arch=$msvcArch") + @("-host_arch=$msvcHostArch") + $Arguments
-
-    $installDir = vswhere -version "[$($settings.VsVersionMin),$($settings.VsVersionMax)]" -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
-
-    $installDir = $installDir | Select-Object -first 1
-    if ($installDir) {
-        $path = join-path $installDir 'VC\Auxiliary\Build\Microsoft.VCToolsVersion.default.txt'
-        if (test-path $path) {
-            $version = gc -raw $path
-            if ($version) {
-                $version = $version.Trim()
-                $path = join-path $installDir "Common7\tools\VsDevCmd.bat"
-                $argString = $Arguments -join ' '
-
-                Write-Host "Selecting MSVC $version found at $installDir" -ForegroundColor Yellow
-
-                # what is this scary thing?
-                # We need to capture the environment variables set by vsdevcmd.bat
-                # We use json as an intermediate or else it may get broken by environment variables with spaces in them, json keeps the variables in tact
-                $json = $(& "${env:COMSPEC}" /s /c "`"$path`" -no_logo $argString && powershell -Command `"Get-ChildItem env: | Select-Object Key,Value | ConvertTo-Json`"")
-                if  (!$?) {
-                    Write-Error "Error extracting vsdevcmd.bat environment variables: $LASTEXITCODE"
-                } else {
-                    $($json | ConvertFrom-Json) | ForEach-Object {
-                        $k, $v = $_.Key, $_.Value
-                        Set-Content env:\"$k" "$v"
-                    }
-                }
-            }
-        }
-    }
-
-}
-
-function Get-Absolute-Path($relativePath)
-{
-  $path = Resolve-Path -Path $relativePath | Select-Object -ExpandProperty Path
-
-  return $path
-}
-
-function Reset-Env {
-    Set-Item `
-        -Path (('Env:', $args[0]) -join '') `
-        -Value ((
-            [System.Environment]::GetEnvironmentVariable($args[0], "Machine"),
-            [System.Environment]::GetEnvironmentVariable($args[0], "User")
-        ) -match '.' -join ';')
-}
-
-function Reset-Env-Path {
-    Reset-Env Path
-}
 
 enum SourceType {
     git
@@ -744,7 +579,7 @@ function Build-Kicad {
     #step down into kicad folder
     Push-Location (Get-Source-Path kicad)
 
-    Set-VC-Environment -Arch $arch
+    Set-MSVCEnvironment -Arch $arch
 
     $cmakeBuildFolder = "build/$buildName"
     $generator = "Ninja"
@@ -1269,12 +1104,12 @@ function Start-Prepare-Package {
         [bool]$sign = $False
     )
     # Required for signing
-    Set-VC-Environment -Arch $arch
+    Set-MSVCEnvironment -Arch $arch
 
     $packageVersion = Get-KiCad-PackageVersion
     $kicadVersion = Get-KiCad-Version
 
-    $nsisArch = Get-NSIS-Arch -Arch $arch
+    $nsisArch = Get-NSISArch -Arch $arch
 
     Write-Host "Package Version: $packageVersion"
     Write-Host "KiCad Version: $kicadVersion"
@@ -1456,7 +1291,7 @@ function Start-Package-Nsis {
     $packageVersion = Get-KiCad-PackageVersion
     $kicadVersion = Get-KiCad-Version
 
-    $nsisArch = Get-NSIS-Arch -Arch $arch
+    $nsisArch = Get-NSISArch -Arch $arch
 
     Write-Host "Package Version: $packageVersion"
     Write-Host "KiCad Version: $kicadVersion"
@@ -1559,7 +1394,7 @@ function Start-Package-Pdb() {
     $packageVersion = Get-KiCad-PackageVersion
     $kicadVersion = Get-KiCad-Version
 
-    $nsisArch = Get-NSIS-Arch -Arch $arch
+    $nsisArch = Get-NSISArch -Arch $arch
     $outFileName = "$($buildConfig.output_prefix)$packageVersion-$nsisArch-pdbs.zip"
 
     $outPath = Join-Path -Path $outPathRoot -ChildPath $outFileName
@@ -1625,7 +1460,7 @@ function Start-Package-Msix {
     )
 
     # need msix packaging tools
-    Set-VC-Environment -Arch $arch
+    Set-MSVCEnvironment -Arch $arch
     
     # TODO handle this better for nightlies
     $packageVersion = Get-KiCad-PackageVersion-Msix
@@ -1701,192 +1536,6 @@ function Start-Package-Msix {
     }
 }
 
-function Convert-Svg {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$True)]
-        [string]$Svg,
-        [Parameter(Mandatory=$True)]
-        [int]$Width,
-        [Parameter(Mandatory=$True)]
-        [int]$Height,
-        [Parameter(Mandatory=$True)]
-        [string]$Out
-    )
-
-    Write-Host "Converting $Svg to $Out, w: $Width, h: $Height"
-
-    inkscape --export-area-snap --export-type=png "$Svg" --export-filename "$Out" -w $Width -h $Height 2>$null
-
-    if( $LastExitCode -ne 0 )
-    {
-        Write-Error "Error generating png from svg"
-        Exit [ExitCodes]::InkscapeSvgConversion
-    }
-}
-
-function Generate-Target-Size-Icon {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$True)]
-        [string]$Svg,
-        [Parameter(Mandatory=$True)]
-        [int]$Size,
-        [Parameter(Mandatory=$True)]
-        [string]$OutBase
-    )
-
-    $out = "${OutBase}.targetsize-${Size}.png"
-    Convert-Svg -Svg $svg -Width $Size -Height $Size -Out $out
-
-    $out = "${OutBase}.targetsize-${Size}_altform-unplated.png"
-    Convert-Svg -Svg $svg -Width $Size -Height $Size -Out $out
-}
-
-
-# Target size are specific 16,24,32,48,256
-function Generate-Target-Size-Icons {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$True)]
-        [string]$Svg,
-        [Parameter(Mandatory=$True)]
-        [string]$OutBase
-    )
-
-    Generate-Target-Size-Icon -Svg $Svg -OutBase $OutBase -Size 16
-    Generate-Target-Size-Icon -Svg $Svg -OutBase $OutBase -Size 24
-    Generate-Target-Size-Icon -Svg $Svg -OutBase $OutBase -Size 32
-    Generate-Target-Size-Icon -Svg $Svg -OutBase $OutBase -Size 48
-    Generate-Target-Size-Icon -Svg $Svg -OutBase $OutBase -Size 256
-}
-
-
-$imageHelper = @"
-    using System;
-    using System.Drawing;
-    using System.Drawing.Imaging;
-
-    public class ImageHelper
-    {
-        public static void TilizeIcon(string sourcePath, int finalWidth, int finalHeight, string finalPath)
-        {
-            using (var finalImage = new Bitmap(finalWidth, finalHeight))
-            {
-                using (var source = new Bitmap(sourcePath))
-                {
-                    if(source.Width > finalWidth)
-                    {
-                        throw new ArgumentOutOfRangeException("Source width is larger than the final width");
-                    }
-
-                    if (source.Height > finalHeight)
-                    {
-                        throw new ArgumentOutOfRangeException("Source height is larger than the final height");
-                    }
-
-                    using (Graphics g = Graphics.FromImage(finalImage))
-                    {
-                        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                        g.DrawImage(source, (finalWidth-source.Width)/2, (finalHeight-source.Height)/2, source.Width, source.Height);
-                    }
-                }
-
-                finalImage.Save(finalPath, ImageFormat.Png);
-            }
-        }
-    }
-"@
-
-$assemblies = ("System.Drawing")
-Add-Type -ReferencedAssemblies $assemblies -TypeDefinition $imageHelper -Language CSharp 
-
-function Generate-Tile-Icon-Sub {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$True)]
-        [string]$Svg,
-        [Parameter(Mandatory=$True)]
-        [int]$Width,
-        [Parameter(Mandatory=$True)]
-        [int]$Height,
-        [Parameter(Mandatory=$True)]
-        [string]$OutBase,
-        [Parameter(Mandatory=$True)]
-        [int]$Scale,
-        [Parameter(Mandatory=$False)]
-        [bool]$Padding = $False
-    )
-
-    $shape = 'Square';
-    if( $Width -ne $Height )
-    {
-        $shape = 'Wide';
-    }
-
-    $OutBase = "${OutBase}-${shape}${Width}x${Height}Logo";
-
-    $out = "${OutBase}.scale-${Scale}.png"
-    $finalWidth = $Width * ($Scale/100.0)
-    $finalHeight = $Height* ($Scale/100.0)
-    if( $Padding )
-    {
-        $iconWidth = $finalWidth*0.66
-        $iconHeight = $finalHeight*0.50
-        $iconDim = [math]::Min($iconHeight,$iconWidth)
-        $iconDim = [math]::Round($iconDim, 0)
-        
-        Convert-Svg -Svg $svg -Width $iconDim -Height $iconDim -Out $out
-        [ImageHelper]::TilizeIcon($out, $finalWidth, $finalHeight, $out)
-    }
-    else {
-        Convert-Svg -Svg $svg -Width $finalHeight -Height $finalHeight -Out $out
-        if( $finalWidth -eq 44 )
-        {
-            Generate-Target-Size-Icons -Svg $f.FullName -OutBase $OutBase
-        }
-    }
-}
-
-function Generate-Tile-Icon {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$True)]
-        [string]$Svg,
-        [Parameter(Mandatory=$True)]
-        [int]$Width,
-        [Parameter(Mandatory=$True)]
-        [int]$Height,
-        [Parameter(Mandatory=$True)]
-        [string]$OutBase,
-        [Parameter(Mandatory=$False)]
-        [bool]$Padding = $False
-    )
-
-
-    Generate-Tile-Icon-Sub -Svg $Svg -Width $Width -Height $Height -OutBase $OutBase -Padding $Padding -Scale 100
-    Generate-Tile-Icon-Sub -Svg $Svg -Width $Width -Height $Height -OutBase $OutBase -Padding $Padding -Scale 125
-    Generate-Tile-Icon-Sub -Svg $Svg -Width $Width -Height $Height -OutBase $OutBase -Padding $Padding -Scale 150
-    Generate-Tile-Icon-Sub -Svg $Svg -Width $Width -Height $Height -OutBase $OutBase -Padding $Padding -Scale 200
-    Generate-Tile-Icon-Sub -Svg $Svg -Width $Width -Height $Height -OutBase $OutBase -Padding $Padding -Scale 400
-}
-
-function Generate-Tile-Icons {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$True)]
-        [string]$Svg,
-        [Parameter(Mandatory=$True)]
-        [string]$OutBase
-    )
-
-    Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 44 -Height 44
-    Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 71 -Height 71 -Padding $True
-    Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 150 -Height 150 -Padding $True
-    Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 310 -Height 310 -Padding $True
-    Generate-Tile-Icon -Svg $Svg -OutBase $OutBase -Width 310 -Height 150 -Padding $True
-}
 
 function Generate-Msix-Assets {
     [CmdletBinding()]
@@ -1917,7 +1566,7 @@ function Generate-Msix-Assets {
     $icons = Get-ChildItem $iconSources -Filter icon*.svg
     foreach ($f in $icons){
         $basePath = "$iconDest/$($f.BaseName)"
-        Generate-Tile-Icons  -Svg $f.FullName -Out $basePath
+        New-TileIcons  -Svg $f.FullName -Out $basePath
     }
     
 }
