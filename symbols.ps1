@@ -5,7 +5,7 @@ param(
 
     [Parameter(Mandatory=$True, ParameterSetName="publish")]
 	[ValidateScript({Test-Path $_})]
-    [string]$SourceZip,
+    [string]$SourceZipPath,
 
     [Parameter(Mandatory=$True, ParameterSetName="publish")]
 	[ValidateScript({Test-Path $_})]
@@ -25,45 +25,59 @@ $symbolTemp = Join-Path -Path $PSScriptRoot -ChildPath "/.build/symbols-temp/"
 
 $7zaFolderName = "7z2102-extra"
 
-if( -not (Test-Path alias:vswhere ) )
-{
+if( -not (Test-Path alias:vswhere ) ) {
     $tmp = Join-Path -Path $supportPathRoot -ChildPath "vswhere.exe"
     Set-Alias vswhere $tmp -Option AllScope -Scope Global
 }
 
 Set-MSVCEnvironment
 
-if( -not (Test-Path alias:7za ) )
-{
+if( -not (Test-Path alias:7za ) ) {
     $tmp = Join-Path -Path $supportPathRoot -ChildPath "$7zaFolderName/7za.exe"
     Set-Alias 7za $tmp -Option AllScope -Scope Global
 }
 
-if( -not (Test-Path alias:symstore) )
-{
+if( -not (Test-Path alias:symstore) ) {
     $tmp = Join-Path -Path $env:WindowsSdkDir -ChildPath "\Debuggers\x64\symstore.exe"
     Set-Alias symstore $tmp -Option AllScope -Scope Global
 }
 
-if( -not (Test-Path alias:agestore) )
-{
+if( -not (Test-Path alias:agestore) ) {
     $tmp = Join-Path -Path $env:WindowsSdkDir -ChildPath "\Debuggers\x64\agestore.exe"
     Set-Alias agestore $tmp -Option AllScope -Scope Global
 }
 
-if( $Publish )
-{
+
+function script:Step-SymbolProcess {
+    param (
+        [string[]]$zipPath
+    )
+
     Write-Host "Deleting symbol-temp" -ForegroundColor Yellow
     Remove-Item $symbolTemp -Recurse -ErrorAction SilentlyContinue
     
-    Write-Host "Extracting $SourceZip" -ForegroundColor Yellow
-    7za e $SourceZip -o"$symbolTemp" *.pdb -r
+    Write-Host "Extracting $zipPath" -ForegroundColor Yellow
+    7za e $zipPath -o"$symbolTemp" *.pdb -r
     
     Write-Host "Invoking symstore" -ForegroundColor Yellow
     symstore add /r /f $symbolTemp /t $SymbolStoreProduct /s $SymbolStore /compress
 
     Write-Host "Deleting symbol-temp" -ForegroundColor Yellow
     Remove-Item $symbolTemp -Recurse -ErrorAction SilentlyContinue
+}
+
+if( $Publish ) {
+    if( (Get-Item $SourceZipPath) -is [System.IO.DirectoryInfo] ) {
+        Write-Host "Provided path is a directory, scanning..." -ForegroundColor Yellow
+
+        $files = Get-ChildItem -Path $SourceZipPath -Filter *.zip
+        foreach ($file in $files) {
+            Step-SymbolProcess $file.FullName
+        }
+        
+    } else {
+        Step-SymbolProcess $SourceZipPath
+    }
 
     if( $CleanOldSymbols )
     {
