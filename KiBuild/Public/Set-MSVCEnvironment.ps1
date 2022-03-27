@@ -1,5 +1,12 @@
-function Set-MSVCEnvironment()
-{
+function Set-MSVCEnvironment() {
+    <#
+    .SYNOPSIS
+        Setups powershell environment variables with a MSVC enviroment 
+    .DESCRIPTION
+        The cmdlet utilizes vswhere to locate a MSVC environment and 
+        then executes VsDevCmd.bat to extract all environment variables set
+        so we can reproduce them in the powershell environment.
+    #>
     [CmdletBinding()]
     param (
         [Parameter()]
