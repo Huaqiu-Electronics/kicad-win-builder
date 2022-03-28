@@ -1,0 +1,63 @@
+== Readme
+This repo contains all the tooling to build and package KiCad for releases.
+
+The builder is composed of PowerShell scripting that allows us to build native Windows logic to handle the build process
+and breaking it down to steps/functions that can be individually debugged.
+
+=== Prerequisites
+
+These are the requirements before the repository can be used.
+
+- Microsoft Visual Studio 2019 or newer (IDE or Build Tools)
+- Windows 10, Windows Sever 2019 or newer (PowerShell 5.1+ required)
+- "Git for Windows" client
+
+=== Building KiCad
+
+`build.ps1` is the sole script that has various switches and args that break down the build process into
+multiple steps.
+
+==== Supported Architectures
+Currently the following architectures are officially supported:
+
+- x86
+- x64
+
+Stubbing is present for:
+
+- arm
+- arm64
+
+but they will not build due to dependency issues.
+
+==== Build Steps
+
+===== Initialize the builder
+This fetches any additional dependency tools we require for building that will be stored within the builder package structure
+
+`\build.ps1 -Init`
+
+===== Build Vcpkg
+This initializes vcpkg if required and builds the latest required dependencies for KiCad
+`.\build.ps1 -Vcpkg -Latest -Arch x64`
+
+===== Build KiCad
+This builds the latest version of KiCad master
+`.\build.ps1  -Build -Latest -Arch x64 -BuildType Release`
+
+===== Package KiCad
+`.\build.ps1 -Package -Arch x64 -BuildConfigName ${params.BUILD_CONFIG} -Lite -Prepare $True`
+
+
+
+=== Extra Functions
+
+==== Symbols
+
+`symbols.ps1` provides management functionality of KiCad's symbol storage. 
+This is intended for https://symbols.kicad.org and is simply a helper to invoke `symstore` and `agestore` to update symbols.
+
+It can be tested locally easily by placing a zip file containing pdbs into a new subfolder, in this example it will be called `.artifacts` as used
+by our jenkins process
+
+`.\symbols.ps1 -Publish -SourceZipPath \.artifacts\ -SymbolStore <localdiskpathtostorefiles>`
