@@ -333,92 +333,6 @@ Set-Aliases
 ###
 # General functions
 ##
-
-
-enum SourceType {
-    git
-    tar
-}
-
-function script:Get-Source {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$True)]
-        [string]$url,
-        [Parameter(Mandatory=$True)]
-        [string]$dest,
-        [Parameter(Mandatory=$True)]
-        [SourceType]$sourceType,
-        [Parameter(Mandatory=$False)]
-        [bool]$latest = $False,
-        [Parameter(Mandatory=$False)]
-        [string]$ref = ""
-    )
-
-    if(![System.IO.Directory]::Exists($dest))
-    {
-        if($sourceType -eq [SourceType]::git)
-        {
-            & git clone "$url" "$dest"
-
-            if ($LastExitCode -ne 0) {
-                Write-Error "Error cloning kicad repo"
-                Exit [ExitCodes]::GitCloneFailure
-            }
-        }
-        elseif($sourceType -eq [SourceType]::tar)
-        {
-
-        }
-    }
-
-    if( ($sourceType -eq [SourceType]::git) -and $ref )
-    {
-        $gitCheckTag = ""
-        $gitCheckBranch = ""
-        if( $ref )
-        {
-            if( $ref.StartsWith("branch/") )
-            {
-                $gitCheckBranch = $ref.Replace("branch/", "")
-            }
-            elseif ($ref.StartsWith("tag/") )
-            {
-                $gitCheckTag = $ref.Replace("tag/", "")
-            }
-        }
-
-        git -C "$dest" fetch --all --tags
-        if ($LastExitCode -ne 0) {
-            Write-Error "Error git clean"
-            Exit [ExitCodes]::GitFetch
-        }
-
-        git -C "$dest" reset --hard
-        if ($LastExitCode -ne 0) {
-            Write-Error "Error git reset"
-            Exit [ExitCodes]::GitResetFailure
-        }
-        
-        git -C "$dest" clean -f
-        if ($LastExitCode -ne 0) {
-            Write-Error "Error git clean"
-            Exit [ExitCodes]::GitCleanFailure
-        }
-
-        if( $gitCheckTag -ne "" ) {
-            git -C "$dest" checkout tags/$gitCheckTag
-        } elseif ( $gitCheckBranch -ne "" ) {
-            git -C "$dest" checkout origin/$gitCheckBranch
-        }
-
-        if ($LastExitCode -ne 0) {
-            Write-Error "Error git checkout ref"
-            Exit [ExitCodes]::GitCheckoutTag
-        }
-    }
-}
-
 function Get-Source-Path([string]$subfolder) {
     return Join-Path -Path $buildPathRoot -ChildPath $subfolder
 }
@@ -642,31 +556,31 @@ function Start-Build {
 
     Get-Source -url https://gitlab.com/kicad/code/kicad.git `
                -dest (Get-Source-Path kicad) `
-               -sourceType git `
+               -sourceType [SourceType]::git `
                -latest $latest `
                -ref (Get-Source-Ref -sourceKey "kicad")
 
     Get-Source -url https://gitlab.com/kicad/libraries/kicad-symbols.git `
                -dest (Get-Source-Path kicad-symbols) `
-               -sourceType git `
+               -sourceType [SourceType]::git `
                -latest $latest `
                -ref (Get-Source-Ref -sourceKey "symbols")
 
     Get-Source -url https://gitlab.com/kicad/libraries/kicad-footprints.git `
                -dest (Get-Source-Path kicad-footprints) `
-               -sourceType git `
+               -sourceType [SourceType]::git `
                -latest $latest `
                -ref (Get-Source-Ref -sourceKey "footprints")
 
     Get-Source -url https://gitlab.com/kicad/libraries/kicad-packages3D.git `
                -dest (Get-Source-Path kicad-packages3D) `
-               -sourceType git `
+               -sourceType [SourceType]::git `
                -latest $latest `
                -ref (Get-Source-Ref -sourceKey "3dmodels")
 
     Get-Source -url https://gitlab.com/kicad/libraries/kicad-templates.git `
                -dest (Get-Source-Path kicad-templates) `
-               -sourceType git `
+               -sourceType [SourceType]::git `
                -latest $latest `
                -ref (Get-Source-Ref -sourceKey "templates")
 
