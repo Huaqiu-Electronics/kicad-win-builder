@@ -15,15 +15,12 @@ function Expand-Tool {
         [bool]$ExtractInSupportRoot = $False
     )
 
-    if( -not (Test-Path $DestPath) )
-    {
+    if( -not (Test-Path $DestPath) ) {
         Write-Host "Extracting $ToolName" -ForegroundColor Yellow
-        if( $ExtractInSupportRoot )
-        {
+        if( $ExtractInSupportRoot ) {
             Expand-ZipArchive $SourcePath $supportPathRoot
         }
-        else
-        {
+        else  {
             Expand-ZipArchive $SourcePath $DestPath
         }
 
@@ -32,14 +29,12 @@ function Expand-Tool {
             Exit 2
         }
 
-        if( $ZipRelocate )
-        {
+        if( $ZipRelocate )  {
             $folders = Get-ChildItem $ZipRelocateFilter -Directory
             Move-Item $folders $DestPath
         }
     }
-    else
-    {
+    else  {
         Write-Host "$ToolName already exists" -ForegroundColor Green
     }
 }

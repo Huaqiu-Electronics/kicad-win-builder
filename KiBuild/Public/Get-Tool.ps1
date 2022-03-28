@@ -1,4 +1,13 @@
 function Get-Tool {
+    <#
+    .SYNOPSIS
+        Fetches a tool dependency and extracts it for use
+    .DESCRIPTION
+        The cmdlet handles retrieval of tools by given download paths and handles
+        the download and extraction of the tool for use. Tools will be checked
+        for existence before download and post-download will have the downloaded
+        file verified for checksum.
+    #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$True)]
@@ -21,8 +30,7 @@ function Get-Tool {
         [bool]$ExtractInSupportRoot = $False
     )
 
-    if( -not (Test-Path $DestPath) )
-    {
+    if( -not (Test-Path $DestPath) ) {
         Write-Host "Downloading $ToolName..." -ForegroundColor Yellow
 
         Invoke-WebRequest -Uri $Url -OutFile $DownloadPath -UserAgent [Microsoft.PowerShell.Commands.PSUserAgent]::FireFox
@@ -36,15 +44,12 @@ function Get-Tool {
             Exit [ExitCodes]::DownloadChecksumFailure
         }
 
-        if( $ExtractZip )
-        {
+        if( $ExtractZip ) {
             Write-Host "Extracting $ToolName" -ForegroundColor Yellow
-            if( $ExtractInSupportRoot )
-            {
+            if( $ExtractInSupportRoot ) {
                 Expand-ZipArchive $DownloadPath $supportPathRoot
             }
-            else
-            {
+            else {
                 Expand-ZipArchive $DownloadPath $DestPath
             }
 
@@ -53,19 +58,16 @@ function Get-Tool {
                 Exit 2
             }
 
-            if( $ZipRelocate )
-            {
+            if( $ZipRelocate ) {
                 $folders = Get-ChildItem $ZipRelocateFilter -Directory
                 Move-Item $folders $DestPath
             }
         }
-        else
-        {
+        else {
             Move-Item $DownloadPath $DestPath
         }
     }
-    else
-    {
+    else {
         Write-Host "$ToolName already exists" -ForegroundColor Green
     }
 }

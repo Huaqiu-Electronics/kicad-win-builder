@@ -21,10 +21,8 @@ function Get-Source {
         [string]$ref = ""
     )
 
-    if(![System.IO.Directory]::Exists($dest))
-    {
-        if($sourceType -eq [SourceType]::git)
-        {
+    if(![System.IO.Directory]::Exists($dest)) {
+        if($sourceType -eq [SourceType]::git) {
             & git clone "$url" "$dest"
 
             if ($LastExitCode -ne 0) {
@@ -32,24 +30,21 @@ function Get-Source {
                 Exit [ExitCodes]::GitCloneFailure
             }
         }
-        elseif($sourceType -eq [SourceType]::tar)
-        {
+        elseif($sourceType -eq [SourceType]::tar) {
 
         }
     }
 
-    if( ($sourceType -eq [SourceType]::git) -and $ref )
-    {
+    if( ($sourceType -eq [SourceType]::git) -and $ref ) {
+
         $gitCheckTag = ""
         $gitCheckBranch = ""
-        if( $ref )
-        {
-            if( $ref.StartsWith("branch/") )
-            {
+
+        if( $ref ) {
+            if( $ref.StartsWith("branch/") ) {
                 $gitCheckBranch = $ref.Replace("branch/", "")
             }
-            elseif ($ref.StartsWith("tag/") )
-            {
+            elseif ($ref.StartsWith("tag/") ) {
                 $gitCheckTag = $ref.Replace("tag/", "")
             }
         }

@@ -1,4 +1,8 @@
 function New-TileIcons {
+    <#
+    .SYNOPSIS
+        Converts a given SVG to all possible tile icons for Windows MSIX packaging
+    #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$True)]

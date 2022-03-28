@@ -40,6 +40,10 @@ public class ImageHelper
 $assemblies = ("System.Drawing")
 Add-Type -ReferencedAssemblies $assemblies -TypeDefinition $imageHelper -Language CSharp 
 function New-TileIconSub {
+    <#
+    .SYNOPSIS
+        Sub-helper for generating msix bundle icons
+    #>
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$True)]
