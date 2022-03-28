@@ -1,5 +1,12 @@
-function Get-MSVCArch()
-{
+function Get-MSVCArch() {
+    <#
+    .SYNOPSIS
+        Returns the MSVC architecture string for a given Arch enum value
+    .DESCRIPTION
+        The cmdlet takes an Arch enum value and returns the matching MSVC
+        arch string that is used in invocations of MSVC tools and accessing
+        file paths.
+    #>
     [CmdletBinding()]
     param (
         [Parameter()]
@@ -7,8 +14,7 @@ function Get-MSVCArch()
     )
 
     $msvc = "amd64"
-    switch ($Arch)
-    {
+    switch ($Arch) {
         ([Arch]::x64) {
             $msvc = "amd64"
             break

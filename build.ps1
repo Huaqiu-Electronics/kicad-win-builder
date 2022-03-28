@@ -297,7 +297,7 @@ if( $BuildConfigName ) {
 }
 
 
-$settings = Merge-HashTable -default $settingDefault -uppend $settingsSaved
+$settings = Merge-HashTable -Default $settingDefault -Uppend $settingsSaved
 
 
 # Set VCPKG Platform Toolset

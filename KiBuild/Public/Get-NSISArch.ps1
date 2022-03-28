@@ -1,5 +1,11 @@
-function Get-NSISArch()
-{
+function Get-NSISArch() {    
+    <#
+    .SYNOPSIS
+        Returns the packaging arch string for a given Arch enum value
+    .DESCRIPTION
+        The cmdlet takes an Arch enum value and returns the a string
+        used in packaging KiCad applications
+    #>
     [CmdletBinding()]
     param (
         [Parameter()]
@@ -7,8 +13,7 @@ function Get-NSISArch()
     )
 
     $nsis = ""
-    switch ($Arch)
-    {
+    switch ($Arch) {
         ([Arch]::x64) {
             $nsis = "x86_64"
             break
