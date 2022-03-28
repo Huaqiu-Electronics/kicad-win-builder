@@ -13,6 +13,10 @@ function Set-MSVCEnvironment() {
         [Arch]$Arch = [Arch]::x64,
         [Parameter()]
         [Arch]$HostArch = [Arch]::x64,
+        [Parameter(Mandatory=$False)]
+        [string]$VersionMin = '',
+        [Parameter(Mandatory=$False)]
+        [string]$VersionMax = '',
         [string[]]
         [Parameter(ValueFromRemainingArguments=$true)]
         $Arguments
@@ -30,7 +34,7 @@ function Set-MSVCEnvironment() {
     # prepare the arguments array with the arch info
     $Arguments = @("-arch=$msvcArch") + @("-host_arch=$msvcHostArch") + $Arguments
 
-    $installDir = vswhere -version "[$($settings.VsVersionMin),$($settings.VsVersionMax)]" -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+    $installDir = vswhere -version "[$VersionMin,$VersionMax]" -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
 
     $installDir = $installDir | Select-Object -first 1
     if ($installDir) {

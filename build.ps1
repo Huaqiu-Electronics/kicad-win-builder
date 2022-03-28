@@ -579,7 +579,7 @@ function Build-Kicad {
     #step down into kicad folder
     Push-Location (Get-Source-Path kicad)
 
-    Set-MSVCEnvironment -Arch $arch
+    Set-MSVCEnvironment -Arch $arch -VersionMin $settings.VsVersionMin -VersionMax $settings.VsVersionMax
 
     $cmakeBuildFolder = "build/$buildName"
     $generator = "Ninja"
@@ -1104,7 +1104,7 @@ function Start-Prepare-Package {
         [bool]$sign = $False
     )
     # Required for signing
-    Set-MSVCEnvironment -Arch $arch
+    Set-MSVCEnvironment -Arch $arch -VersionMin $settings.VsVersionMin -VersionMax $settings.VsVersionMax
 
     $packageVersion = Get-KiCad-PackageVersion
     $kicadVersion = Get-KiCad-Version
@@ -1460,7 +1460,7 @@ function Start-Package-Msix {
     )
 
     # need msix packaging tools
-    Set-MSVCEnvironment -Arch $arch
+    Set-MSVCEnvironment -Arch $arch -VersionMin $settings.VsVersionMin -VersionMax $settings.VsVersionMax
     
     # TODO handle this better for nightlies
     $packageVersion = Get-KiCad-PackageVersion-Msix
