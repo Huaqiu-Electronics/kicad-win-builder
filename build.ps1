@@ -134,36 +134,6 @@ param(
 
 Import-Module ./KiBuild -Force
 
-enum ExitCodes {
-    Ok = 0
-    DownloadChecksumFailure = 1
-    VcpkgInstallPortsFailure = 2
-    CMakeGenerationFailure = 3
-    CMakeBuildFailure = 4
-    CMakeInstallFailure = 5
-    NsisFailure = 6
-    DownloadExtractFailure = 7
-    GitCloneFailure = 8
-    EnsurePip = 9
-    WxPythonRequirements = 10
-    GitResetFailure = 11
-    GitCleanFailure = 12
-    GitPullRebaseFailure = 13
-    UnsupportedSwitch = 14
-    InkscapeSvgConversion = 15
-    InvalidMsixVersion = 16
-    MakePriFailure = 17
-    MakeAppxFailure = 18
-    SignFail = 19
-    PdbPackageFail = 20
-    PythonManifestPatchFailure = 21
-    ExtraRequirements = 22
-    ReleaseDoesNotExit = 23
-    GitCheckoutBranch = 24
-    GitCheckoutTag = 25
-    GitFetch = 26
-}
-
 # Load the .NET compression library, powershell's expand-archive is horrid in performance
 Add-Type -Assembly 'System.IO.Compression.FileSystem'
 
@@ -707,137 +677,6 @@ function Start-Build {
     Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-templates
 }
 
-function Unzip([string] $zip, [string] $dest) {
-    Write-Host "Extracting $zip to $dest"
-    Try
-    {
-        [System.IO.Compression.ZipFile]::ExtractToDirectory($zip, $dest)
-    }
-    Catch
-    {
-        Write-Error "Error trying to extract $zip"
-        Exit [ExitCodes]::DownloadExtractFailure
-    }
-}
-
-function Extract-Tool {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$True)]
-        [string]$ToolName,
-        [Parameter(Mandatory=$True)]
-        [string]$SourcePath,
-        [Parameter(Mandatory=$True)]
-        [string]$DestPath,
-        [Parameter(Mandatory=$False)]
-        [bool]$ZipRelocate = $False,
-        [Parameter(Mandatory=$False)]
-        [string]$ZipRelocateFilter = "",
-        [Parameter(Mandatory=$False)]
-        [bool]$ExtractInSupportRoot = $False
-    )
-
-    if( -not (Test-Path $DestPath) )
-    {
-        Write-Host "Extracting $ToolName" -ForegroundColor Yellow
-        if( $ExtractInSupportRoot )
-        {
-            Unzip $SourcePath $supportPathRoot
-        }
-        else
-        {
-            Unzip $SourcePath $DestPath
-        }
-
-        if (!$?) {
-            Write-Error "Unable to extract $ToolName"
-            Exit 2
-        }
-
-        if( $ZipRelocate )
-        {
-            $folders = Get-ChildItem $ZipRelocateFilter -Directory
-            Move-Item $folders $DestPath
-        }
-    }
-    else
-    {
-        Write-Host "$ToolName already exists" -ForegroundColor Green
-    }
-}
-
-function Get-Tool {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$True)]
-        [string]$ToolName,
-        [Parameter(Mandatory=$True)]
-        [string]$Url,
-        [Parameter(Mandatory=$True)]
-        [string]$DestPath,
-        [Parameter(Mandatory=$True)]
-        [string]$DownloadPath,
-        [Parameter(Mandatory=$True)]
-        [string]$Checksum,
-        [Parameter(Mandatory=$False)]
-        [bool]$ExtractZip = $False,
-        [Parameter(Mandatory=$False)]
-        [bool]$ZipRelocate = $False,
-        [Parameter(Mandatory=$False)]
-        [string]$ZipRelocateFilter = "",
-        [Parameter(Mandatory=$False)]
-        [bool]$ExtractInSupportRoot = $False
-    )
-
-    if( -not (Test-Path $DestPath) )
-    {
-        Write-Host "Downloading $ToolName..." -ForegroundColor Yellow
-
-        Invoke-WebRequest -Uri $Url -OutFile $DownloadPath -UserAgent [Microsoft.PowerShell.Commands.PSUserAgent]::FireFox
-
-        $calculatedChecksum = ( Get-FileHash -Algorithm SHA256 $DownloadPath ).Hash
-        if( $calculatedChecksum -ne $Checksum )
-        {
-            Remove-Item -Path $DownloadPath -ErrorAction SilentlyContinue
-            Write-Error "Invalid checksum for $ToolName, expected: $cmakeChecksum actual: $calculatedChecksum"
-
-            Exit [ExitCodes]::DownloadChecksumFailure
-        }
-
-        if( $ExtractZip )
-        {
-            Write-Host "Extracting $ToolName" -ForegroundColor Yellow
-            if( $ExtractInSupportRoot )
-            {
-                Unzip $DownloadPath $supportPathRoot
-            }
-            else
-            {
-                Unzip $DownloadPath $DestPath
-            }
-
-            if (!$?) {
-                Write-Error "Unable to extract $ToolName"
-                Exit 2
-            }
-
-            if( $ZipRelocate )
-            {
-                $folders = Get-ChildItem $ZipRelocateFilter -Directory
-                Move-Item $folders $DestPath
-            }
-        }
-        else
-        {
-            Move-Item $DownloadPath $DestPath
-        }
-    }
-    else
-    {
-        Write-Host "$ToolName already exists" -ForegroundColor Green
-    }
-}
-
 
 function Start-Init {
     # The progress bar slows down download performance by absurd amounts, turn it off
@@ -905,7 +744,7 @@ function Start-Init {
     }
 
     $7zaSource = Join-Path -Path $PSScriptRoot -ChildPath "\support\7z2102-extra.zip"
-    Extract-Tool -ToolName "7za" `
+    Expand-Tool -ToolName "7za" `
              -SourcePath $7zaSource `
              -DestPath ($supportPathRoot+"$7zaFolderName/")
 
