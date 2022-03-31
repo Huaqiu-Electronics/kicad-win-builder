@@ -556,31 +556,31 @@ function Start-Build {
 
     Get-Source -url https://gitlab.com/kicad/code/kicad.git `
                -dest (Get-Source-Path kicad) `
-               -sourceType [SourceType]::git `
+               -sourceType git `
                -latest $latest `
                -ref (Get-Source-Ref -sourceKey "kicad")
 
     Get-Source -url https://gitlab.com/kicad/libraries/kicad-symbols.git `
                -dest (Get-Source-Path kicad-symbols) `
-               -sourceType [SourceType]::git `
+               -sourceType git `
                -latest $latest `
                -ref (Get-Source-Ref -sourceKey "symbols")
 
     Get-Source -url https://gitlab.com/kicad/libraries/kicad-footprints.git `
                -dest (Get-Source-Path kicad-footprints) `
-               -sourceType [SourceType]::git `
+               -sourceType git `
                -latest $latest `
                -ref (Get-Source-Ref -sourceKey "footprints")
 
     Get-Source -url https://gitlab.com/kicad/libraries/kicad-packages3D.git `
                -dest (Get-Source-Path kicad-packages3D) `
-               -sourceType [SourceType]::git `
+               -sourceType git `
                -latest $latest `
                -ref (Get-Source-Ref -sourceKey "3dmodels")
 
     Get-Source -url https://gitlab.com/kicad/libraries/kicad-templates.git `
                -dest (Get-Source-Path kicad-templates) `
-               -sourceType [SourceType]::git `
+               -sourceType git `
                -latest $latest `
                -ref (Get-Source-Ref -sourceKey "templates")
 
