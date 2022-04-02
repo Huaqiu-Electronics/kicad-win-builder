@@ -61,3 +61,8 @@ It can be tested locally easily by placing a zip file containing pdbs into a new
 by our jenkins process
 
 `.\symbols.ps1 -Publish -SourceZipPath \.artifacts\ -SymbolStore <localdiskpathtostorefiles>`
+
+== Credits
+- Brian Sidebotham who started the win-builder long ago in 2015
+- Nick Østergaard who took over from Brian and maintained it for many years later and expanding it's abilities while msys2 was still used
+- Mark Roszko who took over and transitioned the project to MSVC builds with enhanced scripting
