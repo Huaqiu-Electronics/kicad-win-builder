@@ -522,6 +522,7 @@ function Build-Kicad {
             -DKICAD_WIN32_DPI_AWARE="ON" `
             -DKICAD_BUILD_I18N="ON" `
             -DKICAD_USE_3DCONNEXION="ON" `
+            -DKICAD_USE_SENTRY="True" `
             2>&1 | % ToString
     }
 
