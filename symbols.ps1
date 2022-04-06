@@ -18,22 +18,32 @@
 #
 
 param(
-    [Parameter(Position = 0, Mandatory=$True, ParameterSetName="publish")]
-    [Switch]$Publish,
+    [Parameter(Position = 0, Mandatory=$True, ParameterSetName="publish_symstore")]
+    [Switch]$PublishSymStore,
+    
+    [Parameter(Position = 0, Mandatory=$True, ParameterSetName="publish_sentry")]
+    [Switch]$PublishSentry,
 
-    [Parameter(Mandatory=$True, ParameterSetName="publish")]
+    [Parameter(Mandatory=$True, ParameterSetName="publish_symstore")]
+    [Parameter(Mandatory=$True, ParameterSetName="publish_sentry")]
 	[ValidateScript({Test-Path $_})]
     [string]$SourceZipPath,
 
-    [Parameter(Mandatory=$True, ParameterSetName="publish")]
+    [Parameter(Mandatory=$True, ParameterSetName="publish_symstore")]
 	[ValidateScript({Test-Path $_})]
     [string]$SymbolStore,
     
-    [Parameter(Mandatory=$False, ParameterSetName="publish")]
+    [Parameter(Mandatory=$False, ParameterSetName="publish_symstore")]
     [string]$SymbolStoreProduct = "kicad",
     
-    [Parameter(Mandatory=$False, ParameterSetName="publish")]
-    [Switch]$CleanOldSymbols
+    [Parameter(Mandatory=$False, ParameterSetName="publish_symstore")]
+    [Switch]$CleanOldSymbols,
+    
+    [Parameter(Mandatory=$False, ParameterSetName="publish_sentry")]
+    [string]$SentryOrg = "kicad",
+    
+    [Parameter(Mandatory=$False, ParameterSetName="publish_sentry")]
+    [string]$SentryProject = "kicad"
 )
 
 Import-Module ./KiBuild -Force
@@ -46,6 +56,11 @@ $7zaFolderName = "7z2102-extra"
 if( -not (Test-Path alias:vswhere ) ) {
     $tmp = Join-Path -Path $supportPathRoot -ChildPath "vswhere.exe"
     Set-Alias vswhere $tmp -Option AllScope -Scope Global
+}
+
+if( -not (Test-Path alias:sentry-cli ) ) {
+    $tmp = Join-Path -Path $supportPathRoot -ChildPath "sentry-cli.exe"
+    Set-Alias sentry-cli $tmp -Option AllScope -Scope Global
 }
 
 Set-MSVCEnvironment
@@ -66,7 +81,8 @@ if( -not (Test-Path alias:agestore) ) {
 }
 
 
-function script:Step-SymbolProcess {
+
+function script:Step-ExtractSymbolZip {
     param (
         [string[]]$zipPath
     )
@@ -76,6 +92,14 @@ function script:Step-SymbolProcess {
     
     Write-Host "Extracting $zipPath" -ForegroundColor Yellow
     7za e $zipPath -o"$symbolTemp" *.pdb -r
+}
+
+function script:Step-SymbolProcess {
+    param (
+        [string[]]$zipPath
+    )
+
+    Step-ExtractSymbolZip $zipPath
     
     Write-Host "Invoking symstore" -ForegroundColor Yellow
     symstore add /r /f $symbolTemp /t $SymbolStoreProduct /s $SymbolStore /compress
@@ -84,7 +108,7 @@ function script:Step-SymbolProcess {
     Remove-Item $symbolTemp -Recurse -ErrorAction SilentlyContinue
 }
 
-if( $Publish ) {
+if( $PublishSymStore ) {
     if( (Get-Item $SourceZipPath) -is [System.IO.DirectoryInfo] ) {
         Write-Host "Provided path is a directory, scanning..." -ForegroundColor Yellow
 
@@ -102,4 +126,12 @@ if( $Publish ) {
         Write-Host "Cleaning old symbols in store" -ForegroundColor Yellow
         agestore $SymbolStore -y -days=30
     }
+}
+
+if( $PublishSentry ) {
+    Step-ExtractSymbolZip $SourceZipPath
+
+    # Note, it is expected the user has SENTRY_AUTH_TOKEN defined
+    # with the environment variable with the token
+    sentry-cli upload-dif -o $SentryOrg -p $SentryProject $symbolTemp
 }

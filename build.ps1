@@ -186,6 +186,10 @@ $s5cmdDownload = "https://github.com/peak/s5cmd/releases/download/v1.4.0/s5cmd_1
 $s5cmdChecksum = "085CCD677662C0B4EEA00325AAF04CE62B920D2A37F313AF9616ACE7DDDA537E"
 $s5cmdFolderName = "s5cmd_1.4.0_Windows-64bit"
 
+$sentryCliDownload = 'https://github.com/getsentry/sentry-cli/releases/download/1.74.3/sentry-cli-Windows-x86_64.exe'
+$sentryCliChecksum = "0D2F372D98F53EA4D4DF26161F1F821D5322B00A0227CE84EC939BF271C720AD"
+
+
 $7zaFolderName = "7z2102-extra"
 
 $downloadsPathRoot = Join-Path -Path $PSScriptRoot -ChildPath "/.downloads/"
@@ -654,6 +658,13 @@ function Start-Init {
              -DownloadPath ($downloadsPathRoot+"vswhere.exe") `
              -Checksum $vswhereChecksum `
              -ExtractZip $False
+             
+    Get-Tool -ToolName "sentry-cli" `
+            -Url $sentryCliDownload `
+            -DestPath ($supportPathRoot+'sentry-cli.exe') `
+            -DownloadPath ($downloadsPathRoot+"sentry-cli.exe") `
+            -Checksum $sentryCliChecksum `
+            -ExtractZip $False
 
     Get-Tool -ToolName "gettext" `
              -Url $gettextDownload `
