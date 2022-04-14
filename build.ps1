@@ -147,7 +147,11 @@ param(
     [string]$AKVUrl = "",
     
     [Parameter(Mandatory=$False, ParameterSetName="package")]
-    [bool]$PostCleanup = $False
+    [bool]$PostCleanup = $False,
+    
+    [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
+    [bool]$SentryArtifact = $False
 )
 
 Import-Module ./KiBuild -Force
@@ -440,7 +444,9 @@ function Install-Kicad {
         [Arch]$arch,
         [Parameter(Mandatory=$False)]
         [ValidateSet('Release', 'Debug')]
-        [string]$buildType = 'Release'
+        [string]$buildType = 'Release',
+        [Parameter(Mandatory=$False)]
+        [string]$installPath = ''
     )
 
     $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
@@ -453,7 +459,11 @@ function Install-Kicad {
     Write-Host "Invoking cmake install" -ForegroundColor Yellow
     & {
         $ErrorActionPreference = 'SilentlyContinue'
-        cmake --install $cmakeBuildFolder > $null
+        if( $installPath ) {
+            cmake --install $cmakeBuildFolder --prefix $installPath > $null
+        } else {
+            cmake --install $cmakeBuildFolder > $null
+        }
     }
 
     if ($LastExitCode -ne 0) {
@@ -871,6 +881,7 @@ function Sign-File {
     }
 }
 
+
 function Start-Prepare-Package {
     [CmdletBinding()]
     param(
@@ -884,7 +895,9 @@ function Start-Prepare-Package {
         [Parameter(Mandatory=$False)]
         [bool]$lite = $False,
         [Parameter(Mandatory=$False)]
-        [bool]$sign = $False
+        [bool]$sign = $False,
+        [Parameter(Mandatory=$False)]
+        [bool]$sentryArtifact = $false
     )
     # Required for signing
     Set-MSVCEnvironment -Arch $arch -VersionMin $settings.VsVersionMin -VersionMax $settings.VsVersionMax
@@ -909,6 +922,8 @@ function Start-Prepare-Package {
     $vcpkgInstalledRoot = Join-Path -Path $settings["VcpkgPath"] -ChildPath "installed\$triplet\"
     $vcpkgInstalledRootPrimary = $vcpkgInstalledRoot
     $destRoot = Join-Path -Path $PSScriptRoot -ChildPath ".out\$buildName\"
+    $destBin = Join-Path -Path $destRoot -ChildPath "bin\"
+    $destLib = Join-Path -Path $destRoot -ChildPath "lib\"
 
     # Now delete the existing output content
     if( Test-Path $destRoot )
@@ -917,6 +932,15 @@ function Start-Prepare-Package {
     }
 
     Install-Kicad -arch $arch -buildType $buildType
+
+    # Perfect time to create the sentry artifact
+    if( $sentryArtifact ) {
+        $outFileName = "$($buildConfig.output_prefix)$packageVersion-$nsisArch-sentry.zip"
+
+        $sentryOutPath = Join-Path -Path $outPathRoot -ChildPath $outFileName
+
+        7za a -tzip -mm=lzma -bsp0 $sentryOutPath -x!*\ ($destBin+"\*") -r0
+    }
 
     if( -not $lite )
     {
@@ -938,8 +962,6 @@ function Start-Prepare-Package {
     $vcpkgBinCopy = $vcpkgBinCopy + $buildConfig.vcpkg.package_globs
 
     $vcpkgInstalledBin = Join-Path -Path $vcpkgInstalledRoot -ChildPath "bin\"
-    $destBin = Join-Path -Path $destRoot -ChildPath "bin\"
-    $destLib = Join-Path -Path $destRoot -ChildPath "lib\"
 
     Write-Host "Copying from $vcpkgInstalledBin to $destBin" -ForegroundColor Yellow
     foreach( $copyFilter in $vcpkgBinCopy )
@@ -1399,7 +1421,12 @@ if( $MsixAssets )
 
 if( $PreparePackage -or ($Package -and $Prepare) )
 {
-    Start-Prepare-Package -arch $Arch -buildType $buildConfig.build_mode -includeVcpkgDebugSymbols $false -lite $Lite -sign $Sign
+    Start-Prepare-Package -arch $Arch -buildType $buildConfig.build_mode -includeVcpkgDebugSymbols $false -lite $Lite -sign $Sign -sentryArtifact $SentryArtifact
+}
+
+if( $PackageSentry )
+{
+    Start-Bundle-Sentry -arch $Arch -buildType $buildConfig.build_mode
 }
 
 if( $Package )
