@@ -27,7 +27,7 @@ param(
     [Parameter(Mandatory=$True, ParameterSetName="publish_symstore")]
     [Parameter(Mandatory=$True, ParameterSetName="publish_sentry")]
 	[ValidateScript({Test-Path $_})]
-    [string]$SourceZipPath,
+    [string]$SourcePath,
 
     [Parameter(Mandatory=$True, ParameterSetName="publish_symstore")]
 	[ValidateScript({Test-Path $_})]
@@ -109,16 +109,16 @@ function script:Step-SymbolProcess {
 }
 
 if( $PublishSymStore ) {
-    if( (Get-Item $SourceZipPath) -is [System.IO.DirectoryInfo] ) {
+    if( (Get-Item $SourcePath) -is [System.IO.DirectoryInfo] ) {
         Write-Host "Provided path is a directory, scanning..." -ForegroundColor Yellow
 
-        $files = Get-ChildItem -Path $SourceZipPath -Filter *.zip
+        $files = Get-ChildItem -Path $SourcePath -Filter *.zip
         foreach ($file in $files) {
             Step-SymbolProcess $file.FullName
         }
         
     } else {
-        Step-SymbolProcess $SourceZipPath
+        Step-SymbolProcess $SourcePath
     }
 
     if( $CleanOldSymbols )
@@ -129,9 +129,19 @@ if( $PublishSymStore ) {
 }
 
 if( $PublishSentry ) {
-    Step-ExtractSymbolZip $SourceZipPath
+    $symbolsPath = ""
+    $extn = [IO.Path]::GetExtension($SourcePath)
+    if ($extn -eq ".zip" )
+    {
+        Step-ExtractSymbolZip $SourcePath
+        $symbolsPath = $symbolTemp
+    }
+    else
+    {
+        $symbolsPath = $SourcePath
+    }
 
     # Note, it is expected the user has SENTRY_AUTH_TOKEN defined
     # with the environment variable with the token
-    sentry-cli upload-dif -o $SentryOrg -p $SentryProject $symbolTemp
+    sentry-cli upload-dif -o $SentryOrg -p $SentryProject $symbolsPath
 }
