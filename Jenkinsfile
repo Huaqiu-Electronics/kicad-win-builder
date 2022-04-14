@@ -62,7 +62,7 @@ def do_package(arches, lite) {
               $cmd = ".\\build.ps1 -Package -Arch ${arch} -BuildConfigName ${params.BUILD_CONFIG} -Lite -Prepare \$True" + $signString
           } else {
               powershell "Write-Host Packaging full release"
-              $cmd = ".\\build.ps1 -Package -Arch ${arch} -BuildConfigName ${params.BUILD_CONFIG} -DebugSymbols -Prepare \$True" + $signString
+              $cmd = ".\\build.ps1 -Package -Arch ${arch} -BuildConfigName ${params.BUILD_CONFIG} -DebugSymbols -SentryArtifact $\True -Prepare \$True" + $signString
           }
           
           powershell  $cmd
@@ -161,10 +161,9 @@ pipeline {
               do_package(archs_to_pack, false)
             }
             dir (".out") {
-              stash includes: 'kicad*-pdbs.zip', name: 'pdbs'
-              
               archiveArtifacts allowEmptyArchive: false, artifacts: 'kicad*.exe', caseSensitive: true, defaultExcludes: true, fingerprint: true, onlyIfSuccessful: true
               archiveArtifacts allowEmptyArchive: false, artifacts: 'kicad*-pdbs.zip', caseSensitive: true, defaultExcludes: true, fingerprint: true, onlyIfSuccessful: true
+              archiveArtifacts allowEmptyArchive: false, artifacts: 'kicad*-sentry.zip', caseSensitive: true, defaultExcludes: true, fingerprint: true, onlyIfSuccessful: true
               bat "DEL /Q /F \"kicad*.exe\"" 
               bat "DEL /Q /F \"kicad*.zip\"" 
             }
