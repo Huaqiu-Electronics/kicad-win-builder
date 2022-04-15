@@ -62,7 +62,7 @@ def do_package(arches, lite) {
               $cmd = ".\\build.ps1 -Package -Arch ${arch} -BuildConfigName ${params.BUILD_CONFIG} -Lite -Prepare \$True" + $signString
           } else {
               powershell "Write-Host Packaging full release"
-              $cmd = ".\\build.ps1 -Package -Arch ${arch} -BuildConfigName ${params.BUILD_CONFIG} -DebugSymbols -SentryArtifact $\True -Prepare \$True" + $signString
+              $cmd = ".\\build.ps1 -Package -Arch ${arch} -BuildConfigName ${params.BUILD_CONFIG} -DebugSymbols -SentryArtifact \$True -Prepare \$True" + $signString
           }
           
           powershell  $cmd
