@@ -94,15 +94,40 @@ function script:Step-ExtractSymbolZip {
     7za e $zipPath -o"$symbolTemp" *.pdb -r
 }
 
-function script:Step-SymbolProcess {
+function script:Step-SymStore {
     param (
-        [string[]]$zipPath
+        [string[]]$path
     )
 
-    Step-ExtractSymbolZip $zipPath
+    $extn = [IO.Path]::GetExtension($path)
+    if ($extn -eq ".zip" )
+    {
+        Step-ExtractSymbolZip $path
+    }
     
     Write-Host "Invoking symstore" -ForegroundColor Yellow
     symstore add /r /f $symbolTemp /t $SymbolStoreProduct /s $SymbolStore /compress
+
+    Write-Host "Deleting symbol-temp" -ForegroundColor Yellow
+    Remove-Item $symbolTemp -Recurse -ErrorAction SilentlyContinue
+}
+
+function script:Step-SentryStore {
+    param (
+        [string[]]$path
+    )
+
+    # Note, it is expected the user has SENTRY_AUTH_TOKEN defined
+    # with the environment variable with the token
+
+    $extn = [IO.Path]::GetExtension($path)
+    if ($extn -eq ".zip" )
+    {
+        Step-ExtractSymbolZip $path
+    }
+    
+    Write-Host "Invoking symstore" -ForegroundColor Yellow
+    sentry-cli upload-dif -o $SentryOrg -p $SentryProject $symbolTemp
 
     Write-Host "Deleting symbol-temp" -ForegroundColor Yellow
     Remove-Item $symbolTemp -Recurse -ErrorAction SilentlyContinue
@@ -114,11 +139,11 @@ if( $PublishSymStore ) {
 
         $files = Get-ChildItem -Path $SourcePath -Filter *.zip
         foreach ($file in $files) {
-            Step-SymbolProcess $file.FullName
+            Step-SymStore $file.FullName
         }
         
     } else {
-        Step-SymbolProcess $SourcePath
+        Step-SymStore $SourcePath
     }
 
     if( $CleanOldSymbols )
@@ -129,19 +154,14 @@ if( $PublishSymStore ) {
 }
 
 if( $PublishSentry ) {
-    $symbolsPath = ""
-    $extn = [IO.Path]::GetExtension($SourcePath)
-    if ($extn -eq ".zip" )
-    {
-        Step-ExtractSymbolZip $SourcePath
-        $symbolsPath = $symbolTemp
-    }
-    else
-    {
-        $symbolsPath = $SourcePath
-    }
+    if( (Get-Item $SourcePath) -is [System.IO.DirectoryInfo] ) {
+        Write-Host "Provided path is a directory, scanning..." -ForegroundColor Yellow
 
-    # Note, it is expected the user has SENTRY_AUTH_TOKEN defined
-    # with the environment variable with the token
-    sentry-cli upload-dif -o $SentryOrg -p $SentryProject $symbolsPath
+        $files = Get-ChildItem -Path $SourcePath -Filter *.zip
+        foreach ($file in $files) {
+            Step-SentryStore $file.FullName
+        }
+    } else {
+        Step-SentryStore $SourcePath
+    }
 }
