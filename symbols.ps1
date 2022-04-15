@@ -91,7 +91,7 @@ function script:Step-ExtractSymbolZip {
     Remove-Item $symbolTemp -Recurse -ErrorAction SilentlyContinue
     
     Write-Host "Extracting $zipPath" -ForegroundColor Yellow
-    7za e $zipPath -o"$symbolTemp" *.pdb -r
+    7za e $zipPath -o"$symbolTemp" * -r
 }
 
 function script:Step-SymStore {
@@ -109,7 +109,7 @@ function script:Step-SymStore {
     symstore add /r /f $symbolTemp /t $SymbolStoreProduct /s $SymbolStore /compress
 
     Write-Host "Deleting symbol-temp" -ForegroundColor Yellow
-    Remove-Item $symbolTemp -Recurse -ErrorAction SilentlyContinue
+  #  Remove-Item $symbolTemp -Recurse -ErrorAction SilentlyContinue
 }
 
 function script:Step-SentryStore {
