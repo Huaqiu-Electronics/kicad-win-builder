@@ -62,5 +62,7 @@ function Set-MSVCEnvironment() {
                 }
             }
         }
+    } else {
+        Write-Error -Message "Could not find MSVC Environment" -Exception ([System.IO.FileNotFoundException]::new()) -ErrorAction Stop
     }
 }
