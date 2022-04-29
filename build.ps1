@@ -197,10 +197,6 @@ $7zaFolderName = "7z2102-extra"
 Init-Paths $PSScriptRoot
 $BuilderPaths = Get-BuilderPaths
 
-$downloadsPathRoot = $BuilderPaths.DownloadsRoot
-$buildPathRoot = $BuilderPaths.BuildRoot
-$outPathRoot = $BuilderPaths.OutRoot
-
 $swigWinPath = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $swigwinFolder
 $gettextPath = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "/$gettextFolderName/bin"
 $doxygenPath = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $doxygenFolderName
@@ -222,7 +218,7 @@ $env:GIT_REDIRECT_STDERR='2>&1'
 ###
 # Load and handle Config
 ###
-$settingsPath = $PSScriptRoot + "\settings.json";
+$settingsPath = Join-Path -Path $PSScriptRoot -ChildPath "settings.json"
 
 $settingDefault = @{
     VcpkgPath = ''
@@ -339,7 +335,7 @@ Set-Aliases
 # General functions
 ##
 function Get-Source-Path([string]$subfolder) {
-    return Join-Path -Path $buildPathRoot -ChildPath $subfolder
+    return Join-Path -Path $BuilderPaths.BuildRoot -ChildPath $subfolder
 }
 
 
@@ -357,7 +353,7 @@ function Build-Library-Source {
     Push-Location (Get-Source-Path $libraryFolderName)
 
     $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
-    $installPath = Join-Path -Path $outPathRoot -ChildPath "$buildName/"
+    $installPath = Join-Path -Path $BuilderPaths.OutRoot -ChildPath "$buildName/"
 
     $cmakeBuildFolder = "build/$buildName"
     $generator = "Ninja"
@@ -485,9 +481,9 @@ function Build-Kicad {
     }
 
 
-    $installPath = Join-Path -Path $outPathRoot -ChildPath "$buildName/"
+    $installPath = Join-Path -Path $BuilderPaths.OutRoot -ChildPath "$buildName/"
     $toolchainPath = Join-Path -Path $settings["VcpkgPath"] -ChildPath "/scripts/buildsystems/vcpkg.cmake"
-    $installPdbPath = Join-Path -Path $outPathRoot -ChildPath "$buildName-pdb"
+    $installPdbPath = Join-Path -Path $BuilderPaths.OutRoot -ChildPath "$buildName-pdb"
 
     Write-Host "Starting build"
     Write-Host "arch: $arch"
@@ -610,7 +606,7 @@ function Start-Init {
     Get-Tool -ToolName "CMake" `
              -Url $cmakeDownload `
              -DestPath ($BuilderPaths.SupportRoot+"$cmakeFolder/") `
-             -DownloadPath ($downloadsPathRoot+"cmake.zip") `
+             -DownloadPath ($BuilderPaths.DownloadsRoot+"cmake.zip") `
              -Checksum $cmakeChecksum `
              -ExtractZip $true `
              -ZipRelocate $False `
@@ -619,7 +615,7 @@ function Start-Init {
     Get-Tool -ToolName "swigwin" `
              -Url $swigwinDownload `
              -DestPath ($BuilderPaths.SupportRoot+"$swigwinFolder/") `
-             -DownloadPath ($downloadsPathRoot+"$swigwinFolder.zip") `
+             -DownloadPath ($BuilderPaths.DownloadsRoot+"$swigwinFolder.zip") `
              -Checksum $swigwinChecksum `
              -ExtractZip $true `
              -ExtractInSupportRoot $True
@@ -627,7 +623,7 @@ function Start-Init {
     Get-Tool -ToolName "doxygen" `
              -Url $doxygenDownload `
              -DestPath ($BuilderPaths.SupportRoot+"$doxygenFolderName/") `
-             -DownloadPath ($downloadsPathRoot+"$doxygenFolderName.zip") `
+             -DownloadPath ($BuilderPaths.DownloadsRoot+"$doxygenFolderName.zip") `
              -Checksum $doxygenChecksum `
              -ExtractZip $true `
              -ExtractInSupportRoot $False
@@ -635,7 +631,7 @@ function Start-Init {
     Get-Tool -ToolName "nsis" `
              -Url $nsisDownload `
              -DestPath (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $nsisFolderName) `
-             -DownloadPath ($downloadsPathRoot+"nsis.zip") `
+             -DownloadPath ($BuilderPaths.DownloadsRoot+"nsis.zip") `
              -Checksum $nsisChecksum `
              -ExtractZip $true `
              -ExtractInSupportRoot $True
@@ -643,28 +639,28 @@ function Start-Init {
     Get-Tool -ToolName "vswhere" `
              -Url $vswhereDownload `
              -DestPath ($BuilderPaths.SupportRoot+'vswhere.exe') `
-             -DownloadPath ($downloadsPathRoot+"vswhere.exe") `
+             -DownloadPath ($BuilderPaths.DownloadsRoot+"vswhere.exe") `
              -Checksum $vswhereChecksum `
              -ExtractZip $False
              
     Get-Tool -ToolName "sentry-cli" `
             -Url $sentryCliDownload `
             -DestPath ($BuilderPaths.SupportRoot+'sentry-cli.exe') `
-            -DownloadPath ($downloadsPathRoot+"sentry-cli.exe") `
+            -DownloadPath ($BuilderPaths.DownloadsRoot+"sentry-cli.exe") `
             -Checksum $sentryCliChecksum `
             -ExtractZip $False
 
     Get-Tool -ToolName "gettext" `
              -Url $gettextDownload `
              -DestPath ($BuilderPaths.SupportRoot+"$gettextFolderName/") `
-             -DownloadPath ($downloadsPathRoot+"$gettextFolderName.zip") `
+             -DownloadPath ($BuilderPaths.DownloadsRoot+"$gettextFolderName.zip") `
              -Checksum $gettextChecksum `
              -ExtractZip $true
 
     Get-Tool -ToolName "s5cmd" `
              -Url $s5cmdDownload `
              -DestPath (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $s5cmdFolderName) `
-             -DownloadPath ($downloadsPathRoot+"s5cmd.zip") `
+             -DownloadPath ($BuilderPaths.DownloadsRoot+"s5cmd.zip") `
              -Checksum $s5cmdChecksum `
              -ExtractZip $true `
              -ZipRelocate $False `
@@ -930,7 +926,7 @@ function Start-Prepare-Package {
     if( $sentryArtifact ) {
         $outFileName = "$($buildConfig.output_prefix)$packageVersion-$nsisArch-sentry.zip"
 
-        $sentryOutPath = Join-Path -Path $outPathRoot -ChildPath $outFileName
+        $sentryOutPath = Join-Path -Path $BuilderPaths.OutRoot -ChildPath $outFileName
 
         7za a -tzip -mm=lzma -bsp0 $sentryOutPath -x!*\ ($destBin+"\*") -r0
     }
@@ -1174,7 +1170,7 @@ function Start-Package-Nsis {
     }
 
     if($sign) {
-        Sign-File -File (Join-Path -Path $outPathRoot -ChildPath $outFileName)
+        Sign-File -File (Join-Path -Path $BuilderPaths.OutRoot -ChildPath $outFileName)
     }
 
     if ($LastExitCode -ne 0) {
@@ -1203,7 +1199,7 @@ function Start-Package-Pdb() {
     $nsisArch = Get-NSISArch -Arch $arch
     $outFileName = "$($buildConfig.output_prefix)$packageVersion-$nsisArch-pdbs.zip"
 
-    $outPath = Join-Path -Path $outPathRoot -ChildPath $outFileName
+    $outPath = Join-Path -Path $BuilderPaths.OutRoot -ChildPath $outFileName
 
     7za a -tzip -mm=lzma -bsp0 $outPath $sourceFolder
     
@@ -1285,7 +1281,7 @@ function Start-Package-Msix {
 
     $buildSource = Join-Path -Path $PSScriptRoot -ChildPath ".out\$buildName\"
 
-    $destRoot = Join-Path -Path $outPathRoot -ChildPath "\msix-$buildName"
+    $destRoot = Join-Path -Path $BuilderPaths.OutRoot -ChildPath "\msix-$buildName"
     $destRootVfs = Join-Path -Path $destRoot -ChildPath "\VFS\ProgramFilesX64\KiCad\5.99\"
 
     if( -not (Test-Path $destRootVfs) )
@@ -1326,7 +1322,7 @@ function Start-Package-Msix {
     
     Write-Host "Running makeappx"
     $outFileName = "$($buildConfig.output_prefix)$packageVersion-$arch.msix"
-    $outFilePath = Join-Path -Path $outPathRoot -ChildPath $outFileName
+    $outFilePath = Join-Path -Path $BuilderPaths.OutRoot -ChildPath $outFileName
     makeappx pack /d "$destRoot" /p "$outFilePath" /o 
     if( $LastExitCode -ne 0 )
     {
