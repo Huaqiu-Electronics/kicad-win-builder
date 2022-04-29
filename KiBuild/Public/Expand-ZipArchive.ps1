@@ -5,6 +5,7 @@ function Expand-ZipArchive([string] $zip, [string] $dest) {
     }
     Catch {
         Write-Error "Error trying to extract $zip"
+        Write-Error $_
         Exit [ExitCodes]::DownloadExtractFailure
     }
 }

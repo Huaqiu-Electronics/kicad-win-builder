@@ -156,8 +156,6 @@ param(
 
 Import-Module ./KiBuild -Force
 
-# Load the .NET compression library, powershell's expand-archive is horrid in performance
-Add-Type -Assembly 'System.IO.Compression.FileSystem'
 
 ###
 ## Base setup
