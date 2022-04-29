@@ -48,25 +48,27 @@ param(
 
 Import-Module ./KiBuild -Force
 
-$supportPathRoot = Join-Path -Path $PSScriptRoot -ChildPath "/.support/"
+Init-Paths $PSScriptRoot
+$BuilderPaths = Get-BuilderPaths
+
 $symbolTemp = Join-Path -Path $PSScriptRoot -ChildPath "/.build/symbols-temp/"
 
 $7zaFolderName = "7z2102-extra"
 
 if( -not (Test-Path alias:vswhere ) ) {
-    $tmp = Join-Path -Path $supportPathRoot -ChildPath "vswhere.exe"
+    $tmp = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "vswhere.exe"
     Set-Alias vswhere $tmp -Option AllScope -Scope Global
 }
 
 if( -not (Test-Path alias:sentry-cli ) ) {
-    $tmp = Join-Path -Path $supportPathRoot -ChildPath "sentry-cli.exe"
+    $tmp = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "sentry-cli.exe"
     Set-Alias sentry-cli $tmp -Option AllScope -Scope Global
 }
 
 Set-MSVCEnvironment
 
 if( -not (Test-Path alias:7za ) ) {
-    $tmp = Join-Path -Path $supportPathRoot -ChildPath "$7zaFolderName/7za.exe"
+    $tmp = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "$7zaFolderName/7za.exe"
     Set-Alias 7za $tmp -Option AllScope -Scope Global
 }
 

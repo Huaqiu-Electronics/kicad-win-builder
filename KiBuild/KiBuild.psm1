@@ -49,6 +49,16 @@ public enum SourceType {
 # Load the .NET compression library, powershell's expand-archive is horrid in performance
 Add-Type -Assembly 'System.IO.Compression.FileSystem'
 
+$BuilderPaths = @{
+    SupportRoot           = ''
+    DownloadsRoot         = ''
+    OutRoot               = ''
+    BuildRoot             = ''
+}
+
+New-Variable -Name BuilderPaths -Value $BuilderPaths -Scope Script -Force
+
+
 #Get public and private function definition files.
 $Public  = @( Get-ChildItem -Path $PSScriptRoot\Public\*.ps1 -ErrorAction SilentlyContinue )
 $Private = @( Get-ChildItem -Path $PSScriptRoot\Private\*.ps1 -ErrorAction SilentlyContinue )

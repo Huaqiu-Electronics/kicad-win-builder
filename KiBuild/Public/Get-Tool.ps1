@@ -47,7 +47,7 @@ function Get-Tool {
         if( $ExtractZip ) {
             Write-Host "Extracting $ToolName" -ForegroundColor Yellow
             if( $ExtractInSupportRoot ) {
-                Expand-ZipArchive $DownloadPath $supportPathRoot
+                Expand-ZipArchive $DownloadPath $BuilderPaths.SupportRoot
             }
             else {
                 Expand-ZipArchive $DownloadPath $DestPath

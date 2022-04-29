@@ -18,7 +18,7 @@ function Expand-Tool {
     if( -not (Test-Path $DestPath) ) {
         Write-Host "Extracting $ToolName" -ForegroundColor Yellow
         if( $ExtractInSupportRoot ) {
-            Expand-ZipArchive $SourcePath $supportPathRoot
+            Expand-ZipArchive $SourcePath $BuilderPaths.SupportRoot
         }
         else  {
             Expand-ZipArchive $SourcePath $DestPath

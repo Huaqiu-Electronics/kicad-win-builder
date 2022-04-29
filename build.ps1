@@ -194,39 +194,20 @@ $sentryCliChecksum = "0D2F372D98F53EA4D4DF26161F1F821D5322B00A0227CE84EC939BF271
 
 $7zaFolderName = "7z2102-extra"
 
-$downloadsPathRoot = Join-Path -Path $PSScriptRoot -ChildPath "/.downloads/"
-$supportPathRoot = Join-Path -Path $PSScriptRoot -ChildPath "/.support/"
-$buildPathRoot = Join-Path -Path $PSScriptRoot -ChildPath "/.build/"
-$outPathRoot = Join-Path -Path $PSScriptRoot -ChildPath "/.out/"
+Init-Paths $PSScriptRoot
+$BuilderPaths = Get-BuilderPaths
 
-if( -not (Test-Path $downloadsPathRoot) )
-{
-    New-Item $downloadsPathRoot -ItemType "directory"
-}
+$downloadsPathRoot = $BuilderPaths.DownloadsRoot
+$buildPathRoot = $BuilderPaths.BuildRoot
+$outPathRoot = $BuilderPaths.OutRoot
 
-if( -not (Test-Path $supportPathRoot ) )
-{
-    New-Item $supportPathRoot -ItemType "directory"
-}
-
-if( -not (Test-Path $buildPathRoot ) )
-{
-    New-Item $buildPathRoot -ItemType "directory"
-}
-
-if( -not (Test-Path $outPathRoot ) )
-{
-    New-Item $outPathRoot -ItemType "directory"
-}
-
-
-$swigWinPath = ($supportPathRoot+"/$swigwinFolder")
-$gettextPath = ($supportPathRoot+"/$gettextFolderName/bin")
-$doxygenPath = ($supportPathRoot+"/$doxygenFolderName")
-$nsisPath = Join-Path -Path (Join-Path -Path $supportPathRoot -ChildPath $nsisFolderName) -ChildPath "bin/"
+$swigWinPath = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $swigwinFolder
+$gettextPath = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "/$gettextFolderName/bin"
+$doxygenPath = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $doxygenFolderName
+$nsisPath = Join-Path -Path (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $nsisFolderName) -ChildPath "bin/"
 
 $azureSignToolVersion = "3.0.0"
-$azureSignToolPath = Join-Path -Path $supportPathRoot -ChildPath "azuresigntool-$azureSignToolVersion"
+$azureSignToolPath = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "azuresigntool-$azureSignToolVersion"
 
 $env:Path = $swigWinPath+";"+$gettextPath+";"+$nsisPath+";"+$doxygenPath+";"+$env:PATH
 
@@ -316,25 +297,25 @@ function Set-Aliases()
 
     if( -not (Test-Path alias:vswhere ) )
     {
-        $tmp = Join-Path -Path $supportPathRoot -ChildPath "vswhere.exe"
+        $tmp = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "vswhere.exe"
         Set-Alias vswhere $tmp -Option AllScope -Scope Global
     }
 
     if( -not (Test-Path alias:cmake ) )
     {
-        $tmp = Join-Path -Path $supportPathRoot -ChildPath "$cmakeFolder/bin/cmake.exe"
+        $tmp = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "$cmakeFolder/bin/cmake.exe"
         Set-Alias cmake $tmp -Option AllScope -Scope Global
     }
 
     if( -not (Test-Path alias:makensis ) )
     {
-        $tmp = Join-Path -Path (Join-Path -Path $supportPathRoot -ChildPath $nsisFolderName) -ChildPath "bin/makensis.exe"
+        $tmp = Join-Path -Path (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $nsisFolderName) -ChildPath "bin/makensis.exe"
         Set-Alias makensis $tmp -Option AllScope -Scope Global
     }
     
     if( -not (Test-Path alias:7za ) )
     {
-        $tmp = Join-Path -Path $supportPathRoot -ChildPath "$7zaFolderName/7za.exe"
+        $tmp = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "$7zaFolderName/7za.exe"
         Set-Alias 7za $tmp -Option AllScope -Scope Global
     }
     
@@ -346,7 +327,7 @@ function Set-Aliases()
     
     if( -not (Test-Path alias:s5cmd ) )
     {
-        $tmp = Join-Path -Path (Join-Path -Path $supportPathRoot -ChildPath $s5cmdFolderName) -ChildPath "s5cmd.exe"
+        $tmp = Join-Path -Path (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $s5cmdFolderName) -ChildPath "s5cmd.exe"
         Set-Alias s5cmd $tmp -Option AllScope -Scope Global
     }
 }
@@ -628,7 +609,7 @@ function Start-Init {
 
     Get-Tool -ToolName "CMake" `
              -Url $cmakeDownload `
-             -DestPath ($supportPathRoot+"$cmakeFolder/") `
+             -DestPath ($BuilderPaths.SupportRoot+"$cmakeFolder/") `
              -DownloadPath ($downloadsPathRoot+"cmake.zip") `
              -Checksum $cmakeChecksum `
              -ExtractZip $true `
@@ -637,7 +618,7 @@ function Start-Init {
 
     Get-Tool -ToolName "swigwin" `
              -Url $swigwinDownload `
-             -DestPath ($supportPathRoot+"$swigwinFolder/") `
+             -DestPath ($BuilderPaths.SupportRoot+"$swigwinFolder/") `
              -DownloadPath ($downloadsPathRoot+"$swigwinFolder.zip") `
              -Checksum $swigwinChecksum `
              -ExtractZip $true `
@@ -645,7 +626,7 @@ function Start-Init {
 
     Get-Tool -ToolName "doxygen" `
              -Url $doxygenDownload `
-             -DestPath ($supportPathRoot+"$doxygenFolderName/") `
+             -DestPath ($BuilderPaths.SupportRoot+"$doxygenFolderName/") `
              -DownloadPath ($downloadsPathRoot+"$doxygenFolderName.zip") `
              -Checksum $doxygenChecksum `
              -ExtractZip $true `
@@ -653,7 +634,7 @@ function Start-Init {
 
     Get-Tool -ToolName "nsis" `
              -Url $nsisDownload `
-             -DestPath (Join-Path -Path $supportPathRoot -ChildPath $nsisFolderName) `
+             -DestPath (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $nsisFolderName) `
              -DownloadPath ($downloadsPathRoot+"nsis.zip") `
              -Checksum $nsisChecksum `
              -ExtractZip $true `
@@ -661,28 +642,28 @@ function Start-Init {
 
     Get-Tool -ToolName "vswhere" `
              -Url $vswhereDownload `
-             -DestPath ($supportPathRoot+'vswhere.exe') `
+             -DestPath ($BuilderPaths.SupportRoot+'vswhere.exe') `
              -DownloadPath ($downloadsPathRoot+"vswhere.exe") `
              -Checksum $vswhereChecksum `
              -ExtractZip $False
              
     Get-Tool -ToolName "sentry-cli" `
             -Url $sentryCliDownload `
-            -DestPath ($supportPathRoot+'sentry-cli.exe') `
+            -DestPath ($BuilderPaths.SupportRoot+'sentry-cli.exe') `
             -DownloadPath ($downloadsPathRoot+"sentry-cli.exe") `
             -Checksum $sentryCliChecksum `
             -ExtractZip $False
 
     Get-Tool -ToolName "gettext" `
              -Url $gettextDownload `
-             -DestPath ($supportPathRoot+"$gettextFolderName/") `
+             -DestPath ($BuilderPaths.SupportRoot+"$gettextFolderName/") `
              -DownloadPath ($downloadsPathRoot+"$gettextFolderName.zip") `
              -Checksum $gettextChecksum `
              -ExtractZip $true
 
     Get-Tool -ToolName "s5cmd" `
              -Url $s5cmdDownload `
-             -DestPath (Join-Path -Path $supportPathRoot -ChildPath $s5cmdFolderName) `
+             -DestPath (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $s5cmdFolderName) `
              -DownloadPath ($downloadsPathRoot+"s5cmd.zip") `
              -Checksum $s5cmdChecksum `
              -ExtractZip $true `
@@ -697,7 +678,7 @@ function Start-Init {
     $7zaSource = Join-Path -Path $PSScriptRoot -ChildPath "\support\7z2102-extra.zip"
     Expand-Tool -ToolName "7za" `
              -SourcePath $7zaSource `
-             -DestPath ($supportPathRoot+"$7zaFolderName/")
+             -DestPath ($BuilderPaths.SupportRoot+"$7zaFolderName/")
 
     # Restore progress bar
     $ProgressPreference = 'Continue'
