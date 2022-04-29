@@ -249,7 +249,7 @@ $settingDefault = @{
     VcpkgPath = ''
     VcpkgPlatformToolset = 'v142'
     VsVersionMin = '16.0'
-    VsVersionMax = '16.99'
+    VsVersionMax = '17.99'
     SignSubjectName = 'KiCad Services Corporation'
 }
 
@@ -390,8 +390,7 @@ function Build-Library-Source {
             -S .  `
             -DCMAKE_INSTALL_PREFIX="$installPath" `
             -DCMAKE_RULE_MESSAGES:BOOL="OFF" `
-            -DCMAKE_VERBOSE_MAKEFILE:BOOL="OFF" `
-            2>&1 | % ToString
+            -DCMAKE_VERBOSE_MAKEFILE:BOOL="OFF"
     }
 
     if ($LastExitCode -ne 0) {
@@ -740,22 +739,26 @@ function Build-Vcpkg {
         [Parameter(Mandatory=$False)]
         [bool]$latest = $True
     )
+    
 
     $vcpkgPath = $settings["VcpkgPath"]
-    if( $vcpkgPath -eq "" )
-    {
+    if( $vcpkgPath -eq "" ) {
         Write-Host "No vcpkg path provided" -ForegroundColor DarkYellow
 
         $vcpkgPath = Join-Path -Path $PSScriptRoot -ChildPath vcpkg
 
         # for now, destroy the folder if it isnt configured on our side
-        if( Test-Path $vcpkgPath )
-        {
+        if( Test-Path $vcpkgPath ) {
             Remove-Item $vcpkgPath -Recurse -Force
         }
 
         Write-Host "Checking out vcpkg to $vcpkgPath" -ForegroundColor Yellow
-        git clone https://gitlab.com/kicad/packaging/vcpkg.git $vcpkgPath
+        
+        if($buildConfig.vcpkg.manifest_mode) {
+            git clone https://github.com/microsoft/vcpkg.git $vcpkgPath
+        } else {
+            git clone https://gitlab.com/kicad/packaging/vcpkg.git $vcpkgPath
+        }
 
         Set-Config -VcpkgPath $vcpkgPath
 
@@ -766,46 +769,52 @@ function Build-Vcpkg {
     # Bootstrap vcpkg
     Push-Location $vcpkgPath
 
-    if( $latest )
-    {
+    if( $latest ) {
         Write-Host "Updating vcpkg git repo" -ForegroundColor Yellow
 
         git fetch
-        git checkout kicad
-        git reset --hard origin/kicad
+        if($buildConfig.vcpkg.manifest_mode) {
+            git checkout master
+            git reset --hard origin/master
+        } else {
+            git checkout kicad
+            git reset --hard origin/kicad
+        }
     }
 
     .\bootstrap-vcpkg.bat
 
-    # Setup dependencies
-    $triplet = Get-Vcpkg-Triplet -Arch $arch
+    if(-Not $buildConfig.vcpkg.manifest_mode) {
+        # Setup dependencies
+        $triplet = Get-Vcpkg-Triplet -Arch $arch
 
-    $dependencies = @()
-    $dependencies = $dependencies + $buildConfig.vcpkg.dependencies
+        $dependencies = @()
+        $dependencies = $dependencies + $buildConfig.vcpkg.dependencies
 
-    # Format the dependencies with the triplet
-    for ($i = 0; $i -lt $dependencies.Count; $i++) {
-        $dependencies[$i] = $dependencies[$i]+":$triplet"
-    }
+        # Format the dependencies with the triplet
+        for ($i = 0; $i -lt $dependencies.Count; $i++) {
+            $dependencies[$i] = $dependencies[$i]+":$triplet"
+        }
 
-    vcpkg install $dependencies --recurse 2>&1
+        vcpkg install $dependencies --recurse 2>&1
 
-    if ($LastExitCode -ne 0) {
-        Write-Error "Failure installing vcpkg ports"
-        Exit [ExitCodes]::VcpkgInstallPortsFailure
-    } else {
-        Write-Host "vcpkg ports installed/updated" -ForegroundColor Green
-    }
+        if ($LastExitCode -ne 0) {
+            Write-Error "Failure installing vcpkg ports"
+            Exit [ExitCodes]::VcpkgInstallPortsFailure
+        } else {
+            Write-Host "vcpkg ports installed/updated" -ForegroundColor Green
+        }
 
-    # Unforunately, theres no "install or upgrade" command
-    # We can safely however run ugprade and install and it'll just do nothing in the worse case
-    vcpkg upgrade $dependencies --no-dry-run 2>&1
+        # Unforunately, theres no "install or upgrade" command
+        # We can safely however run ugprade and install and it'll just do nothing in the worse case
+        vcpkg upgrade $dependencies --no-dry-run 2>&1
 
-    if ($LastExitCode -ne 0) {
-        Write-Error "Failure upgrading vcpkg ports"
-        Exit [ExitCodes]::VcpkgInstallPortsFailure
-    } else {
-        Write-Host "vcpkg ports installed/updated" -ForegroundColor Green
+        if ($LastExitCode -ne 0) {
+            Write-Error "Failure upgrading vcpkg ports"
+            Exit [ExitCodes]::VcpkgInstallPortsFailure
+        } else {
+            Write-Host "vcpkg ports installed/updated" -ForegroundColor Green
+        }
     }
 
     Pop-Location
@@ -919,7 +928,12 @@ function Start-Prepare-Package {
     $triplet = Get-Vcpkg-Triplet -Arch $arch
     $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
 
-    $vcpkgInstalledRoot = Join-Path -Path $settings["VcpkgPath"] -ChildPath "installed\$triplet\"
+    if($buildConfig.vcpkg.manifest_mode) {
+        $kiPath = Get-Source-Path kicad
+        $vcpkgInstalledRoot = Join-Path -Path $kiPath -ChildPath "build/$buildName/vcpkg_installed/$triplet/"
+    } else {
+        $vcpkgInstalledRoot = Join-Path -Path $settings["VcpkgPath"] -ChildPath "installed\$triplet\"
+    }
     $vcpkgInstalledRootPrimary = $vcpkgInstalledRoot
     $destRoot = Join-Path -Path $PSScriptRoot -ChildPath ".out\$buildName\"
     $destBin = Join-Path -Path $destRoot -ChildPath "bin\"
@@ -955,26 +969,34 @@ function Start-Prepare-Package {
         $vcpkgInstalledRoot = Join-Path -Path $vcpkgInstalledRoot -ChildPath "debug"
     }
 
-    # All libraries to copy _should use a wildcard at the end
-    # This is to copy both the .dll and .pdb
-    # Or only .dll based on switch
-    $vcpkgBinCopy = @()
-    $vcpkgBinCopy = $vcpkgBinCopy + $buildConfig.vcpkg.package_globs
+    
+    if($buildConfig.vcpkg.manifest_mode) {
+        $vcpkgInstalledBin = Join-Path -Path $vcpkgInstalledRoot -ChildPath "bin\"
 
-    $vcpkgInstalledBin = Join-Path -Path $vcpkgInstalledRoot -ChildPath "bin\"
-
-    Write-Host "Copying from $vcpkgInstalledBin to $destBin" -ForegroundColor Yellow
-    foreach( $copyFilter in $vcpkgBinCopy )
-    {
-        $source = "$vcpkgInstalledBin\$copyFilter"
-
-        if(!$includeVcpkgDebugSymbols)
+        Write-Host "Copying from $vcpkgInstalledBin to $destBin" -ForegroundColor Yellow
+        Copy-Item "$vcpkgInstalledBin*" -Destination $destBin -Filter *.dll -Recurse
+    } else {
+        # All libraries to copy _should use a wildcard at the end
+        # This is to copy both the .dll and .pdb
+        # Or only .dll based on switch
+        $vcpkgBinCopy = @()
+        $vcpkgBinCopy = $vcpkgBinCopy + $buildConfig.vcpkg.package_globs
+    
+        $vcpkgInstalledBin = Join-Path -Path $vcpkgInstalledRoot -ChildPath "bin\"
+    
+        Write-Host "Copying from $vcpkgInstalledBin to $destBin" -ForegroundColor Yellow
+        foreach( $copyFilter in $vcpkgBinCopy )
         {
-            $source += ".dll";
+            $source = "$vcpkgInstalledBin\$copyFilter"
+    
+            if(!$includeVcpkgDebugSymbols)
+            {
+                $source += ".dll";
+            }
+    
+            Write-Host "Copying $source"
+            Copy-Item $source -Destination $destBin -Recurse
         }
-
-        Write-Host "Copying $source"
-        Copy-Item $source -Destination $destBin -Recurse
     }
 
     ## ngspice related
