@@ -37,7 +37,7 @@ public class ImageHelper
 }
 "@
 
-$assemblies = ("System.Drawing", "System.Drawing.Common", "System.Drawing.Primitives", "System.Runtime")
+$assemblies = ("System.Drawing", "System.Drawing.Primitives", "System.Runtime")
 Add-Type -ReferencedAssemblies $assemblies -TypeDefinition $imageHelper -Language CSharp -IgnoreWarnings
 function New-TileIconSub {
     <#
