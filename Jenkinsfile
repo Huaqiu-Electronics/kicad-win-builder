@@ -3,6 +3,7 @@ archs_to_build = []
 archs_to_pack = []
 
 def do_init(list) {
+    powershell ".\\build.ps1 -VcpkgPath C:\\vcpkg"
     powershell ".\\build.ps1 -Init"
     list.each { item ->
       powershell "Write-Host Doing init for ${item}"
@@ -23,7 +24,6 @@ def do_init(list) {
 }
 
 def do_build(arches) {
-    powershell "Write-Host NICK DBEUG Removing .out"
     powershell "Get-ChildItem .out -Exclude '*-pdb' | Remove-Item -Recurse -ErrorAction SilentlyContinue"
     
     arches.each { arch ->
