@@ -190,6 +190,8 @@ VIAddVersionKey "FileVersion" "${PACKAGE_VERSION}"
 
 ;--------------------------------
 
+!define SetEnvironmentVariable "Kernel32::SetEnvironmentVariable(t, t)i"
+
 Function .onInit
   !ifdef MSVC
   ; MSVC builds use python 3.8+ which dropped windows 7 support and will crash
@@ -396,6 +398,8 @@ Section $(TITLE_SEC_MAIN) SEC01
 
 !ifdef MSVC
   !insertmacro ExclusiveDetailPrint "Installing pip"
+  System::Call '${SetEnvironmentVariable}("PYTHONPATH", "$R0").r0'
+  System::Call '${SetEnvironmentVariable}("PYTHONHOME", "$R0").r0'
   nsExec::Exec '"$INSTDIR\bin\python.exe" -m pip install --upgrade --force-reinstall pip'
   Pop $0 # return value/error/timeout
   Pop $1 # printed text, up to ${NSIS_MAX_STRLEN}
