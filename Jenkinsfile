@@ -84,6 +84,7 @@ pipeline {
     }
     environment {
         LC_ALL = 'C'
+        VCPKG_BINARY_SOURCES='nuget,kicad,readwrite'
     }
     parameters {
         booleanParam(name: 'LITE_PKG_ONLY', defaultValue: false, description: 'Skip building the full installer')
