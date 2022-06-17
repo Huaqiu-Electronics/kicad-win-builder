@@ -65,4 +65,24 @@ function Set-MSVCEnvironment() {
     } else {
         Write-Error -Message "Could not find MSVC Environment" -Exception ([System.IO.FileNotFoundException]::new()) -ErrorAction Stop
     }
+
+    
+    if( -not (Test-Path alias:cmake ) )
+    {
+        $cmakePath = Join-Path -Path $env:VCIDEInstallDir -ChildPath "\..\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -Resolve
+        $ninjaFolder = Join-Path -Path $env:VCIDEInstallDir -ChildPath "\..\CommonExtensions\Microsoft\CMake\Ninja\" -Resolve
+        $ninjaPath = Join-Path -Path $ninjaFolder -ChildPath "ninja.exe" -Resolve
+
+        if( -not (Test-Path $cmakePath) )
+        {
+            Write-Error "Failed finding cmake.exe at $cmakePath, is MSVC installed with CMake support?"
+            Exit [ExitCodes]::CmakeLocation
+        }
+
+        Set-Alias cmake $cmakePath -Option AllScope -Scope Global
+        Set-Alias ninja $ninjaPath -Option AllScope -Scope Global
+
+        $env:NINJA_PATH = $ninjaPath
+        $env:Path = $ninjaFolder+";"+$env:Path;
+    }
 }

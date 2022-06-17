@@ -35,7 +35,8 @@ public enum ExitCodes {
     ReleaseDoesNotExit = 23,
     GitCheckoutBranch = 24,
     GitCheckoutTag = 25,
-    GitFetch = 26
+    GitFetch = 26,
+    CmakeLocation = 27
 }
 '@
 

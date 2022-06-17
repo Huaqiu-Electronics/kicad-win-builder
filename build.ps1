@@ -161,10 +161,6 @@ Import-Module ./KiBuild -Force
 ## Base setup
 ###
 
-$cmakeFolder = 'cmake-3.16.6-win64-x64'
-$cmakeDownload = 'https://github.com/Kitware/CMake/releases/download/v3.16.6/cmake-3.16.6-win64-x64.zip'
-$cmakeChecksum = "9C06EEFCCD9B4B24B386573C05EAABEF6AFD756DC692E896C415EB0CD1FB132D"
-
 $vswhereDownload = 'https://github.com/microsoft/vswhere/releases/download/2.8.4/vswhere.exe'
 $vswhereChecksum = "E50A14767C27477F634A4C19709D35C27A72F541FB2BA5C3A446C80998A86419"
 
@@ -297,12 +293,6 @@ function Set-Aliases()
         Set-Alias vswhere $tmp -Option AllScope -Scope Global
     }
 
-    if( -not (Test-Path alias:cmake ) )
-    {
-        $tmp = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "$cmakeFolder/bin/cmake.exe"
-        Set-Alias cmake $tmp -Option AllScope -Scope Global
-    }
-
     if( -not (Test-Path alias:makensis ) )
     {
         $tmp = Join-Path -Path (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $nsisFolderName) -ChildPath "bin/makensis.exe"
@@ -352,6 +342,8 @@ function Build-Library-Source {
 
     Push-Location (Get-Source-Path $libraryFolderName)
 
+    Set-MSVCEnvironment -Arch $arch -VersionMin $settings.VsVersionMin -VersionMax $settings.VsVersionMax
+
     $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
     $installPath = Join-Path -Path $BuilderPaths.OutRoot -ChildPath "$buildName/"
 
@@ -391,6 +383,8 @@ function Install-Library {
     )
 
     Push-Location (Get-Source-Path $libraryFolderName)
+    
+    Set-MSVCEnvironment -Arch $arch -VersionMin $settings.VsVersionMin -VersionMax $settings.VsVersionMax
 
     $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
 
@@ -422,6 +416,8 @@ function Install-Kicad {
         [Parameter(Mandatory=$False)]
         [string]$installPath = ''
     )
+
+    Set-MSVCEnvironment -Arch $arch -VersionMin $settings.VsVersionMin -VersionMax $settings.VsVersionMax
 
     $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
 
@@ -503,6 +499,7 @@ function Build-Kicad {
             -DCMAKE_TOOLCHAIN_FILE="$toolchainPath" `
             -DCMAKE_INSTALL_PREFIX="$installPath" `
             -DCMAKE_PDB_OUTPUT_DIRECTORY:PATH="$installPdbPath" `
+            -DCMAKE_MAKE_PROGRAM="$env:NINJA_PATH" `
             -DKICAD_SPICE="ON" `
             -DKICAD_USE_OCC="ON" `
             -DKICAD_SCRIPTING_WXPYTHON="ON" `
@@ -602,15 +599,6 @@ function Start-Build {
 function Start-Init {
     # The progress bar slows down download performance by absurd amounts, turn it off
     $ProgressPreference = 'SilentlyContinue'
-
-    Get-Tool -ToolName "CMake" `
-             -Url $cmakeDownload `
-             -DestPath ($BuilderPaths.SupportRoot+"$cmakeFolder/") `
-             -DownloadPath ($BuilderPaths.DownloadsRoot+"cmake.zip") `
-             -Checksum $cmakeChecksum `
-             -ExtractZip $true `
-             -ZipRelocate $False `
-             -ExtractInSupportRoot $True
 
     Get-Tool -ToolName "swigwin" `
              -Url $swigwinDownload `
