@@ -398,8 +398,13 @@ Section $(TITLE_SEC_MAIN) SEC01
 
 !ifdef MSVC
   !insertmacro ExclusiveDetailPrint "Installing pip"
+
+  StrCpy $R0 "";
   System::Call '${SetEnvironmentVariable}("PYTHONPATH", "$R0").r0'
+
+  StrCpy $R0 "$INSTDIR\bin";
   System::Call '${SetEnvironmentVariable}("PYTHONHOME", "$R0").r0'
+
   nsExec::Exec '"$INSTDIR\bin\python.exe" -m pip install --upgrade --force-reinstall pip'
   Pop $0 # return value/error/timeout
   Pop $1 # printed text, up to ${NSIS_MAX_STRLEN}
