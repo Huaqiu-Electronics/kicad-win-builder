@@ -84,10 +84,16 @@ site.addsitedir(os.path.join(current_directory, '..\\..\\Lib\\site-packages'))
 kicad_path = os.path.normpath(os.path.join(current_directory, '..\\..\\kicad.exe'))
 
 kicad_version = ""
+kicad_product_version = ""
 try:
-    kicad_version = get_file_version(kicad_path)
+    kicad_product_version = get_file_version(kicad_path)
 except:
     pass
+
+if kicad_product_version:
+    version_bits = kicad_product_version.split('.')
+    if len(version_bits) >= 2:
+        kicad_version = "{}.{}".format(version_bits[0],version_bits[1])
 
 if kicad_version:
     # sysconfig override
