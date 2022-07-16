@@ -161,7 +161,7 @@ param(
     [bool]$SentryArtifact = $False
 )
 
-Import-Module ./KiBuild -Force
+Import-Module $PSScriptRoot\KiBuild -Force
 
 
 ###
