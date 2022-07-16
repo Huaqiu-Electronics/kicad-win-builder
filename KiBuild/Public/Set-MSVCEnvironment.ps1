@@ -51,7 +51,7 @@ function Set-MSVCEnvironment() {
                 # what is this scary thing?
                 # We need to capture the environment variables set by vsdevcmd.bat
                 # We use json as an intermediate or else it may get broken by environment variables with spaces in them, json keeps the variables in tact
-                $json = $(& "${env:COMSPEC}" /s /c "`"$path`" -no_logo $argString && powershell -Command `"Get-ChildItem env: | Select-Object Key,Value | ConvertTo-Json`"")
+                $json = $(& "${env:COMSPEC}" /s /c "`"$path`" -no_logo $argString >NUL && powershell -Command `"Get-ChildItem env: | Select-Object Key,Value | ConvertTo-Json`"")
                 if  (!$?) {
                     Write-Error "Error extracting vsdevcmd.bat environment variables: $LASTEXITCODE"
                 } else {
