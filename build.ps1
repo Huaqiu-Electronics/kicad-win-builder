@@ -28,6 +28,9 @@
 #   Checkout any required tools
 #   ./build.ps1 -Init
 #
+#   Checkout any required tools, setup build environment variables
+#   ./build.ps1 -Env [-Arch x64]
+#
 #   Rebuilds vcpkg dependencies (if updated)
 #   ./build.ps1 -Vcpkg [-Latest] [-Arch x64]
 #
@@ -54,6 +57,9 @@ param(
     [Parameter(Position = 0, Mandatory=$True, ParameterSetName="init")]
     [Switch]$Init,
 
+    [Parameter(Position = 0, Mandatory=$True, ParameterSetName="env")]
+    [Switch]$Env,
+
     [Parameter(Position = 0, Mandatory=$True, ParameterSetName="build")]
     [Switch]$Build,
 
@@ -77,6 +83,7 @@ param(
     [Parameter(Mandatory=$False, ParameterSetName="vcpkg")]
     [Switch]$Latest,
 
+    [Parameter(Mandatory=$False, ParameterSetName="env")]
     [Parameter(Mandatory=$False, ParameterSetName="build")]
     [Parameter(Mandatory=$False, ParameterSetName="vcpkg")]
     [Parameter(Mandatory=$False, ParameterSetName="package")]
@@ -1379,6 +1386,22 @@ function Set-Config {
 }
 
 
+function Start-Env {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [Arch]$arch
+    )
+
+    Write-Host "Setting up build environment" -ForegroundColor Green
+
+    Start-Init
+
+    Set-MSVCEnvironment -Arch $arch -VersionMin $settings.VsVersionMin -VersionMax $settings.VsVersionMax
+}
+
+
+
 ###
 # Decode and execute the selected script stage
 ###
@@ -1391,6 +1414,11 @@ if( $Config )
 if( $Init )
 {
     Start-Init
+}
+
+if( $Env )
+{
+    Start-Env -arch $Arch
 }
 
 if( $Vcpkg )
