@@ -654,9 +654,13 @@ function Start-Init {
              -ZipRelocate $False `
              -ExtractInSupportRoot $False
     
-    if( -not (Test-Path $azureSignToolPath ) )
-    {
-        dotnet tool install AzureSignTool --version $azureSignToolVersion --tool-path $azureSignToolPath
+    if( -not (Test-Path $azureSignToolPath ) ) {
+        if (Get-Command "dotnet.exe" -ErrorAction SilentlyContinue) { 
+            dotnet tool install AzureSignTool --version $azureSignToolVersion --tool-path $azureSignToolPath
+        }
+        else {
+            Write-Warning "Missing dotnet executable to install azure sign tool"
+        }
     }
 
     $7zaSource = Join-Path -Path $PSScriptRoot -ChildPath "\support\7z2102-extra.zip"
