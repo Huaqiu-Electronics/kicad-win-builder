@@ -55,9 +55,13 @@ function Set-MSVCEnvironment() {
                 if  (!$?) {
                     Write-Error "Error extracting vsdevcmd.bat environment variables: $LASTEXITCODE"
                 } else {
-                    $($json | ConvertFrom-Json) | ForEach-Object {
-                        $k, $v = $_.Key, $_.Value
-                        Set-Content env:\"$k" "$v"
+                    try {
+                        $($json | ConvertFrom-Json) | ForEach-Object {
+                            $k, $v = $_.Key, $_.Value
+                            Set-Content env:\"$k" "$v"
+                        }
+                    } catch {
+                        Write-Error -Message "Error converting json $json" -TargetObject $json -ErrorAction Stop
                     }
                 }
             }
