@@ -817,6 +817,13 @@ function Get-KiCad-PackageVersion {
 
 function Get-KiCad-Version {
     $srcFile = Join-Path -Path (Get-Source-Path kicad) -ChildPath "CMakeModules\KiCadVersion.cmake"
+    if( -not (Test-Path $srcFile ) )
+    {
+        # new path in master
+        $srcFile = Join-Path -Path (Get-Source-Path kicad) -ChildPath "cmake\KiCadVersion.cmake"
+    }
+
+
     $result = Select-String -Path $srcFile -Pattern '(?<=KICAD_SEMANTIC_VERSION\s")([0-9]+).([0-9])+' -AllMatches | % { $_.Matches } | % { $_.Value } | Select-Object -First 1
 
     return $result
