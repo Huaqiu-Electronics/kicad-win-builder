@@ -9,6 +9,7 @@ function Init-Paths {
     $BuilderPaths.DownloadsRoot = Join-Path -Path $Root -ChildPath "/.downloads/"
     $BuilderPaths.BuildRoot = Join-Path -Path $Root -ChildPath "/.build/"
     $BuilderPaths.OutRoot = Join-Path -Path $Root -ChildPath "/.out/"
+    $BuilderPaths.KiBuildEnv = Join-Path -Path $Root -ChildPath "/.kibuild/"
     
     if( -not (Test-Path $BuilderPaths.DownloadsRoot) )
     {
@@ -28,5 +29,10 @@ function Init-Paths {
     if( -not (Test-Path $BuilderPaths.OutRoot ) )
     {
         New-Item $BuilderPaths.OutRoot -ItemType "directory"
+    }
+    
+    if( -not (Test-Path $BuilderPaths.KiBuildEnv ) )
+    {
+        New-Item $BuilderPaths.KiBuildEnv -ItemType "directory"
     }
 }

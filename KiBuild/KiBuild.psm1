@@ -55,6 +55,7 @@ $BuilderPaths = @{
     DownloadsRoot         = ''
     OutRoot               = ''
     BuildRoot             = ''
+    KiBuildEnv            = ''
 }
 
 New-Variable -Name BuilderPaths -Value $BuilderPaths -Scope Script -Force
