@@ -197,7 +197,7 @@ $sentryCliDownload = 'https://github.com/getsentry/sentry-cli/releases/download/
 $sentryCliChecksum = "0D2F372D98F53EA4D4DF26161F1F821D5322B00A0227CE84EC939BF271C720AD"
 
 
-$7zaFolderName = "7z2102-extra"
+$7zaFolderName = "7z2201-extra"
 
 Init-Paths $PSScriptRoot
 $BuilderPaths = Get-BuilderPaths
@@ -672,7 +672,7 @@ function Start-Init {
         }
     }
 
-    $7zaSource = Join-Path -Path $PSScriptRoot -ChildPath "\support\7z2102-extra.zip"
+    $7zaSource = Join-Path -Path $PSScriptRoot -ChildPath "\support\7z2201-extra.zip"
     Expand-Tool -ToolName "7za" `
              -SourcePath $7zaSource `
              -DestPath ($BuilderPaths.SupportRoot+"$7zaFolderName/")
@@ -1198,23 +1198,44 @@ function Start-Package-Pdb() {
         [string]$buildType = "Release"
     )
     
+    $triplet = Get-Vcpkg-Triplet -Arch $arch
     $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
+    $sourceFolder = Join-Path -Path $PSScriptRoot -ChildPath ".out\$buildName-pdb\"
+    
     $sourceFolder = Join-Path -Path $PSScriptRoot -ChildPath ".out\$buildName-pdb\"
 
     $packageVersion = Get-KiCad-PackageVersion
     $kicadVersion = Get-KiCad-Version
 
     $nsisArch = Get-NSISArch -Arch $arch
-    $outFileName = "$($buildConfig.output_prefix)$packageVersion-$nsisArch-pdbs.zip"
+    $programPdbOutFileName = "$($buildConfig.output_prefix)$packageVersion-$nsisArch-pdbs.zip"
 
-    $outPath = Join-Path -Path $BuilderPaths.OutRoot -ChildPath $outFileName
+    $programPdbOutPath = Join-Path -Path $BuilderPaths.OutRoot -ChildPath $programPdbOutFileName
 
-    7za a -tzip -mm=lzma -bsp0 $outPath $sourceFolder
+    7za a -tzip -mm=lzma -bsp0 $programPdbOutPath $sourceFolder
     
     if ($LastExitCode -ne 0) {
         Write-Error "Error packaging PDBs"
         Exit [ExitCodes]::PdbPackageFail
     }
+
+    $vcpkgPdbSource = Join-Path -Path (Get-Source-Path kicad) -ChildPath "build/$buildName/vcpkg_installed/$triplet/"
+    if($buildType -eq 'Release') {
+        $vcpkgPdbSource = Join-Path -Path $vcpkgPdbSource -ChildPath "bin";
+    } else {
+        $vcpkgPdbSource = Join-Path -Path $vcpkgPdbSource -ChildPath "debug/bin";
+    }
+
+    $vcpkgPdbOutFileName = "$($buildConfig.output_prefix)$packageVersion-$nsisArch-vcpkg-pdbs.zip"
+    $vcpkgPdbOutPath = Join-Path -Path $BuilderPaths.OutRoot -ChildPath $vcpkgPdbOutFileName
+
+    7za a -tzip -mm=lzma -bsp0 $vcpkgPdbOutPath $vcpkgPdbSource
+    
+    if ($LastExitCode -ne 0) {
+        Write-Error "Error packaging vcpkg PDBs"
+        Exit [ExitCodes]::PdbPackageFail
+    }
+
 }
 
 function Create-AppxManifest {
