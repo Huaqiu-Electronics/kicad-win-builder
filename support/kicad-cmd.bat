@@ -26,11 +26,9 @@ set KICAD_VERSION=
 
 @REM Get KiCad exe version to reproduce
 for /f "USEBACKQ" %%a in (`powershell -NoProfile -NoLogo "&{(Get-Item '%_KICAD_EXE_PATH%').VersionInfo | %% {write-host ('{0}.{1}' -f $_.ProductMajorPart,$_.ProductMinorPart)}}"`) do (
-    echo %%a
  set KICAD_VERSION=%%a
 )
 
-break
 :header
 
 @echo ************************************
