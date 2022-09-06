@@ -48,7 +48,7 @@ set PYTHONUTF8=1
 
 @echo You may now invoke python or pip targeting kicad's install
 
-cd /d %USERPROFILE%\Documents\KiCad\%KICAD_VERSION%
+if defined KIPRJMOD (cd /d %KIPRJMOD%) else (cd /d %USERPROFILE%\Documents\KiCad\%KICAD_VERSION%)
 
 set _BIN_DIR=
 set _PYTHON_SCRIPTS_DIR=
