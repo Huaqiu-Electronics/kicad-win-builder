@@ -33,7 +33,7 @@ function Get-Tool {
     if( -not (Test-Path $DestPath) ) {
         Write-Host "Downloading $ToolName..." -ForegroundColor Yellow
 
-        Invoke-WebRequest -Uri $Url -OutFile $DownloadPath -UserAgent [Microsoft.PowerShell.Commands.PSUserAgent]::FireFox
+        Invoke-WebRequest -Uri $Url -OutFile $DownloadPath -UserAgent "NativeHost" # needed user agent to make invoke-webrequest behave with source forge
 
         $calculatedChecksum = ( Get-FileHash -Algorithm SHA256 $DownloadPath ).Hash
         if( $calculatedChecksum -ne $Checksum )

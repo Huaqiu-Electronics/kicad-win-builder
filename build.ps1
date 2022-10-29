@@ -185,7 +185,7 @@ $gettextFolderName = "gettext0.21-iconv1.16-static-64"
 $gettextDownload = "https://github.com/mlocati/gettext-iconv-windows/releases/download/v0.21-v1.16/gettext0.21-iconv1.16-static-64.zip"
 $gettextChecksum = "721395C2E057EEED321F0C793311732E57CB4FA30D5708672A13902A69A77D43"
 
-$doxygenDownload = "https://www.doxygen.nl/files/doxygen-1.9.3.windows.x64.bin.zip"
+$doxygenDownload = "https://sourceforge.net/projects/doxygen/files/rel-1.9.3/doxygen-1.9.3.windows.x64.bin.zip/download?use_mirror=pilotfiber"
 $doxygenChecksum = "575B1A27CB907675D24F2C348A4D95D9CDD6A2000F6A8D8BFC4C3A20B2E120F5"
 $doxygenFolderName = "doxygen-1.9.3.windows.x64.bin"
 
