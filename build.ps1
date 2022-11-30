@@ -168,7 +168,7 @@ Import-Module $PSScriptRoot\KiBuild -Force
 ## Base setup
 ###
 
-$vcpkgCommit = "8ff168270bc5977384b008bec6e879e15089d850";
+$vcpkgCommit = "251741475900c9a57549d80f1b5a5e30e63d1887";
 
 $vswhereDownload = 'https://github.com/microsoft/vswhere/releases/download/2.8.4/vswhere.exe'
 $vswhereChecksum = "E50A14767C27477F634A4C19709D35C27A72F541FB2BA5C3A446C80998A86419"
