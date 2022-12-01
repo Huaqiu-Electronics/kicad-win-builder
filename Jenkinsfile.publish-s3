@@ -1,0 +1,49 @@
+pipeline {
+    agent { label 'msvc' }
+    options {
+      timestamps ()
+      skipDefaultCheckout true
+    }
+    parameters {
+        text(name: 'S3_ENDPOINT', defaultValue: 'http://s3.cern.ch', description: '')
+        text(name: 'S3_CRED_ID', defaultValue: 'UPDATE_ID_HERE', description: '')
+        text(name: 'S3_BUCKET', defaultValue: 'kicad-nightly', description: '')
+    }
+    
+    stages {
+      stage ('Checkout') {
+          steps {
+              script {
+                if (params.CLEAN_WS == true) {
+                  cleanWs()
+                }
+              }
+              checkout([$class: 'GitSCM', branches: [[name: '*/master']],
+              doGenerateSubmoduleConfigurations: false,
+              extensions: [],
+              submoduleCfg: [],
+              userRemoteConfigs: [[credentialsId: '',
+              url: 'https://gitlab.com/mroszko/kicad-win-builder.git']]])
+          }
+      }
+      stage ('Upload') {
+        powershell "Remove-Item -Path './.upload' -Force -Recurse -ErrorAction SilentlyContinue"
+    
+        copyArtifacts(projectName: 'build-windows-kicad-msvc-master', selector: 'upstream', filter: '*.exe,*-pdbs.zip');
+        withCredentials([[
+            $class: 'AmazonWebServicesCredentialsBinding',
+            credentialsId: params.S3_CRED_ID,
+            accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+            secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+        ]]) {
+            powershell '''
+            $env:S3_ENDPOINT_URL='$params.S3_ENDPOINT'
+            ./build.ps1 -Init
+            s5cmd cp ./.upload/*.exe s3://$params.S3_BUCKET/windows/nightly/
+            s5cmd cp ./.upload/*.zip s3://$params.S3_BUCKET/windows/nightly/
+            '''
+        }
+      }
+      
+    }
+}
