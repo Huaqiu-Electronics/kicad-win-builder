@@ -30,7 +30,7 @@ pipeline {
         steps {
             powershell "Remove-Item -Path './.upload' -Force -Recurse -ErrorAction SilentlyContinue"
         
-            copyArtifacts(projectName: 'build-windows-kicad-msvc-master', selector: upstream(fallbackToLastSuccessful: false), filter: '*.exe,*-pdbs.zip');
+            copyArtifacts(projectName: 'build-windows-kicad-msvc-master', target: '.upload', selector: upstream(fallbackToLastSuccessful: false), filter: '*.exe,*-pdbs.zip');
             withCredentials([[
                 $class: 'AmazonWebServicesCredentialsBinding',
                 credentialsId: params.S3_CRED_ID,
