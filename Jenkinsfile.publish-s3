@@ -27,21 +27,23 @@ pipeline {
           }
       }
       stage ('Upload') {
-        powershell "Remove-Item -Path './.upload' -Force -Recurse -ErrorAction SilentlyContinue"
-    
-        copyArtifacts(projectName: 'build-windows-kicad-msvc-master', selector: 'upstream', filter: '*.exe,*-pdbs.zip');
-        withCredentials([[
-            $class: 'AmazonWebServicesCredentialsBinding',
-            credentialsId: params.S3_CRED_ID,
-            accessKeyVariable: 'AWS_ACCESS_KEY_ID',
-            secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
-        ]]) {
-            powershell '''
-            $env:S3_ENDPOINT_URL='$params.S3_ENDPOINT'
-            ./build.ps1 -Init
-            s5cmd cp ./.upload/*.exe s3://$params.S3_BUCKET/windows/nightly/
-            s5cmd cp ./.upload/*.zip s3://$params.S3_BUCKET/windows/nightly/
-            '''
+        steps {
+            powershell "Remove-Item -Path './.upload' -Force -Recurse -ErrorAction SilentlyContinue"
+        
+            copyArtifacts(projectName: 'build-windows-kicad-msvc-master', selector: 'upstream', filter: '*.exe,*-pdbs.zip');
+            withCredentials([[
+                $class: 'AmazonWebServicesCredentialsBinding',
+                credentialsId: params.S3_CRED_ID,
+                accessKeyVariable: 'AWS_ACCESS_KEY_ID',
+                secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+            ]]) {
+                powershell '''
+                $env:S3_ENDPOINT_URL='$params.S3_ENDPOINT'
+                ./build.ps1 -Init
+                s5cmd cp ./.upload/*.exe s3://$params.S3_BUCKET/windows/nightly/
+                s5cmd cp ./.upload/*.zip s3://$params.S3_BUCKET/windows/nightly/
+                '''
+            }
         }
       }
       
