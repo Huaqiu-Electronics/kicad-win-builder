@@ -156,7 +156,6 @@ param(
     [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
     [bool]$SentryArtifact = $False,
     
-
     [Parameter(Mandatory=$False, ParameterSetName="config")]
     [string]$VcpkgPath = "",
     
@@ -164,7 +163,7 @@ param(
     [bool]$UseMsvcCmake = $True
 )
 
-Import-Module $PSScriptRoot\KiBuild -Force
+Import-Module $PSScriptRoot\KiBuild -Force -DisableNameChecking
 
 
 ###
