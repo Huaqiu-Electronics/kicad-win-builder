@@ -107,10 +107,6 @@ param(
     [ValidateSet('Release', 'Debug')]
     [string]$BuildType = 'Release',
 
-    [Parameter(Mandatory=$True, ParameterSetName="config")]
-	[ValidateScript({Test-Path $_})]
-    [string]$VcpkgPath,
-
     [Parameter(Mandatory=$False, ParameterSetName="package")]
     [switch]$DebugSymbols,
 
@@ -158,7 +154,15 @@ param(
     
     [Parameter(Mandatory=$False, ParameterSetName="package")]
     [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
-    [bool]$SentryArtifact = $False
+    [bool]$SentryArtifact = $False,
+    
+
+    [Parameter(Mandatory=$True, ParameterSetName="config")]
+	[ValidateScript({Test-Path $_})]
+    [string]$VcpkgPath,
+    
+    [Parameter(Mandatory=$False, ParameterSetName="config")]
+    [bool]$UseMsvcCmake = $True
 )
 
 Import-Module $PSScriptRoot\KiBuild -Force
@@ -169,6 +173,14 @@ Import-Module $PSScriptRoot\KiBuild -Force
 ###
 
 $vcpkgCommit = "251741475900c9a57549d80f1b5a5e30e63d1887";
+
+$cmakeFolder = 'cmake-3.25.1-windows-x86_64'
+$cmakeDownload = 'https://github.com/Kitware/CMake/releases/download/v3.25.1/cmake-3.25.1-windows-x86_64.zip'
+$cmakeChecksum = "D93958D87CC9B91983489F0B37A268B03A3C891894D11F5437FA2A5CE94AAB24"
+
+$ninjaFolder = 'ninja-win'
+$ninjaDownload = 'https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-win.zip'
+$ninjaChecksum = "524B344A1A9A55005EAF868D991E090AB8CE07FA109F1820D40E74642E289ABC"
 
 $vswhereDownload = 'https://github.com/microsoft/vswhere/releases/download/2.8.4/vswhere.exe'
 $vswhereChecksum = "E50A14767C27477F634A4C19709D35C27A72F541FB2BA5C3A446C80998A86419"
@@ -231,6 +243,7 @@ $settingDefault = @{
     VsVersionMin = '16.0'
     VsVersionMax = '17.99'
     SignSubjectName = 'KiCad Services Corporation'
+    UseMsvcCmake = $True
 }
 
 $settingsSaved = @{}
@@ -301,6 +314,24 @@ function Set-Aliases()
         $tmp = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "vswhere.exe"
         Set-Alias vswhere $tmp -Option AllScope -Scope Global
     }
+    
+    if( -not $settings.UseMsvcCmake )
+    {
+        if( -not (Test-Path alias:cmake ) )
+        {
+            $tmp = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "$cmakeFolder/bin/cmake.exe"
+            Set-Alias cmake $tmp -Option AllScope -Scope Global
+        }
+        
+        if( -not (Test-Path alias:ninja ) )
+        {
+            $tmp = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "$ninjaFolder/ninja.exe"
+            $env:NINJA_PATH = $tmp;
+            $env:Path = $ninjaFolder+";"+$env:Path;
+            Set-Alias ninja $tmp -Option AllScope -Scope Global
+        }
+    }
+
 
     if( -not (Test-Path alias:makensis ) )
     {
@@ -609,9 +640,30 @@ function Start-Init {
     # The progress bar slows down download performance by absurd amounts, turn it off
     $ProgressPreference = 'SilentlyContinue'
 
+    if( -Not $settings.UseMsvcCmake )
+    {
+        Get-Tool -ToolName "CMake" `
+                 -Url $cmakeDownload `
+                 -DestPath (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $cmakeFolder) `
+                 -DownloadPath ($BuilderPaths.DownloadsRoot+"cmake.zip") `
+                 -Checksum $cmakeChecksum `
+                 -ExtractZip $true `
+                 -ZipRelocate $False `
+                 -ExtractInSupportRoot $True
+
+        Get-Tool -ToolName "Ninja" `
+                 -Url $ninjaDownload `
+                 -DestPath (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $ninjaFolder) `
+                 -DownloadPath ($BuilderPaths.DownloadsRoot+"ninja.zip") `
+                 -Checksum $ninjaChecksum `
+                 -ExtractZip $true `
+                 -ZipRelocate $False `
+                 -ExtractInSupportRoot $False
+    }
+
     Get-Tool -ToolName "swigwin" `
              -Url $swigwinDownload `
-             -DestPath ($BuilderPaths.SupportRoot+"$swigwinFolder/") `
+             -DestPath (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $swigwinFolder) `
              -DownloadPath ($BuilderPaths.DownloadsRoot+"$swigwinFolder.zip") `
              -Checksum $swigwinChecksum `
              -ExtractZip $true `
@@ -619,7 +671,7 @@ function Start-Init {
 
     Get-Tool -ToolName "doxygen" `
              -Url $doxygenDownload `
-             -DestPath ($BuilderPaths.SupportRoot+"$doxygenFolderName/") `
+             -DestPath (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $doxygenFolderName) `
              -DownloadPath ($BuilderPaths.DownloadsRoot+"$doxygenFolderName.zip") `
              -Checksum $doxygenChecksum `
              -ExtractZip $true `
@@ -1407,10 +1459,13 @@ function Set-Config {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$True)]
-        [string]$VcpkgPath
+        [string]$VcpkgPath,
+        [Parameter(Mandatory=$False)]
+        [bool]$UseMsvcCmake
     )
 
     $settings.VcpkgPath = $VcpkgPath
+    $settings.UseMsvcCmake = $UseMsvcCmake
 
     $settings | ConvertTo-Json -Compress | Set-Content -Path $settingsPath
 }
@@ -1438,7 +1493,7 @@ function Start-Env {
 
 if( $Config )
 {
-    Set-Config -VcpkgPath $VcpkgPath
+    Set-Config -VcpkgPath $VcpkgPath -UseMsvcCmake $UseMsvcCmake
 }
 
 if( $Init )
