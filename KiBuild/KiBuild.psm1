@@ -37,6 +37,7 @@ public enum ExitCodes {
     GitCheckoutTag = 25,
     GitFetch = 26,
     CmakeLocation = 27
+    ConfigError = 28
 }
 '@
 

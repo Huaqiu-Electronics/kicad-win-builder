@@ -157,9 +157,8 @@ param(
     [bool]$SentryArtifact = $False,
     
 
-    [Parameter(Mandatory=$True, ParameterSetName="config")]
-	[ValidateScript({Test-Path $_})]
-    [string]$VcpkgPath,
+    [Parameter(Mandatory=$False, ParameterSetName="config")]
+    [string]$VcpkgPath = "",
     
     [Parameter(Mandatory=$False, ParameterSetName="config")]
     [bool]$UseMsvcCmake = $True
@@ -1458,11 +1457,18 @@ function Generate-Msix-Assets {
 function Set-Config {
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$True)]
+        [Parameter(Mandatory=$False)]
         [string]$VcpkgPath,
         [Parameter(Mandatory=$False)]
         [bool]$UseMsvcCmake
     )
+
+    if( $VcpkgPath -ne "" ) {
+        if ( -Not (Test-Path $VcpkgPath) ) {
+            Write-Error "Invalid vcpkg path"
+            Exit [ExitCodes]::ConfigError
+        }
+    }
 
     $settings.VcpkgPath = $VcpkgPath
     $settings.UseMsvcCmake = $UseMsvcCmake
