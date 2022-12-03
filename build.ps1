@@ -317,16 +317,19 @@ function Set-Aliases()
     {
         if( -not (Test-Path alias:cmake ) )
         {
-            $tmp = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "$cmakeFolder/bin/cmake.exe"
-            Set-Alias cmake $tmp -Option AllScope -Scope Global
+            $cmakeBin = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "$cmakeFolder/bin"
+            $cmakeExe = Join-Path -Path $cmakeBin -ChildPath "cmake.exe"
+            $env:Path = $cmakeBin+";"+$env:Path;
+            Set-Alias cmake $cmakeExe -Option AllScope -Scope Global
         }
         
         if( -not (Test-Path alias:ninja ) )
         {
-            $tmp = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "$ninjaFolder/ninja.exe"
-            $env:NINJA_PATH = $tmp;
-            $env:Path = $ninjaFolder+";"+$env:Path;
-            Set-Alias ninja $tmp -Option AllScope -Scope Global
+            $ninjaBin = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "$ninjaFolder"
+            $ninjaExe = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "$ninjaFolder/ninja.exe"
+            $env:NINJA_PATH = $ninjaExe;
+            $env:Path = $ninjaBin+";"+$env:Path;
+            Set-Alias ninja $ninjaExe -Option AllScope -Scope Global
         }
     }
 
