@@ -345,6 +345,12 @@ function Set-Aliases()
         $tmp = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "$7zaFolderName/7za.exe"
         Set-Alias 7za $tmp -Option AllScope -Scope Global
     }
+
+    if( -not (Test-Path alias:sentry-cli ) )
+    {
+        $tmp = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "sentry-cli.exe"
+        Set-Alias sentry-cli $tmp -Option AllScope -Scope Global
+    }
     
     if( -not (Test-Path alias:azuresigntool ) )
     {
@@ -990,6 +996,22 @@ function Start-Prepare-Package {
         $sentryOutPath = Join-Path -Path $BuilderPaths.OutRoot -ChildPath $outFileName
 
         7za a -tzip -mm=lzma -bsp0 $sentryOutPath -x!*\ ($destBin+"\*") -r0
+
+                
+        # Now create source bundles for sentry
+        $srcBundleArchiveFileName = "$($buildConfig.output_prefix)$packageVersion-$nsisArch-sentry-src.zip"
+
+        $sentrySrcOutPath = Join-Path -Path $BuilderPaths.OutRoot -ChildPath $srcBundleArchiveFileName
+        
+        $pdbsFolder = Join-Path -Path $PSScriptRoot -ChildPath ".out\$buildName-pdb\"
+        $bundleOutFolder = Join-Path -Path $PSScriptRoot -ChildPath ".out\$buildName-sentry-src\"
+        
+        $files = Get-ChildItem -Path $pdbsFolder -Filter *.pdb
+        foreach ($file in $files) {
+            sentry-cli.exe difutil bundle-sources $file.FullName -o $bundleOutFolder
+        }
+        
+        7za a -tzip -mm=lzma -bsp0 $sentrySrcOutPath -x!*\ ($bundleOutFolder+"\*") -r0
     }
 
     if( -not $lite )

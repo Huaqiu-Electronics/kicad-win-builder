@@ -165,6 +165,7 @@ pipeline {
               archiveArtifacts allowEmptyArchive: false, artifacts: 'kicad*.exe', caseSensitive: true, defaultExcludes: true, fingerprint: true, onlyIfSuccessful: true
               archiveArtifacts allowEmptyArchive: false, artifacts: 'kicad*-pdbs.zip', caseSensitive: true, defaultExcludes: true, fingerprint: true, onlyIfSuccessful: true
               archiveArtifacts allowEmptyArchive: false, artifacts: 'kicad*-sentry.zip', caseSensitive: true, defaultExcludes: true, fingerprint: true, onlyIfSuccessful: true
+              archiveArtifacts allowEmptyArchive: false, artifacts: 'kicad*-sentry-src.zip', caseSensitive: true, defaultExcludes: true, fingerprint: true, onlyIfSuccessful: true
               bat "DEL /Q /F \"kicad*.exe\"" 
               bat "DEL /Q /F \"kicad*.zip\"" 
             }
