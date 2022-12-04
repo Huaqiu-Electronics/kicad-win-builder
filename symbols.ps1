@@ -53,7 +53,7 @@ $BuilderPaths = Get-BuilderPaths
 
 $symbolTemp = Join-Path -Path $PSScriptRoot -ChildPath "/.build/symbols-temp/"
 
-$7zaFolderName = "7z2102-extra"
+$7zaFolderName = "7z2201-extra"
 
 if( -not (Test-Path alias:vswhere ) ) {
     $tmp = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "vswhere.exe"
@@ -128,7 +128,7 @@ function script:Step-SentryStore {
         Step-ExtractSymbolZip $path
     }
     
-    Write-Host "Invoking symstore" -ForegroundColor Yellow
+    Write-Host "Invoking sentry-cli" -ForegroundColor Yellow
     sentry-cli upload-dif -o $SentryOrg -p $SentryProject $symbolTemp
 
     Write-Host "Deleting symbol-temp" -ForegroundColor Yellow
