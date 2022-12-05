@@ -411,6 +411,12 @@ Section $(TITLE_SEC_MAIN) SEC01
   DetailPrint "$1"
 !endif
 
+  SetOutPath "$INSTDIR\share\kicad\scripting\kicad_pyshell"
+  File /nonfatal /r "..\share\kicad\scripting\kicad_pyshell\*"
+
+  SetOutPath "$INSTDIR\share\kicad\scripting\plugins"
+  File /nonfatal /r "..\share\kicad\scripting\plugins\*"
+
   ${RegisterApplication} "kicad.exe" "$(APP_FRIENDLY_KICAD) ${KICAD_VERSION}"
   ${RegisterApplication} "pcbnew.exe" "$(APP_FRIENDLY_PCBNEW) ${KICAD_VERSION}"
   ${RegisterApplication} "eeschema.exe" "$(APP_FRIENDLY_EESCHEMA) ${KICAD_VERSION}"
@@ -460,15 +466,6 @@ SectionGroup /e $(TITLE_SEC_LIBRARIES) SEC03
   SectionEnd
   !endif
 SectionGroupEnd
-
-Section $(TITLE_SEC_FPWIZ) SEC04
-  SetOverwrite try
-  !insertmacro ExclusiveDetailPrint $(INSTALLING_FOOTPRINT_WIZARDS)
-  SetOutPath "$INSTDIR\share\kicad\scripting\kicad_pyshell"
-  File /nonfatal /r "..\share\kicad\scripting\kicad_pyshell\*"
-  SetOutPath "$INSTDIR\share\kicad\scripting\plugins"
-  File /nonfatal /r "..\share\kicad\scripting\plugins\*"
-SectionEnd
 
 Section $(TITLE_SEC_DEMOS) SEC05
   SetOverwrite try
@@ -600,7 +597,6 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC03_FOOTPRINTS} $(DESC_SEC_FPLIB)
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC03_PACKAGES3D} $(DESC_SEC_PACKAGES3D)
   !endif
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC04} $(DESC_SEC_FPWIZ)
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC05} $(DESC_SEC_DEMOS)
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC06} $(DESC_SEC_DOCS)
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC06_EN} $(DESC_SEC_DOCS_EN)
