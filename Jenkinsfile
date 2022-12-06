@@ -157,6 +157,11 @@ pipeline {
       }
 
       stage ('Package Full') {
+        when {
+            expression {
+                return !params.LITE_PKG_ONLY
+            }
+        }
         steps {
             script {
               do_package(archs_to_pack, false)
