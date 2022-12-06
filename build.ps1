@@ -1008,7 +1008,7 @@ function Start-Prepare-Package {
         
         $files = Get-ChildItem -Path $pdbsFolder -Filter *.pdb
         foreach ($file in $files) {
-            sentry-cli.exe difutil bundle-sources $file.FullName -o $bundleOutFolder
+            sentry-cli difutil bundle-sources $file.FullName -o $bundleOutFolder
         }
         
         7za a -tzip -mm=lzma -bsp0 $sentrySrcOutPath -x!*\ ($bundleOutFolder+"\*") -r0
