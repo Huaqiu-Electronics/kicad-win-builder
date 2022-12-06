@@ -855,6 +855,17 @@ function Build-Vcpkg {
     Pop-Location
 }
 
+function Get-KiCad-CommitHash {
+
+    Push-Location (Get-Source-Path kicad)
+
+    $commitHash = (git rev-parse --verify HEAD)
+
+    Pop-Location
+
+    return $commitHash
+}
+
 function Get-KiCad-PackageVersion {
 
     if( $buildConfig.train -eq "stable" )
@@ -952,6 +963,10 @@ function Start-Prepare-Package {
     )
     # Required for signing
     Set-MSVCEnvironment -Arch $arch -VersionMin $settings.VsVersionMin -VersionMax $settings.VsVersionMax
+
+    # Save commit hash to a file
+    $commitHashPath = Join-Path -Path $BuilderPaths.OutRoot -ChildPath "commit-hash"
+    Get-KiCad-CommitHash | Out-File -FilePath $commitHashPath -Encoding ascii
 
     $packageVersion = Get-KiCad-PackageVersion
     $kicadVersion = Get-KiCad-Version

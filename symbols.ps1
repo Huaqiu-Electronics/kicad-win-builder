@@ -163,6 +163,12 @@ if( $PublishSentry ) {
         foreach ($file in $files) {
             Step-SentryStore $file.FullName
         }
+
+        $commitHashPath = Join-Path -Path $SourcePath -ChildPath "commit-hash"
+        $commitHash = Get-Content -Path $commitHashPath -Encoding ascii
+
+        Write-Host "Setting release commit in Sentry" -ForegroundColor Yellow
+        sentry-cli releases -o $SentryOrg -p $SentryProject set-commits --commit "KiCad / KiCad Source Code / kicad@$commitHash" $commitHash
     } else {
         Step-SentryStore $SourcePath
     }
