@@ -151,7 +151,7 @@ if( $PublishSymStore ) {
     if( $CleanOldSymbols )
     {
         Write-Host "Cleaning old symbols in store" -ForegroundColor Yellow
-        agestore $SymbolStore -y -days=30
+        agestore $SymbolStore -y -s -days=30
     }
 }
 
