@@ -25,9 +25,10 @@ import os
 import pathlib
 import sys
 import array
-from ctypes import *
 
 def get_file_version(filename):
+    from ctypes import windll, create_string_buffer, c_void_p, byref, c_uint, wstring_at, string_at
+
     """
     Extract information from a file.
     Original from https://stackoverflow.com/questions/42604493/verqueryvaluew-issue-python-3
@@ -65,6 +66,16 @@ def get_file_version(filename):
 
     #-1 length because it includes null
     return wstring_at(r.value, l.value-1)
+    
+def get_user_docu_path():
+    from ctypes import windll, wintypes, create_unicode_buffer
+    CSIDL_PERSONAL = 5
+    SHGFP_TYPE_CURRENT = 0
+    
+    buf = create_unicode_buffer(wintypes.MAX_PATH)
+    windll.shell32.SHGetFolderPathW(0, CSIDL_PERSONAL, 0, SHGFP_TYPE_CURRENT, buf)
+    
+    return buf.value
 
 sys.path = []
 
@@ -95,9 +106,11 @@ if kicad_product_version:
     if len(version_bits) >= 2:
         kicad_version = "{}.{}".format(version_bits[0],version_bits[1])
 
+user_docus_path = get_user_docu_path()
+
 if kicad_version:
     # sysconfig override
-    user_base = os.path.expanduser(f'~\\Documents\\KiCad\\{kicad_version}\\3rdparty\\')
+    user_base = os.path.join(user_docus_path, f'KiCad\\{kicad_version}\\3rdparty\\')
     os.environ["PYTHONUSERBASE"] = user_base
 
     # distutils overrides
@@ -105,7 +118,7 @@ if kicad_version:
     # always append "Python{MAJOR}.{MINOR}" to the PYTHONUSERBASE...which we can spend a hundred lines overriding
     # or reproduce it for the `distutils` override
     python_ver_nodot = sys.winver.replace('.', '')
-    user_site = os.path.expanduser(f'~\\Documents\\KiCad\\{kicad_version}\\3rdparty\\Python{python_ver_nodot}\\site-packages')
+    user_site = os.path.join(user_docus_path, f'KiCad\\{kicad_version}\\3rdparty\\Python{python_ver_nodot}\\site-packages')
     # Now override the site params which drive distutils
     site.PREFIXES = [ current_directory ]
     site.USER_BASE = user_base
