@@ -1151,6 +1151,11 @@ function Start-Prepare-Package {
             Sign-File -File $_.FullName
         }
         
+        Get-ChildItem $destBin -Filter *.pyd |
+        Foreach-Object {
+            Sign-File -File $_.FullName
+        }
+        
         Get-ChildItem $destBin -Filter *.kiface |
         Foreach-Object {
             Sign-File -File $_.FullName
