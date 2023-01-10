@@ -384,9 +384,6 @@ Section $(TITLE_SEC_MAIN) SEC01
   SetOutPath "$INSTDIR\share\kicad\internat"
   File /nonfatal /r "..\share\kicad\internat\*"
 
-  SetOutPath "$INSTDIR\ssl\certs"
-  File /nonfatal "..\ssl\certs\ca-bundle.crt"
-
   SetOutPath "$INSTDIR\share\kicad\template"
   File /nonfatal /r "..\share\kicad\template\*"
   
