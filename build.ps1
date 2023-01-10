@@ -1141,22 +1141,29 @@ function Start-Prepare-Package {
     Copy-Item $xsltprocSource -Destination $destBin -Recurse  -Force
 
     if( $sign ) {
-        Get-ChildItem $destBin -Filter *.exe |
+        Get-ChildItem $destBin -Recurse -Filter *.exe |
         Foreach-Object {
             Sign-File -File $_.FullName
         }
         
-        Get-ChildItem $destBin -Filter *.dll |
+        Get-ChildItem $destBin -Recurse -Filter *.dll |
         Foreach-Object {
             Sign-File -File $_.FullName
         }
         
-        Get-ChildItem $destBin -Filter *.pyd |
+        Get-ChildItem $destBin -Recurse -Filter *.kiface |
         Foreach-Object {
             Sign-File -File $_.FullName
         }
         
-        Get-ChildItem $destBin -Filter *.kiface |
+        # python
+        Get-ChildItem $destBin -Recurse -Filter *.pyd |
+        Foreach-Object {
+            Sign-File -File $_.FullName
+        }
+        
+        # ngspice
+        Get-ChildItem $ngspiceDestLib -Recurse -Filter *.cm |
         Foreach-Object {
             Sign-File -File $_.FullName
         }
