@@ -3,17 +3,17 @@ archs_to_build = []
 archs_to_pack = []
 
 def do_init(list) {
-    powershell ".\\build.ps1 -Config -VcpkgPath C:\\vcpkg"
-    powershell ".\\build.ps1 -Init"
+    pwsh ".\\build.ps1 -Config -VcpkgPath C:\\vcpkg"
+    pwsh ".\\build.ps1 -Init"
     list.each { item ->
-      powershell "Write-Host Doing init for ${item}"
+      echo "Doing init for ${item}"
       try {
-        powershell ".\\build.ps1 -Vcpkg -Latest -Arch ${item}"
+        pwsh ".\\build.ps1 -Vcpkg -Latest -Arch ${item}"
         archs_to_build.add( item )
       } catch (err) {
         currentBuild.result='UNSTABLE'
         echo 'Exception occurred: ' + err.toString()
-        powershell "Write-Host 'Failed vcpkg for ${item}' -ForegroundColor Red"
+        echo "Failed vcpkg for ${item}"
       }
     }
 
@@ -24,22 +24,22 @@ def do_init(list) {
 }
 
 def do_build(arches) {
-    powershell "Get-ChildItem .out -Exclude '*-pdb' | Remove-Item -Recurse -ErrorAction SilentlyContinue"
+    pwsh "Get-ChildItem .out -Exclude '*-pdb' | Remove-Item -Recurse -ErrorAction SilentlyContinue"
     
     arches.each { arch ->
-      powershell "Write-Host Doing build for ${arch} ${build_type}"
+      echo "Doing build for ${arch} ${build_type}"
       try {
         if(params.TRAIN != 'nightly') {
-          powershell ".\\build.ps1 -Build -Arch ${arch} -BuildConfigName ${params.BUILD_CONFIG}"
+          pwsh ".\\build.ps1 -Build -Arch ${arch} -BuildConfigName ${params.BUILD_CONFIG}"
         }
         else {
-          powershell ".\\build.ps1 -Build -Latest -Arch ${arch} -BuildType ${build_type}"
+          pwsh ".\\build.ps1 -Build -Latest -Arch ${arch} -BuildType ${build_type}"
         }
         archs_to_pack.add( arch )
       } catch (err) {
         currentBuild.result='UNSTABLE'
         echo 'Exception occurred: ' + err.toString()
-        powershell "Write-Host 'Failed build for ${arch} ${build_type}' -ForegroundColor Red"
+        echo "Failed build for ${arch} ${build_type}"
       }
     }
     
@@ -51,25 +51,25 @@ def do_build(arches) {
 
 def do_package(arches, lite) {
     arches.each { arch ->
-      powershell "Write-Host Doing package for ${arch} ${build_type}"
+      echo "Doing package for ${arch} ${build_type}"
 
       withCredentials([azureServicePrincipal('kicad-azuresigntool')]) {
         try {
           $signString = ' -Sign -SignAKV $True -AKVUrl "https://kicad-codesign.vault.azure.net/" -AKVTenantId $Env:AZURE_TENANT_ID -AKVAppId $Env:AZURE_CLIENT_ID -AKVAppSecret $Env:AZURE_CLIENT_SECRET -AKVCertName KiCadCodeSign'
 
           if( lite ) {
-              powershell "Write-Host Building lite package"
+              echo "Building lite package"
               $cmd = ".\\build.ps1 -Package -Arch ${arch} -BuildConfigName ${params.BUILD_CONFIG} -Lite -Prepare \$True" + $signString
           } else {
-              powershell "Write-Host Packaging full release"
+              echo "Packaging full release"
               $cmd = ".\\build.ps1 -Package -Arch ${arch} -BuildConfigName ${params.BUILD_CONFIG} -DebugSymbols -SentryArtifact \$True -Prepare \$True" + $signString
           }
           
-          powershell  $cmd
+          pwsh  $cmd
         } catch (err) {
           currentBuild.result='UNSTABLE'
           echo 'Exception occurred: ' + err.toString()
-          powershell "Write-Host 'Failed package for ${arch} ${build_type}' -ForegroundColor Red"
+          echo "Failed package for ${arch} ${build_type}"
         }
       }
 
