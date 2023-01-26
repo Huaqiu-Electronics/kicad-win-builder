@@ -1,0 +1,27 @@
+{
+    "name:": "KiCad 6.0.11",
+    "output_prefix": "kicad-",
+    "package_version": "6.0.11",
+    "train": "stable",
+    "build_mode": "Release",
+    "sources": {
+        "kicad": {
+            "ref": "tag/6.0.11"
+        },
+        "symbols": {
+            "ref": "tag/6.0.11"
+        },
+        "footprints": {
+            "ref": "tag/6.0.11"
+        },
+        "3dmodels": {
+            "ref": "tag/6.0.11"
+        },
+        "templates": {
+            "ref": "tag/6.0.11"
+        }
+    }, 
+    "vcpkg": {
+        "manifest_mode": true
+    }
+}
