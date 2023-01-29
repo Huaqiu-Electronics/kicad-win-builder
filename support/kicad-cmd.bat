@@ -42,7 +42,7 @@ for /f "skip=2 tokens=2,*" %%A IN ('reg.exe query "HKEY_CURRENT_USER\Software\Mi
 )
 
 set _PYTHON_SCRIPTS_DIR=%_BIN_DIR%Scripts
-set _PYTHON_USER_SCRIPTS_DIR=%USERPROFILE%\Documents\KiCad\%KICAD_VERSION%\3rdparty\Python39\Scripts
+set _PYTHON_USER_SCRIPTS_DIR=%_USER_DOCUMENTS_PATH%\KiCad\%KICAD_VERSION%\3rdparty\Python39\Scripts
 
 @REM Now adjust PATH to gurantee our python/pip executables are found first
 set PATH=%_BIN_DIR%;%_PYTHON_USER_SCRIPTS_DIR%;%_PYTHON_SCRIPTS_DIR%;%PATH%
