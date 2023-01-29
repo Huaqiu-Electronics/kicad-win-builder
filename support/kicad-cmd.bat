@@ -26,7 +26,7 @@ set KICAD_VERSION=
 
 @REM Get KiCad exe version to reproduce
 for /f "USEBACKQ" %%a in (`powershell -NoProfile -NoLogo "&{(Get-Item '%_KICAD_EXE_PATH%').VersionInfo | %% {write-host ('{0}.{1}' -f $_.ProductMajorPart,$_.ProductMinorPart)}}"`) do (
- set KICAD_VERSION=%%a
+    set KICAD_VERSION=%%a
 )
 
 :header
@@ -34,6 +34,12 @@ for /f "USEBACKQ" %%a in (`powershell -NoProfile -NoLogo "&{(Get-Item '%_KICAD_E
 @echo ************************************
 @echo * KiCad %KICAD_VERSION% Command Prompt
 @echo ************************************
+
+@REM dig up from registry the user documents folder because it might be redirected
+for /f "skip=2 tokens=2,*" %%A IN ('reg.exe query "HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders" /v "Personal"') do (
+@REM grab the registry value and use call to expand the key that might contain a variable
+    call set "_USER_DOCUMENTS_PATH=%%B"
+)
 
 set _PYTHON_SCRIPTS_DIR=%_BIN_DIR%Scripts
 set _PYTHON_USER_SCRIPTS_DIR=%USERPROFILE%\Documents\KiCad\%KICAD_VERSION%\3rdparty\Python39\Scripts
@@ -48,10 +54,11 @@ set PYTHONUTF8=1
 
 @echo You may now invoke python or pip targeting kicad's install
 
-if defined KIPRJMOD (cd /d %KIPRJMOD%) else (cd /d %USERPROFILE%\Documents\KiCad\%KICAD_VERSION%)
+if defined KIPRJMOD (cd /d %KIPRJMOD%) else (cd /d %_USER_DOCUMENTS_PATH%\KiCad\%KICAD_VERSION%)
 
 set _BIN_DIR=
 set _PYTHON_SCRIPTS_DIR=
 set _KICAD_EXE_PATH=
+set _USER_DOCUMENTS_PATH=
 
 exit /B 0
