@@ -237,7 +237,6 @@ FunctionEnd
 
 Function onMyGuiInit
   Call PreventMultiInstances
-  Call CheckAlreadyInstalled
 FunctionEnd
 
 Function ModifyFinishPage
@@ -722,13 +721,6 @@ Function un.PreventMultiInstances
   Pop $R0
   StrCmp $R0 0 +3
   MessageBox MB_OK|MB_ICONEXCLAMATION|MB_TOPMOST $(UNINSTALLER_RUNNING) /SD IDOK
-  Abort
-FunctionEnd
-
-Function CheckAlreadyInstalled
-  ReadRegStr $R0 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "DisplayName"
-  StrCmp $R0 "" +3
-  MessageBox MB_OKCANCEL|MB_ICONEXCLAMATION|MB_TOPMOST $(ALREADY_INSTALLED) /SD IDOK IDOK +2
   Abort
 FunctionEnd
 

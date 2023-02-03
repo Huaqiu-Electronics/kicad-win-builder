@@ -92,7 +92,6 @@ Diese Aktion wird ebenfalls alle modifizierten und neuen Dateien, Bibliotheken u
 LangString UNINST_SUCCESS ${LANG_GERMAN} "$(^Name) wurde erfolgreich von Ihrem PC entfernt."
 LangString INSTALLER_RUNNING ${LANG_GERMAN} "Der Installer wurde bereits gestartet."
 LangString UNINSTALLER_RUNNING ${LANG_GERMAN} "Der Uninstaller wurde bereits gestartet."
-LangString ALREADY_INSTALLED ${LANG_GERMAN} "${PRODUCT_NAME} ist bereits installiert. Eine erneute Installation wird vorhandene Dateien überschreiben. Möchten Sie fortfahren?"
 
 ;Install details
 LangString INSTALLING_APPS ${LANG_GERMAN} "Installing application..."

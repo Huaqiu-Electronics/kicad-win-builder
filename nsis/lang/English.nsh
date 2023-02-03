@@ -92,7 +92,6 @@ This will also remove all modified and new files, symbols and footprints in the 
 LangString UNINST_SUCCESS ${LANG_ENGLISH} "$(^Name) was successfully removed from your computer."
 LangString INSTALLER_RUNNING ${LANG_ENGLISH} "The installer is already running."
 LangString UNINSTALLER_RUNNING ${LANG_ENGLISH} "The uninstaller is already running."
-LangString ALREADY_INSTALLED ${LANG_ENGLISH} "${PRODUCT_NAME} is already installed. Installing this package will overwrite existing files. Do you want to continue?"
 
 ;Install details
 LangString INSTALLING_APPS ${LANG_ENGLISH} "Installing application..."

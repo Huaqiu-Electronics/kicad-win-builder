@@ -92,7 +92,6 @@ LangString UNINST_PROMPT ${LANG_SIMPCHINESE} "您确定要完全删除 $(^Name) 
 LangString UNINST_SUCCESS ${LANG_SIMPCHINESE} "$(^Name) 已成功从您的计算机中删除。"
 LangString INSTALLER_RUNNING ${LANG_SIMPCHINESE} "安装程序已在运行。"
 LangString UNINSTALLER_RUNNING ${LANG_SIMPCHINESE} "卸载程序已在运行。"
-LangString ALREADY_INSTALLED ${LANG_SIMPCHINESE} "${PRODUCT_NAME} 已安装。安装此程序包将覆盖现有文件。你想继续吗？"
 
 ;Install details
 LangString INSTALLING_APPS ${LANG_SIMPCHINESE} "正在安装应用程序..."

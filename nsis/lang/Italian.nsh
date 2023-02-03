@@ -92,7 +92,6 @@ Ciò rimuoverà tutti i file nuovi e modificati, librerie e moduli, nella cartel
 LangString UNINST_SUCCESS ${LANG_ITALIAN} "$(^Name) è stato rimosso con successo dal computer."
 LangString INSTALLER_RUNNING ${LANG_ITALIAN} "L'installazione è già in esecuzione."
 LangString UNINSTALLER_RUNNING ${LANG_ITALIAN} "La disinstallazione è già in esecuzione."
-LangString ALREADY_INSTALLED ${LANG_ITALIAN} "${PRODUCT_NAME} è già installato. L'installazione di questo pacchetto sovrascriverà i file esistenti. Continuare?"
 
 ;Install details
 LangString INSTALLING_APPS ${LANG_ITALIAN} "Installing application..."

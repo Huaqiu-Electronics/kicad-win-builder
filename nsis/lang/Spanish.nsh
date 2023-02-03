@@ -92,7 +92,6 @@ LangString UNINST_PROMPT ${LANG_SPANISH} "¿Está seguro de que quiere eliminar 
 LangString UNINST_SUCCESS ${LANG_SPANISH} "$(^Name) se ha eliminado de su sistema."
 LangString INSTALLER_RUNNING ${LANG_SPANISH} "El asistente de instalación aún se está ejecutando."
 LangString UNINSTALLER_RUNNING ${LANG_SPANISH} "El desinstalador ya se está ejecutando."
-LangString ALREADY_INSTALLED ${LANG_SPANISH} "${PRODUCT_NAME} ya está instalado. Al instalar este paquete se sobreescribirán los archivos existente. ¿Desea continuar?"
 
 ;Install details
 LangString INSTALLING_APPS ${LANG_SPANISH} "Installing application..."
