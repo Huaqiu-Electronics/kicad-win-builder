@@ -102,6 +102,7 @@ RequestExecutionLevel admin
 !else
   InstallDir "$PROGRAMFILES\KiCad\${KICAD_VERSION}"
 !endif
+InstallDirRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME} ${KICAD_VERSION}\InstallLocation"
 
 ; Define a variable with start menu path for later use
 !define SMPATH "$SMPROGRAMS\KiCad ${KICAD_VERSION}"
@@ -564,7 +565,7 @@ SectionEnd
 
 Section -CreateAddRemoveEntry
   !insertmacro ExclusiveDetailPrint $(CREATING_PROGRAM_ENTRY)
-  WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
+  WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "DisplayName" "${PRODUCT_NAME} ${KICAD_VERSION}"
   WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PACKAGE_VERSION}"
   WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "Publisher" "${COMPANY_NAME}"
   WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\uninstaller.exe"
