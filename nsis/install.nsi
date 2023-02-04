@@ -102,7 +102,7 @@ RequestExecutionLevel admin
 !else
   InstallDir "$PROGRAMFILES\KiCad\${KICAD_VERSION}"
 !endif
-InstallDirRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME} ${KICAD_VERSION}\InstallLocation"
+InstallDirRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME} ${KICAD_VERSION}" InstallLocation
 
 ; Define a variable with start menu path for later use
 !define SMPATH "$SMPROGRAMS\KiCad ${KICAD_VERSION}"
