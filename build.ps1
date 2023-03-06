@@ -183,9 +183,9 @@ $ninjaChecksum = "524B344A1A9A55005EAF868D991E090AB8CE07FA109F1820D40E74642E289A
 $vswhereDownload = 'https://github.com/microsoft/vswhere/releases/download/2.8.4/vswhere.exe'
 $vswhereChecksum = "E50A14767C27477F634A4C19709D35C27A72F541FB2BA5C3A446C80998A86419"
 
-$swigwinFolder = "swigwin-4.0.2"
+$swigwinFolder = "swigwin-4.1.1"
 $swigwinDownload = "https://sourceforge.net/projects/swig/files/swigwin/$swigwinFolder/$swigwinFolder.zip/download?use_mirror=pilotfiber"
-$swigwinChecksum = "DAADB32F19FE818CB9B0015243233FC81584844C11A48436385E87C050346559"
+$swigwinChecksum = "2EC3107E24606DB535D77EF3DBF246DC6ECCBF1D5C868DCE365D7F7FB19A1A51"
 
 $nsisFolderName = "nsis-3.08"
 $nsisDownload = "https://sourceforge.net/projects/nsis/files/NSIS%203/3.08/nsis-3.08.zip/download"

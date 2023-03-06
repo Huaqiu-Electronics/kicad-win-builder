@@ -39,7 +39,7 @@ function Get-Tool {
         if( $calculatedChecksum -ne $Checksum )
         {
             Remove-Item -Path $DownloadPath -ErrorAction SilentlyContinue
-            Write-Error "Invalid checksum for $ToolName, expected: $cmakeChecksum actual: $calculatedChecksum"
+            Write-Error "Invalid checksum for $ToolName, expected: $Checksum actual: $calculatedChecksum"
 
             Exit [ExitCodes]::DownloadChecksumFailure
         }
