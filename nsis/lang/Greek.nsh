@@ -95,6 +95,7 @@ LangString UNINSTALLER_RUNNING ${LANG_GREEK} "Το πρόγραμμα απεγκ
 
 ;Install details
 LangString INSTALLING_APPS ${LANG_GREEK} "Installing application..."
+LangString INSTALLING_PIP ${LANG_GREEK} "Installing pip..."
 LangString INSTALLING_SCH_LIBS ${LANG_GREEK} "Installing schematic libraries..."
 LangString INSTALLING_PCB_LIBS ${LANG_GREEK} "Installing PCB libraries..."
 LangString INSTALLING_3D_MODELS ${LANG_GREEK} "Installing 3D models..."

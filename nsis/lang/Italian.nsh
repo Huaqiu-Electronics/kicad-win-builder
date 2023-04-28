@@ -95,6 +95,7 @@ LangString UNINSTALLER_RUNNING ${LANG_ITALIAN} "La disinstallazione è già in e
 
 ;Install details
 LangString INSTALLING_APPS ${LANG_ITALIAN} "Installing application..."
+LangString INSTALLING_PIP ${LANG_ITALIAN} "Installing pip..."
 LangString INSTALLING_SCH_LIBS ${LANG_ITALIAN} "Installing schematic libraries..."
 LangString INSTALLING_PCB_LIBS ${LANG_ITALIAN} "Installing PCB libraries..."
 LangString INSTALLING_3D_MODELS ${LANG_ITALIAN} "Installing 3D models..."

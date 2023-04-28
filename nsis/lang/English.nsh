@@ -95,6 +95,7 @@ LangString UNINSTALLER_RUNNING ${LANG_ENGLISH} "The uninstaller is already runni
 
 ;Install details
 LangString INSTALLING_APPS ${LANG_ENGLISH} "Installing application..."
+LangString INSTALLING_PIP ${LANG_ENGLISH} "Installing pip..."
 LangString INSTALLING_SCH_LIBS ${LANG_ENGLISH} "Installing schematic libraries..."
 LangString INSTALLING_PCB_LIBS ${LANG_ENGLISH} "Installing PCB libraries..."
 LangString INSTALLING_3D_MODELS ${LANG_ENGLISH} "Installing 3D models..."

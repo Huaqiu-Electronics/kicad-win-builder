@@ -95,6 +95,7 @@ LangString UNINSTALLER_RUNNING ${LANG_SPANISH} "El desinstalador ya se está eje
 
 ;Install details
 LangString INSTALLING_APPS ${LANG_SPANISH} "Installing application..."
+LangString INSTALLING_PIP ${LANG_SPANISH} "Installing pip..."
 LangString INSTALLING_SCH_LIBS ${LANG_SPANISH} "Installing schematic libraries..."
 LangString INSTALLING_PCB_LIBS ${LANG_SPANISH} "Installing PCB libraries..."
 LangString INSTALLING_3D_MODELS ${LANG_SPANISH} "Installing 3D models..."

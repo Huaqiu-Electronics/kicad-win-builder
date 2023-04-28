@@ -95,6 +95,7 @@ LangString UNINSTALLER_RUNNING ${LANG_SIMPCHINESE} "卸载程序已在运行。"
 
 ;Install details
 LangString INSTALLING_APPS ${LANG_SIMPCHINESE} "正在安装应用程序..."
+LangString INSTALLING_PIP ${LANG_SIMPCHINESE} "正在安装 pip..."
 LangString INSTALLING_SCH_LIBS ${LANG_SIMPCHINESE} "正在安装原理图库..."
 LangString INSTALLING_PCB_LIBS ${LANG_SIMPCHINESE} "正在安装 PCB 库..."
 LangString INSTALLING_3D_MODELS ${LANG_SIMPCHINESE} "正在安装 3D 模型..."

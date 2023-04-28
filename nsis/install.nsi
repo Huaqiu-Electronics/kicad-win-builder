@@ -394,7 +394,7 @@ Section $(TITLE_SEC_MAIN) SEC01
   File /nonfatal /r "..\share\kicad\schemas\*"
 
 !ifdef MSVC
-  !insertmacro ExclusiveDetailPrint "Installing pip"
+  !insertmacro ExclusiveDetailPrint $(INSTALLING_PIP)
 
   StrCpy $R0 "";
   System::Call '${SetEnvironmentVariable}("PYTHONPATH", "$R0").r0'
