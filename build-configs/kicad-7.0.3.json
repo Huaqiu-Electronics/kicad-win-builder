@@ -1,0 +1,27 @@
+{
+    "name:": "KiCad 7.0.3",
+    "output_prefix": "kicad-",
+    "package_version": "7.0.3",
+    "train": "stable",
+    "build_mode": "Release",
+    "sources": {
+        "kicad": {
+            "ref": "tag/7.0.3"
+        },
+        "symbols": {
+            "ref": "tag/7.0.3"
+        },
+        "footprints": {
+            "ref": "tag/7.0.3"
+        },
+        "3dmodels": {
+            "ref": "tag/7.0.3"
+        },
+        "templates": {
+            "ref": "tag/7.0.3"
+        }
+    }, 
+    "vcpkg": {
+        "manifest_mode": true
+    }
+}
