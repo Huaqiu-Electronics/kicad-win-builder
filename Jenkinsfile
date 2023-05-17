@@ -91,6 +91,7 @@ pipeline {
         booleanParam(name: 'CLEAN_WS', defaultValue: false, description: 'Clean workspace')
         choice(name: 'TRAIN', choices: ['nightly', 'release', 'testing'], description: '')
         text(name: 'BUILD_CONFIG', defaultValue: 'kicad-nightly', description: '')
+        booleanParam(name: 'BUILD_ARM64', defaultValue: false, description: 'Build arm64')
         booleanParam(name: 'BUILD_X64', defaultValue: true, description: 'Build 64-bit')
         booleanParam(name: 'BUILD_X86', defaultValue: false, description: 'Build 32-bit')
     }
@@ -124,6 +125,10 @@ pipeline {
 
                 if( params.BUILD_X86 ) {
                   archs.add( 'x86' )
+                }
+
+                if( params.BUILD_ARM64 ) {
+                  archs.add( 'arm64' )
                 }
 
                 do_init(archs)
