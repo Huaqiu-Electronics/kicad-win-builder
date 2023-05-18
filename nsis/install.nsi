@@ -321,14 +321,14 @@ FunctionEnd
 
 !ifdef MSVC
 Section -Prerequisites
-  !define VCRUNTIME_MINIMUM_BLD 29325 
+  !define VCRUNTIME_MINIMUM_BLD 32532 
   !if ${ARCH} == 'x86_64'
     ReadRegDword $R1 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Installed"
     ReadRegDword $R2 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Bld"
     !define VC_REDIST "VC_redist.x64.exe"
   !else if ${ARCH} == 'arm64'
-    ReadRegDword $R1 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\ARM" "Installed"
-    ReadRegDword $R2 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\ARM" "Bld"
+    ReadRegDword $R1 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\ARM64" "Installed"
+    ReadRegDword $R2 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\ARM64" "Bld"
     !define VC_REDIST "VC_redist.arm64.exe"
   !else
     ReadRegDword $R1 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x86" "Installed"
