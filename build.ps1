@@ -518,8 +518,7 @@ function Build-Kicad {
     $generator = "Ninja"
 
     #delete the old build folderhttps://gitlab.com/kicad/code/kicad.git
-    if($fresh)
-    {
+    if($fresh) {
         Remove-Item $cmakeBuildFolder -Recurse -ErrorAction SilentlyContinue
     }
 
@@ -533,6 +532,12 @@ function Build-Kicad {
     Write-Host "buildType: $buildType"
     Write-Host "Configured install directory: $installPath"
     Write-Host "Vcpkg Path: $toolchainPath"
+
+    $extraCmakeOpts = ""
+    if( $arch -ne [Arch]::arm64) {
+        $extraCmakeOpts = '-DKICAD_USE_SENTRY="True"' `
+                        + '-DKICAD_SCRIPTING_WXPYTHON="ON"'
+    }
 
     # ignore cmake dumping to stderr
     # the boost warnings will cause it to treat it as a failed command
@@ -549,12 +554,11 @@ function Build-Kicad {
             -DCMAKE_MAKE_PROGRAM="$env:NINJA_PATH" `
             -DKICAD_SPICE="ON" `
             -DKICAD_USE_OCC="ON" `
-            -DKICAD_SCRIPTING_WXPYTHON="ON" `
             -DKICAD_BUILD_QA_TESTS="OFF" `
             -DKICAD_WIN32_DPI_AWARE="ON" `
             -DKICAD_BUILD_I18N="ON" `
             -DKICAD_USE_3DCONNEXION="ON" `
-            -DKICAD_USE_SENTRY="True" `
+            $extraCmakeOpts
             2>&1 | % ToString
     }
 
