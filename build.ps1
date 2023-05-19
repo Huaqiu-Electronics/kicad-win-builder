@@ -534,7 +534,7 @@ function Build-Kicad {
     Write-Host "Vcpkg Path: $toolchainPath"
 
     $extraCmakeOpts = ""
-    if( $arch -ne [Arch]::arm64) {
+    if( $arch -ne [Arch]::arm64 ) {
         $extraCmakeOpts = '-DKICAD_USE_SENTRY="True" ' `
                         + '-DKICAD_SCRIPTING_WXPYTHON="ON" '
     }
@@ -1115,7 +1115,7 @@ function Start-Prepare-Package {
 
     ### but delete the scripts folder as this stuff is mostly host based paths
     ### We will create these later
-    Remove-Item (Join-Path -Path $destBin -ChildPath "\Scripts\") -Recurse
+    Remove-Item (Join-Path -Path $destBin -ChildPath "\Scripts\") -Recurse -ErrorAction SilentlyContinue
 
     $siteCustomizeSource = Join-Path -Path $PSScriptRoot -ChildPath "\support\sitecustomize.py"
     $siteCustomizeDest = Join-Path -Path $destBin -ChildPath "Lib/site-packages"
@@ -1125,30 +1125,37 @@ function Start-Prepare-Package {
     Copy-Item $kicadCmdSource -Destination $destBin -Force
 
     ### lets setup pip
-    Write-Host "Ensuring pip is bundled and installed"
-    $pythonBin = Join-Path -Path $destBin -ChildPath "python.exe"
-    & $pythonBin -m ensurepip --upgrade
-    if ($LastExitCode -ne 0) {
-        Write-Error "Error ensuring pip"
-        Exit [ExitCodes]::EnsurePip
+    $hostArch = Get-HostArch
+    if( $arch -eq $hostArch ) {
+        # we can't run this if the python.exe compiled isn't the same arch
+        Write-Host "Ensuring pip is bundled and installed"
+        $pythonBin = Join-Path -Path $destBin -ChildPath "python.exe"
+        & $pythonBin -m ensurepip --upgrade
+        if ($LastExitCode -ne 0) {
+            Write-Error "Error ensuring pip"
+            Exit [ExitCodes]::EnsurePip
+        }
     }
 
-    $wxRequirements = Join-Path -Path $PSScriptRoot -ChildPath "\support\wxrequirements.txt"
+    if( $arch -ne [Arch]::arm64) {
+        # no wxpython on arm64 due to reqs not existing for the arch
+        $wxRequirements = Join-Path -Path $PSScriptRoot -ChildPath "\support\wxrequirements.txt"
 
-    Write-Host "Making sure the wxPython requirements are included"
-    & $pythonBin -m pip install -r $wxRequirements
-    if ($LastExitCode -ne 0) {
-        Write-Error "Error installing wxpython requirements"
-        Exit [ExitCodes]::WxPythonRequirements
-    }
+        Write-Host "Making sure the wxPython requirements are included"
+        & $pythonBin -m pip install -r $wxRequirements
+        if ($LastExitCode -ne 0) {
+            Write-Error "Error installing wxpython requirements"
+            Exit [ExitCodes]::WxPythonRequirements
+        }
 
-    $extraRequirements = Join-Path -Path $PSScriptRoot -ChildPath "\support\extrarequirements.txt"
+        $extraRequirements = Join-Path -Path $PSScriptRoot -ChildPath "\support\extrarequirements.txt"
 
-    Write-Host "Making sure the wxPython requirements are included"
-    & $pythonBin -m pip install -r $extraRequirements
-    if ($LastExitCode -ne 0) {
-        Write-Error "Error installing extra requirements"
-        Exit [ExitCodes]::ExtraRequirements
+        Write-Host "Making sure the wxPython requirements are included"
+        & $pythonBin -m pip install -r $extraRequirements
+        if ($LastExitCode -ne 0) {
+            Write-Error "Error installing extra requirements"
+            Exit [ExitCodes]::ExtraRequirements
+        }
     }
 
     ### patch python manifest
