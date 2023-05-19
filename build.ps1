@@ -535,9 +535,24 @@ function Build-Kicad {
 
     $extraCmakeOpts = ""
     if( $arch -ne [Arch]::arm64) {
-        $extraCmakeOpts = '-DKICAD_USE_SENTRY="True"' `
-                        + '-DKICAD_SCRIPTING_WXPYTHON="ON"'
+        $extraCmakeOpts = '-DKICAD_USE_SENTRY="True" ' `
+                        + '-DKICAD_SCRIPTING_WXPYTHON="ON" '
     }
+    else {
+        $hostArch = Get-HostArch
+
+        if( $hostArch -ne $arch ) {
+            # this is a hack required to cross compile arm64
+            # since lemon.exe in the build tree must be run to generate the compilable grammer
+            # so you must run a native compile first
+            # TODO consider doing a offshoot targeted compile of the lemon target on the host arch
+            $hostArchBuildName = Get-Build-Name -Arch $hostArch -BuildType $buildType
+            $hostArchcmakeBuildFolder = "build/$hostArchBuildName"
+            $lemonPath = Join-Path -Path $hostArchcmakeBuildFolder -ChildPath "thirdparty/lemon/lemon.exe"
+            $extraCmakeOpts = "-DLEMON_EXE=$lemonPath "
+        }
+    }
+
 
     # ignore cmake dumping to stderr
     # the boost warnings will cause it to treat it as a failed command
@@ -558,7 +573,7 @@ function Build-Kicad {
             -DKICAD_WIN32_DPI_AWARE="ON" `
             -DKICAD_BUILD_I18N="ON" `
             -DKICAD_USE_3DCONNEXION="ON" `
-            $extraCmakeOpts
+            $extraCmakeOpts `
             2>&1 | % ToString
     }
 
