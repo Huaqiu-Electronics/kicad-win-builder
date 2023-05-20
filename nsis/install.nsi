@@ -98,6 +98,16 @@ OutFile ${OUTFILE}
 RequestExecutionLevel admin
 
 !if ${ARCH} == 'x86_64'
+  SetRegView 64
+!else if ${ARCH} == 'arm64'
+  SetRegView 64
+!else
+  SetRegView 32
+!endif
+
+!if ${ARCH} == 'x86_64'
+  InstallDir "$PROGRAMFILES64\KiCad\${KICAD_VERSION}"
+!else if ${ARCH} == 'arm64'
   InstallDir "$PROGRAMFILES64\KiCad\${KICAD_VERSION}"
 !else
   InstallDir "$PROGRAMFILES\KiCad\${KICAD_VERSION}"
