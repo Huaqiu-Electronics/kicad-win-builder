@@ -40,7 +40,6 @@
 !define TRADE_MARKS ""
 !define COPYRIGHT "Kicad Developers Team"
 !define COMMENTS ""
-!define FREECAD_WEB_SITE "https://www.freecadweb.org/"
 
 !define ENV_HKLM 'HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"'
 
@@ -143,9 +142,6 @@ BrandingText "KiCad installer for Windows"
 !insertmacro MUI_PAGE_DIRECTORY
 
 !insertmacro MUI_PAGE_INSTFILES
-!define MUI_FINISHPAGE_SHOWREADME ${FREECAD_WEB_SITE}
-!define MUI_FINISHPAGE_SHOWREADME_TEXT $(FREECAD_PROMPT)
-!define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
 !define MUI_PAGE_CUSTOMFUNCTION_SHOW ModifyFinishPage
 !insertmacro MUI_PAGE_FINISH
 

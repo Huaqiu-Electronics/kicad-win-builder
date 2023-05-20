@@ -81,9 +81,6 @@ LangString APP_NAME_GERBVIEW ${LANG_GREEK} "Gerbview"
 ;General messages
 LangString PROGRAM_IS_OPEN_ERROR ${LANG_GREEK} "$R1 is currently running! You must close the program before you are allowed continue."
 
-LangString FREECAD_PROMPT ${LANG_GREEK} "Για να επεξεργαστείτε ή να δημιουργήσετε μοντέλα 3Δ απαιτείται η εγκατάσταση του FreeCAD. \
-Μπορείτε να κατεβάσετε το FreeCAD και τον οδηγό χρήσης του, δωρεάν από την ιστοσελίδα του FreeCAD. Κάντε τικ σε αυτό το κουτάκι για να ανοίξει η ιστοσελίδα του FreeCAD."
-
 LangString CLEANUP_PROMPT ${LANG_GREEK} "Remove downloaded files after installation?"
 LangString UNINST_PROMPT ${LANG_GREEK} "Είστε βέβαιοι ότι θέλετε να αφαιρέσετε εντελώς το $(^Name) και όλα του τα κομμάτια; $\n\
 Αυτό θα αφαιρέσει επίσης όλα τα αρχεία, τις βιβλιοθήκες και τα προγράμματα στον φάκελο του προγράμματος \

@@ -81,9 +81,6 @@ LangString APP_NAME_GERBVIEW ${LANG_SIMPCHINESE} "Gerbview"
 ;General messages
 LangString PROGRAM_IS_OPEN_ERROR ${LANG_SIMPCHINESE} "$R1 目前正在运行！在允许继续之前，您必须关闭程序。"
 
-LangString FREECAD_PROMPT ${LANG_SIMPCHINESE} "要编辑或创建 3D 对象模型，您需要安装 FreeCAD。 \
-FreeCAD 和用户手册可以从 FreeCAD 网页免费下载。选中此框以打开 FreeCAD 网页。"
-
 LangString CLEANUP_PROMPT ${LANG_SIMPCHINESE} "是否在安装后删除下载的文件？"
 LangString UNINST_PROMPT ${LANG_SIMPCHINESE} "您确定要完全删除 $(^Name) 及其所有元件吗？ $\n\
 这还将删除程序目录中的所有已修改和新文件，符号和封装 \

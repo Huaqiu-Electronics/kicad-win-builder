@@ -81,9 +81,6 @@ LangString APP_NAME_GERBVIEW ${LANG_SPANISH} "Gerbview"
 ;General messages
 LangString PROGRAM_IS_OPEN_ERROR ${LANG_SPANISH} "$R1 is currently running! You must close the program before you are allowed continue."
 
-LangString FREECAD_PROMPT ${LANG_SPANISH} "Para editar o crear modelos de objetos 3D es necesario instalar FreeCAD. \
-FreeCAD y su manual de usuario pueden descargarse desde la página web de FreeCAD. Seleccione esta opción para abrir la página web de FreeCAD."
-
 LangString CLEANUP_PROMPT ${LANG_SPANISH} "Remove downloaded files after installation?"
 LangString UNINST_PROMPT ${LANG_SPANISH} "¿Está seguro de que quiere eliminar completamente $(^Name) y todos sus componentes? $\n\
 ¡También se eliminarán todos los archivos modificados o nuevos, librerias y huellas de la carpeta del programa \
