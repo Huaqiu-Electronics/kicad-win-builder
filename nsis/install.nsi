@@ -98,14 +98,6 @@ OutFile ${OUTFILE}
 RequestExecutionLevel admin
 
 !if ${ARCH} == 'x86_64'
-  SetRegView 64
-!else if ${ARCH} == 'arm64'
-  SetRegView 64
-!else
-  SetRegView 32
-!endif
-
-!if ${ARCH} == 'x86_64'
   InstallDir "$PROGRAMFILES64\KiCad\${KICAD_VERSION}"
 !else if ${ARCH} == 'arm64'
   InstallDir "$PROGRAMFILES64\KiCad\${KICAD_VERSION}"
@@ -204,6 +196,14 @@ VIAddVersionKey "FileVersion" "${PACKAGE_VERSION}"
 !define SetEnvironmentVariable "Kernel32::SetEnvironmentVariable(t, t)i"
 
 Function .onInit
+  !if ${ARCH} == 'x86_64'
+    SetRegView 64
+  !else if ${ARCH} == 'arm64'
+    SetRegView 64
+  !else
+    SetRegView 32
+  !endif
+
   !ifdef MSVC
   ; MSVC builds use python 3.8+ which dropped windows 7 support and will crash
   ${IfNot} ${AtLeastWin8.1}
@@ -573,6 +573,14 @@ Section -CreateShortcuts
 SectionEnd
 
 Section -CreateAddRemoveEntry
+  !if ${ARCH} == 'x86_64'
+    SetRegView 64
+  !else if ${ARCH} == 'arm64'
+    SetRegView 64
+  !else
+    SetRegView 32
+  !endif
+
   !insertmacro ExclusiveDetailPrint $(CREATING_PROGRAM_ENTRY)
   WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "DisplayName" "${PRODUCT_NAME} ${KICAD_VERSION}"
   WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PACKAGE_VERSION}"
