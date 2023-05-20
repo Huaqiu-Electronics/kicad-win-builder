@@ -1250,7 +1250,7 @@ function Start-Package-Nsis {
     Copy-Item $nsisSource -Destination $destRoot -Recurse -Container -Force
 
     ## Run NSIS
-    $nsisScript = Join-Path -Path $destRoot -ChildPath "nsis\install.nsi"
+    $nsisScript = Join-Path -Path $destRoot -ChildPath "nsis\$($buildConfig.nsis.file)"
 
     Write-Host "Copying LICENSE.README as copyright.txt"
 

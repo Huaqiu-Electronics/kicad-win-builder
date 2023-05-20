@@ -4,6 +4,9 @@
     "package_version": "6.99",
     "train": "nightly",
     "build_mode": "Release",
+    "nsis": {
+        "file": "install.nsi"
+    },
     "sources": {
         "kicad": {
             "ref": "branch/master"

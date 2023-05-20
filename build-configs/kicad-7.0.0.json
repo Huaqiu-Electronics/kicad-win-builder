@@ -4,6 +4,9 @@
     "package_version": "7.0.0",
     "train": "stable",
     "build_mode": "Release",
+    "nsis": {
+        "file": "install-7.0.nsi"
+    },
     "sources": {
         "kicad": {
             "ref": "tag/7.0.0"
