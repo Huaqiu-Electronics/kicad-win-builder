@@ -895,12 +895,11 @@ function Get-KiCad-PackageVersion {
     {
         Push-Location (Get-Source-Path kicad)
     
-        $revCount = (git rev-list --count --first-parent HEAD)
-        $commitHash = (git rev-parse --short HEAD)
+        $revCount = (git describe --long --tags | %{$_ -replace "-","."} )
     
         Pop-Location
     
-        return "r$revCount.$commitHash"
+        return "$revCount"
     }
 }
 
@@ -923,7 +922,7 @@ function Get-KiCad-PackageVersion-Msix {
     $base = Get-KiCad-Version
     
     Push-Location (Get-Source-Path kicad)
-    $revCount = (git rev-list --count --first-parent HEAD)
+    $revCount = (git describe --long --tags | %{$_ -replace "-","."} )
     Pop-Location
 
     # SPECIAL REQUIREMENT
