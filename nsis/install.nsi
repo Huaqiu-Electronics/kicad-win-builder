@@ -82,7 +82,7 @@ Var DELETE_DOWNLOADED_FILES
 Unicode true
 
 ;Comment out the following SetCompressor command while testing this script
-;SetCompressor /final /solid lzma
+SetCompressor /final /solid lzma
 
 CRCCheck force
 ;XPStyle on
