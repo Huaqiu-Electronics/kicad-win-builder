@@ -14,6 +14,7 @@ LangString ERROR_ADMIN_REQ  ${LANG_ITALIAN} "Per installare KiCad sono necessari
 LangString ERROR_WIN9X      ${LANG_ITALIAN} "Errore! Non può funzionare sotto Windows 9x!"
 LangString ERROR_WIN_MIN    ${LANG_ITALIAN} "A minimum of Windows 8.1 is required to install KiCad using this installer"
 LangString ERROR_UNINSTALL_FIRST    ${LANG_ITALIAN} "You must run the uninstaller on your existing KiCad ${KICAD_VERSION} installation to proceed with installation"
+LangString ERROR_WRONG_ARCH         ${LANG_ITALIAN} "This installer is for a different processor architecture (${ARCH}), please use the correct installer"
 
 ;Other languages
 LangString LANGUAGE_NAME_EN ${LANG_ITALIAN} "Inglese"

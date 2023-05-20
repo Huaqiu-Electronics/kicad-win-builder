@@ -29,6 +29,7 @@
 !addplugindir /x86-ansi "./plugins/x86-ansi"
 !addplugindir /x86-unicode "./plugins/x86-unicode"
 
+!include "x64.nsh"
 !include "winmessages.nsh"
 !include "WinVer.nsh"
 !include "includes\nsProcess.nsh"
@@ -192,6 +193,13 @@ VIAddVersionKey "FileVersion" "${PACKAGE_VERSION}"
 !define SetEnvironmentVariable "Kernel32::SetEnvironmentVariable(t, t)i"
 
 Function .onInit
+  !if ${ARCH} == 'arm64'
+    ${IfNot} ${IsNativeARM64}
+      MessageBox MB_OK|MB_TOPMOST $(ERROR_WRONG_ARCH)
+      Quit
+    ${endif}
+  !endif
+
   !if ${ARCH} == 'x86_64'
     SetRegView 64
   !else if ${ARCH} == 'arm64'
