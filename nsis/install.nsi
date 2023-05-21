@@ -81,9 +81,6 @@ Var DELETE_DOWNLOADED_FILES
 ;Properly display all languages (Installer will not work on Windows 95, 98 or ME!)
 Unicode true
 
-;Comment out the following SetCompressor command while testing this script
-SetCompressor /final /solid lzma
-
 CRCCheck force
 ;XPStyle on
 Name "${PRODUCT_NAME} ${PACKAGE_VERSION}"
