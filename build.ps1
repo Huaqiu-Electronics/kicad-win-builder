@@ -1275,17 +1275,23 @@ function Start-Package-Nsis {
         # needed for lite mode to enable footprints and symbols, why? who knows for now
         New-Item -ItemType "directory" -Path (Join-Path -Path $destKicadShare -ChildPath "\footprints")
         New-Item -ItemType "directory" -Path (Join-Path -Path $destKicadShare -ChildPath "\symbols")
-        $liteGitTag = "master"
-        $found = $packageVersion -match '^\d+\.\d+\.\d+'
-        if ($found) {
-            $liteGitTag = $matches[0]
+        
+        $libRefName = "master";
+        # out of laziness we will just use the symbol ref as the ref for all libraries download in the lite
+        if( $buildConfig.sources.symbols.ref ) {
+            if( $buildConfig.sources.symbols.ref.StartsWith("branch/") ) {
+                $libRefName = $buildConfig.sources.symbols.ref.Replace("branch/", "")
+            }
+            elseif ( $buildConfig.sources.symbols.ref.StartsWith("tag/") ) {
+                $libRefName = $buildConfig.sources.symbols.ref.Replace("tag/", "")
+            }
         }
 
         makensis /DPACKAGE_VERSION=$packageVersion `
             /DKICAD_VERSION=$kicadVersion `
             /DOUTFILE="..\..\$outFileName" `
             /DARCH="$nsisArch" `
-            /DLIBRARIES_TAG="$liteGitTag" `
+            /DLIBRARIES_TAG="$libRefName" `
             /DMSVC `
             "$nsisScript"
     }
