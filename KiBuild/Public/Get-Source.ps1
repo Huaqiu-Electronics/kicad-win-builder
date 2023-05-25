@@ -49,7 +49,7 @@ function Get-Source {
             }
         }
 
-        git -C "$dest" fetch --all --tags
+        git -C "$dest" fetch --all --tags --force
         if ($LastExitCode -ne 0) {
             Write-Error "Error git clean"
             Exit [ExitCodes]::GitFetch
