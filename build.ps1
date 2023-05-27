@@ -671,7 +671,7 @@ function Start-Init {
         Get-Tool -ToolName "CMake" `
                  -Url $cmakeDownload `
                  -DestPath (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $cmakeFolder) `
-                 -DownloadPath ($BuilderPaths.DownloadsRoot+"cmake.zip") `
+                 -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "cmake.zip") `
                  -Checksum $cmakeChecksum `
                  -ExtractZip $true `
                  -ZipRelocate $False `
@@ -680,7 +680,7 @@ function Start-Init {
         Get-Tool -ToolName "Ninja" `
                  -Url $ninjaDownload `
                  -DestPath (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $ninjaFolder) `
-                 -DownloadPath ($BuilderPaths.DownloadsRoot+"ninja.zip") `
+                 -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "ninja.zip") `
                  -Checksum $ninjaChecksum `
                  -ExtractZip $true `
                  -ZipRelocate $False `
@@ -690,7 +690,7 @@ function Start-Init {
     Get-Tool -ToolName "swigwin" `
              -Url $swigwinDownload `
              -DestPath (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $swigwinFolder) `
-             -DownloadPath ($BuilderPaths.DownloadsRoot+"$swigwinFolder.zip") `
+             -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "$swigwinFolder.zip") `
              -Checksum $swigwinChecksum `
              -ExtractZip $true `
              -ExtractInSupportRoot $True
@@ -698,7 +698,7 @@ function Start-Init {
     Get-Tool -ToolName "doxygen" `
              -Url $doxygenDownload `
              -DestPath (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $doxygenFolderName) `
-             -DownloadPath ($BuilderPaths.DownloadsRoot+"$doxygenFolderName.zip") `
+             -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "$doxygenFolderName.zip") `
              -Checksum $doxygenChecksum `
              -ExtractZip $true `
              -ExtractInSupportRoot $False
@@ -706,7 +706,7 @@ function Start-Init {
     Get-Tool -ToolName "nsis" `
              -Url $nsisDownload `
              -DestPath (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $nsisFolderName) `
-             -DownloadPath ($BuilderPaths.DownloadsRoot+"nsis.zip") `
+             -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "nsis.zip") `
              -Checksum $nsisChecksum `
              -ExtractZip $true `
              -ExtractInSupportRoot $True
@@ -714,28 +714,28 @@ function Start-Init {
     Get-Tool -ToolName "vswhere" `
              -Url $vswhereDownload `
              -DestPath ($BuilderPaths.SupportRoot+'vswhere.exe') `
-             -DownloadPath ($BuilderPaths.DownloadsRoot+"vswhere.exe") `
+             -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "vswhere.exe") `
              -Checksum $vswhereChecksum `
              -ExtractZip $False
              
     Get-Tool -ToolName "sentry-cli" `
             -Url $sentryCliDownload `
             -DestPath ($BuilderPaths.SupportRoot+'sentry-cli.exe') `
-            -DownloadPath ($BuilderPaths.DownloadsRoot+"sentry-cli.exe") `
+            -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "sentry-cli.exe") `
             -Checksum $sentryCliChecksum `
             -ExtractZip $False
 
     Get-Tool -ToolName "gettext" `
              -Url $gettextDownload `
              -DestPath ($BuilderPaths.SupportRoot+"$gettextFolderName/") `
-             -DownloadPath ($BuilderPaths.DownloadsRoot+"$gettextFolderName.zip") `
+             -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "$gettextFolderName.zip") `
              -Checksum $gettextChecksum `
              -ExtractZip $true
 
     Get-Tool -ToolName "s5cmd" `
              -Url $s5cmdDownload `
              -DestPath (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $s5cmdFolderName) `
-             -DownloadPath ($BuilderPaths.DownloadsRoot+"s5cmd.zip") `
+             -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "s5cmd.zip") `
              -Checksum $s5cmdChecksum `
              -ExtractZip $true `
              -ZipRelocate $False `
@@ -753,7 +753,7 @@ function Start-Init {
     $7zaSource = Join-Path -Path $PSScriptRoot -ChildPath "\support\7z2201-extra.zip"
     Expand-Tool -ToolName "7za" `
              -SourcePath $7zaSource `
-             -DestPath ($BuilderPaths.SupportRoot+"$7zaFolderName/")
+             -DestPath (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "$7zaFolderName/")
 
     # Restore progress bar
     $ProgressPreference = 'Continue'
