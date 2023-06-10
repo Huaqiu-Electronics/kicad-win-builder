@@ -186,20 +186,19 @@ pipeline {
     }
     
     post {
-        always {
+      always {
           node('master') {
             script {
-                // to get mailer to behave well
-                if (currentBuild.result == null) {
-                    currentBuild.result = 'SUCCESS'    
-                }
+                  // to get mailer to behave well
+                  if (currentBuild.result == null) {
+                      currentBuild.result = 'SUCCESS'    
+                  }
             }
             step([$class: 'Mailer',
-              notifyEveryUnstableBuild: true,
-              recipients: "ci@kicad.org",
-              sendToIndividuals: false])
+                  notifyEveryUnstableBuild: true,
+                  recipients: "ci@kicad.org",
+                  sendToIndividuals: false])
           }
         }
-      }
     }
 }
