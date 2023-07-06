@@ -1,0 +1,30 @@
+{
+    "name:": "KiCad 7.0.6",
+    "output_prefix": "kicad-",
+    "package_version": "7.0.6",
+    "train": "stable",
+    "build_mode": "Release",
+    "nsis": {
+        "file": "install-7.0.nsi"
+    },
+    "sources": {
+        "kicad": {
+            "ref": "tag/7.0.6"
+        },
+        "symbols": {
+            "ref": "tag/7.0.6"
+        },
+        "footprints": {
+            "ref": "tag/7.0.6"
+        },
+        "3dmodels": {
+            "ref": "tag/7.0.6"
+        },
+        "templates": {
+            "ref": "tag/7.0.6"
+        }
+    }, 
+    "vcpkg": {
+        "manifest_mode": true
+    }
+}
