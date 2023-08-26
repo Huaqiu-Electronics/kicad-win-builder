@@ -1013,6 +1013,7 @@ function Start-Prepare-Package {
     $destRoot = Join-Path -Path $PSScriptRoot -ChildPath ".out\$buildName\"
     $destBin = Join-Path -Path $destRoot -ChildPath "bin\"
     $destLib = Join-Path -Path $destRoot -ChildPath "lib\"
+    $destEtc = Join-Path -Path $destRoot -ChildPath "etc\"
 
     # Now delete the existing output content
     if( Test-Path $destRoot )
@@ -1090,11 +1091,16 @@ function Start-Prepare-Package {
         }
     }
 
+    ## etc
+    ## For now the etc folder should be harmless to copy over entirely
+    $srcEtc = Join-Path -Path $vcpkgInstalledRoot -ChildPath "etc\"
+    Copy-Item $srcEtc -Destination $destEtc -Recurse -Container  -Force
+
     ## ngspice related
     $ngspiceLib = Join-Path -Path $vcpkgInstalledRoot -ChildPath "lib\ngspice"
     $ngspiceDestLib = Join-Path -Path $destLib -ChildPath "ngspice\"
     Write-Host "Copying ngspice lib $ngspiceLib to $destLib"
-    Copy-Item $ngspiceLib -Destination $ngspiceDestLib -Recurse -Container  -Force
+    Copy-Item $ngspiceLib -Destination $ngspiceDestLib -Recurse -Container -Force
 
     ### fixup for 64-bit....ngspice appends "64" to the end of the code model names wrongly
     if( $arch -eq [Arch]::x64 )
