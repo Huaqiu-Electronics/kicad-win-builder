@@ -57,7 +57,7 @@
 !define MULTIUSER_INSTALLMODE_INSTDIR "KiCad\${KICAD_VERSION}" ; the appended path we get installed to
 !define MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY "${PRODUCT_NAME} ${KICAD_VERSION}"
 !define MULTIUSER_INSTALLMODE_DISPLAYNAME "${PRODUCT_NAME} ${KICAD_VERSION}"
-!define PROGEXE "kicad.exe"     ; used by the plugin
+!define PROGEXE "bin/kicad.exe"     ; used by the plugin
 !define VERSION "${PACKAGE_VERSION}" ; used by the plugin
 
 !define FILE_ASSOC_PREFIX	"KiCad"
