@@ -36,6 +36,7 @@
 !include "nsProcess.nsh"
 !include "NsisMultiUser.nsh"
 !include "StdUtils.nsh"
+!include "RecFind.nsh"
 
 ; General Product Description Definitions
 !define PRODUCT_NAME "KiCad"
@@ -431,6 +432,16 @@ Section $(TITLE_SEC_MAIN) SEC01
   ${RegisterApplication} "pl_editor.exe" "$(APP_FRIENDLY_PLEDITOR) ${KICAD_VERSION}"
 SectionEnd
 
+!macro RecursiveReadOnlyFlagFiles BasePath
+    ${if} $MultiUser.InstallMode == "CurrentUser"
+      ${RecFindOpen} "${BasePath}" $R0 $R1
+      ${RecFindFirst}
+        SetFileAttributes "${BasePath}\$R0\$R1" READONLY
+      ${RecFindNext}
+      ${RecFindClose}
+    ${endif}
+!macroend
+
 SectionGroup /e $(TITLE_SEC_LIBRARIES) SEC03
   !ifndef LIBRARIES_TAG
   Section $(TITLE_SEC_SCHLIB) SEC03_SCHLIB
@@ -439,18 +450,14 @@ SectionGroup /e $(TITLE_SEC_LIBRARIES) SEC03
     SetOutPath "$INSTDIR\share\kicad\symbols"
     File /nonfatal /r "..\share\kicad\symbols\*"
   
-    ${if} $MultiUser.InstallMode == "CurrentUser"
-      SetFileAttributes "$INSTDIR\share\kicad\symbols\" READONLY
-    ${endif}
+    !insertmacro RecursiveReadOnlyFlagFiles "$INSTDIR\share\kicad\symbols\"
   SectionEnd
   !else
   Section /o $(TITLE_SEC_SCHLIB) SEC03_SCHLIB
     AddSize 24576 ; 24MB
     !insertmacro DownloadAndExtract "${KICAD_SYMBOLS_FILE}" "${KICAD_SYMBOLS_URL}" "symbols" "${KICAD_SYMBOLS_FOLDER}" "$INSTDIR\share\kicad\" "symbols"
 
-    ${if} $MultiUser.InstallMode == "CurrentUser"
-      SetFileAttributes "$INSTDIR\share\kicad\symbols\" READONLY
-    ${endif}
+    !insertmacro RecursiveReadOnlyFlagFiles "$INSTDIR\share\kicad\symbols\"
   SectionEnd
   !endif
 
@@ -461,18 +468,14 @@ SectionGroup /e $(TITLE_SEC_LIBRARIES) SEC03
     SetOutPath "$INSTDIR\share\kicad\footprints"
     File /nonfatal /r "..\share\kicad\footprints\*"
 
-    ${if} $MultiUser.InstallMode == "CurrentUser"
-      SetFileAttributes "$INSTDIR\share\kicad\footprints\" READONLY
-    ${endif}
+    !insertmacro RecursiveReadOnlyFlagFiles "$INSTDIR\share\kicad\footprints\"
   SectionEnd
   !else
   Section /o $(TITLE_SEC_FPLIB) SEC03_FOOTPRINTS
     AddSize 81920 ; 80MB
     !insertmacro DownloadAndExtract "${KICAD_FOOTPRINTS_FILE}" "${KICAD_FOOTPRINTS_URL}" "footprints" "${KICAD_FOOTPRINTS_FOLDER}" "$INSTDIR\share\kicad\" "footprints"
 
-    ${if} $MultiUser.InstallMode == "CurrentUser"
-      SetFileAttributes "$INSTDIR\share\kicad\footprints\" READONLY
-    ${endif}
+    !insertmacro RecursiveReadOnlyFlagFiles "$INSTDIR\share\kicad\footprints\"
   SectionEnd
   !endif
 
@@ -483,18 +486,14 @@ SectionGroup /e $(TITLE_SEC_LIBRARIES) SEC03
     SetOutPath "$INSTDIR\share\kicad\3dmodels"
     File /nonfatal /r "..\share\kicad\3dmodels\*"
     
-    ${if} $MultiUser.InstallMode == "CurrentUser"
-      SetFileAttributes "$INSTDIR\share\kicad\3dmodels\" READONLY
-    ${endif}
+    !insertmacro RecursiveReadOnlyFlagFiles "$INSTDIR\share\kicad\3dmodels\"
   SectionEnd
   !else
   Section /o $(TITLE_SEC_PACKAGES3D) SEC03_PACKAGES3D
     AddSize 5767168 ; 5.5GB
     !insertmacro DownloadAndExtract "${KICAD_PACKAGES3D_FILE}" "${KICAD_PACKAGES3D_URL}" "3d models" "${KICAD_PACKAGES3D_FOLDER}" "$INSTDIR\share\kicad\" "3dmodels"
 
-    ${if} $MultiUser.InstallMode == "CurrentUser"
-      SetFileAttributes "$INSTDIR\share\kicad\3dmodels\" READONLY
-    ${endif}
+    !insertmacro RecursiveReadOnlyFlagFiles "$INSTDIR\share\kicad\3dmodels\"
   SectionEnd
   !endif
 SectionGroupEnd
