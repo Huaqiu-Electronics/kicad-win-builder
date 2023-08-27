@@ -392,6 +392,9 @@ Section $(TITLE_SEC_MAIN) SEC01
 
   SetOutPath "$INSTDIR\lib"
   File /r "..\lib\*"
+  
+  SetOutPath "$INSTDIR\etc"
+  File /r "..\etc\*"
 
   SetOutPath "$INSTDIR\share\kicad\internat"
   File /nonfatal /r "..\share\kicad\internat\*"
