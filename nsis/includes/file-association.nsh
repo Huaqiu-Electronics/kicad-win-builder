@@ -52,7 +52,10 @@
   Exch $R1 ;desc
 
   ;global extension reference to program
-  WriteRegExpandStr ${SOFTWARE_CLASSES_ROOT_KEY} "Software\Classes\Applications\$R0\shell\open" "FriendlyAppName" "$R1"
+  ; We need this delete because we previously create the FriendlyAppName string subkey, the problem
+  ; Windows would then use this friendly name and disable it over all versions of KiCad in the open with
+  ; It essentially acts as the highest priority override for file extension association naming
+  DeleteRegKey ${SOFTWARE_CLASSES_ROOT_KEY} "Software\Classes\Applications\$R0\shell\open"
   WriteRegExpandStr ${SOFTWARE_CLASSES_ROOT_KEY} "Software\Classes\Applications\$R0\shell\open\command" "" '$INSTDIR\bin\$R0 "%1"'
 
   Pop $R1
