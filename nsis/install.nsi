@@ -130,11 +130,14 @@ BrandingText "KiCad installer for Windows"
 !define MUI_LANGDLL_REGISTRY_VALUENAME "NSIS:Language"
 
 ; Installer pages
-!define MUI_CUSTOMFUNCTION_GUIINIT onMyGuiInit
 !define MUI_CUSTOMFUNCTION_UNGUIINIT un.onMyGuiInit
 !define MUI_WELCOMEPAGE_TEXT $(WELCOME_PAGE_TEXT)
 !define MUI_WELCOMEPAGE_TITLE_3LINES
+
+; Pages
+!define MUI_PAGE_CUSTOMFUNCTION_PRE PageWelcomeLicensePre
 !insertmacro MUI_PAGE_WELCOME
+
 !insertmacro MULTIUSER_PAGE_INSTALLMODE
 ;!insertmacro MUI_PAGE_LICENSE $(MUILicense)
 !insertmacro MUI_PAGE_COMPONENTS
@@ -195,6 +198,10 @@ VIAddVersionKey "FileVersion" "${PACKAGE_VERSION}"
 !define SetEnvironmentVariable "Kernel32::SetEnvironmentVariable(t, t)i"
 
 Function .onInit
+	${ifnot} ${UAC_IsInnerInstance}
+    Call PreventMultiInstances
+	${endif}
+
   !insertmacro MULTIUSER_INIT
 
   !if ${ARCH} == 'arm64'
@@ -236,8 +243,11 @@ Function .onInit
 
 FunctionEnd
 
-Function onMyGuiInit
-  Call PreventMultiInstances
+; This handles skipping the welcome/license pages when UAC escalates to the inner installer
+Function PageWelcomeLicensePre
+	${if} $InstallShowPagesBeforeComponents = 0
+		Abort ; don't display the Welcome and License pages
+	${endif}
 FunctionEnd
 
 Function ModifyFinishPage
@@ -663,6 +673,7 @@ Function un.onInit
 			${StdUtils.ExecShellAsUser} $0 "$INSTDIR\${UNINSTALL_FILENAME}" "open" "/shelluser $R0"
 			Quit
 		${endif}
+    Call un.PreventMultiInstances
 	${endif}
 
 	!insertmacro MULTIUSER_UNINIT
@@ -670,8 +681,6 @@ Function un.onInit
 FunctionEnd
 
 Function un.onMyGuiInit
-  Call un.PreventMultiInstances
-
   !insertmacro KiCadRunningProccessesCheck
 
   MessageBox MB_ICONEXCLAMATION|MB_YESNO|MB_DEFBUTTON2|MB_TOPMOST $(UNINST_PROMPT) /SD IDYES IDYES +2
