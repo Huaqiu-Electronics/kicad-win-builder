@@ -160,7 +160,10 @@ param(
     [string]$VcpkgPath = "",
     
     [Parameter(Mandatory=$False, ParameterSetName="config")]
-    [bool]$UseMsvcCmake = $True
+    [bool]$UseMsvcCmake = $True,
+    
+    [Parameter(Mandatory=$False, ParameterSetName="config")]
+    [string]$SentryDsn = ""
 )
 
 Import-Module $PSScriptRoot\KiBuild -Force -DisableNameChecking
@@ -242,6 +245,7 @@ $settingDefault = @{
     VsVersionMax = '17.99'
     SignSubjectName = 'KiCad Services Corporation'
     UseMsvcCmake = $True
+    SentryDsn = ''
 }
 
 $settingsSaved = @{}
@@ -535,8 +539,11 @@ function Build-Kicad {
 
     $extraCmakeOpts = ""
     if( $arch -ne [Arch]::arm64 ) {
-        $extraCmakeOpts = '-DKICAD_USE_SENTRY="True" ' `
-                        + '-DKICAD_SCRIPTING_WXPYTHON="ON" '
+        $extraCmakeOpts = '-DKICAD_SCRIPTING_WXPYTHON="ON" '
+        if( $settings.SentryDsn -ne "" ) {
+            $extraCmakeOpts += '-DKICAD_USE_SENTRY="True" ' `
+                             + '-DKICAD_SENTRY_DSN="'+$settings.SentryDsn+ '" '
+        }
     }
     else {
         $hostArch = Get-HostArch
@@ -1548,7 +1555,9 @@ function Set-Config {
         [Parameter(Mandatory=$False)]
         [string]$VcpkgPath,
         [Parameter(Mandatory=$False)]
-        [bool]$UseMsvcCmake
+        [bool]$UseMsvcCmake,
+        [Parameter(Mandatory=$False)]
+        [string]$SentryDsn
     )
 
     if( $VcpkgPath -ne "" ) {
@@ -1560,6 +1569,7 @@ function Set-Config {
 
     $settings.VcpkgPath = $VcpkgPath
     $settings.UseMsvcCmake = $UseMsvcCmake
+    $settings.SentryDsn = $SentryDsn
 
     $settings | ConvertTo-Json -Compress | Set-Content -Path $settingsPath
 }
@@ -1587,7 +1597,7 @@ function Start-Env {
 
 if( $Config )
 {
-    Set-Config -VcpkgPath $VcpkgPath -UseMsvcCmake $UseMsvcCmake
+    Set-Config -VcpkgPath $VcpkgPath -UseMsvcCmake $UseMsvcCmake -SentryDsn $SentryDsn
 }
 
 if( $Init )

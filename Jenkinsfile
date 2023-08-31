@@ -3,7 +3,9 @@ archs_to_build = []
 archs_to_pack = []
 
 def do_init(list) {
-    pwsh ".\\build.ps1 -Config -VcpkgPath C:\\vcpkg"
+    withCredentials([string(credentialsId: 'kicad-sentry-dsn', variable: 'KICAD_SENTRY_DSN')]) {
+      pwsh '.\\build.ps1 -Config -VcpkgPath C:\\vcpkg -SentryDsn $Env:KICAD_SENTRY_DSN'
+    }
     pwsh ".\\build.ps1 -Init"
     list.each { item ->
       echo "Doing init for ${item}"
