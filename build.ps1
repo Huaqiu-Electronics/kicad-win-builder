@@ -569,6 +569,7 @@ function Build-Kicad {
             -Wno-dev `
             -B $cmakeBuildFolder `
             -S .  `
+            --fresh `
             -DCMAKE_BUILD_TYPE="$buildType" `
             -DCMAKE_TOOLCHAIN_FILE="$toolchainPath" `
             -DCMAKE_INSTALL_PREFIX="$installPath" `
@@ -1561,15 +1562,18 @@ function Set-Config {
     )
 
     if( $VcpkgPath -ne "" ) {
+        $settings.VcpkgPath = $VcpkgPath
         if ( -Not (Test-Path $VcpkgPath) ) {
             Write-Error "Invalid vcpkg path"
             Exit [ExitCodes]::ConfigError
         }
     }
 
-    $settings.VcpkgPath = $VcpkgPath
     $settings.UseMsvcCmake = $UseMsvcCmake
-    $settings.SentryDsn = $SentryDsn
+
+    if( $VcpkgPath -ne "" ) {
+        $settings.SentryDsn = $SentryDsn
+    }
 
     $settings | ConvertTo-Json -Compress | Set-Content -Path $settingsPath
 }
