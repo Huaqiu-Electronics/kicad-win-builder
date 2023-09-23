@@ -537,12 +537,27 @@ function Build-Kicad {
     Write-Host "Configured install directory: $installPath"
     Write-Host "Vcpkg Path: $toolchainPath"
 
-    $extraCmakeOpts = ""
+    $cmakeArgs = @(
+        '-G',
+        $generator,
+        '-Wno-dev',
+        '--fresh',
+        "-DCMAKE_BUILD_TYPE=$buildType",
+        "-DCMAKE_TOOLCHAIN_FILE=$toolchainPath",
+        "-DCMAKE_INSTALL_PREFIX=$installPath",
+        "-DCMAKE_PDB_OUTPUT_DIRECTORY=$installPdbPath",
+        "-DCMAKE_MAKE_PROGRAM=$env:NINJA_PATH",
+        '-DKICAD_SPICE="ON"',
+        '-DKICAD_BUILD_QA_TESTS="OFF"',
+        '-DKICAD_WIN32_DPI_AWARE="ON"',
+        '-DKICAD_BUILD_I18N="ON"'
+    )
+
     if( $arch -ne [Arch]::arm64 ) {
-        $extraCmakeOpts = '-DKICAD_SCRIPTING_WXPYTHON="ON" '
+        $cmakeArgs += '-DKICAD_SCRIPTING_WXPYTHON="ON"';
         if( $settings.SentryDsn -ne "" ) {
-            $extraCmakeOpts += '-DKICAD_USE_SENTRY="True" ' `
-                             + '-DKICAD_SENTRY_DSN="'+$settings.SentryDsn+ '" '
+            $cmakeArgs += '-DKICAD_USE_SENTRY="ON"';
+            $cmakeArgs += "-DKICAD_SENTRY_DSN=$($settings.SentryDsn)";
         }
     }
     else {
@@ -556,34 +571,15 @@ function Build-Kicad {
             $hostArchBuildName = Get-Build-Name -Arch $hostArch -BuildType $buildType
             $hostArchcmakeBuildFolder = "build/$hostArchBuildName"
             $lemonPath = Join-Path -Path $hostArchcmakeBuildFolder -ChildPath "thirdparty/lemon/lemon.exe"
-            $extraCmakeOpts = "-DLEMON_EXE=$lemonPath "
+            $cmakeArgs += "-DLEMON_EXE=$lemonPath";
         }
     }
 
-
+    $cmakeArgs += '-S';
+    $cmakeArgs += '.';
     # ignore cmake dumping to stderr
     # the boost warnings will cause it to treat it as a failed command
-    & {
-        $ErrorActionPreference = 'SilentlyContinue'
-        cmake -G $generator `
-            -Wno-dev `
-            -B $cmakeBuildFolder `
-            -S .  `
-            --fresh `
-            -DCMAKE_BUILD_TYPE="$buildType" `
-            -DCMAKE_TOOLCHAIN_FILE="$toolchainPath" `
-            -DCMAKE_INSTALL_PREFIX="$installPath" `
-            -DCMAKE_PDB_OUTPUT_DIRECTORY:PATH="$installPdbPath" `
-            -DCMAKE_MAKE_PROGRAM="$env:NINJA_PATH" `
-            -DKICAD_SPICE="ON" `
-            -DKICAD_USE_OCC="ON" `
-            -DKICAD_BUILD_QA_TESTS="OFF" `
-            -DKICAD_WIN32_DPI_AWARE="ON" `
-            -DKICAD_BUILD_I18N="ON" `
-            -DKICAD_USE_3DCONNEXION="ON" `
-            $extraCmakeOpts `
-            2>&1 | % ToString
-    }
+    & cmake $cmakeArgs  2>&1
 
     if ($LastExitCode -ne 0) {
         Write-Error "Failure generating cmake"
