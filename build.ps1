@@ -540,6 +540,8 @@ function Build-Kicad {
     $cmakeArgs = @(
         '-G',
         $generator,
+        '-B',
+        $cmakeBuildFolder,
         '-Wno-dev',
         '--fresh',
         "-DCMAKE_BUILD_TYPE=$buildType",
@@ -547,16 +549,15 @@ function Build-Kicad {
         "-DCMAKE_INSTALL_PREFIX=$installPath",
         "-DCMAKE_PDB_OUTPUT_DIRECTORY=$installPdbPath",
         "-DCMAKE_MAKE_PROGRAM=$env:NINJA_PATH",
-        '-DKICAD_SPICE="ON"',
-        '-DKICAD_BUILD_QA_TESTS="OFF"',
-        '-DKICAD_WIN32_DPI_AWARE="ON"',
-        '-DKICAD_BUILD_I18N="ON"'
+        '-DKICAD_BUILD_QA_TESTS=OFF',
+        '-DKICAD_BUILD_I18N=ON',
+        '-DKICAD_WIN32_DPI_AWARE=ON'
     )
 
     if( $arch -ne [Arch]::arm64 ) {
-        $cmakeArgs += '-DKICAD_SCRIPTING_WXPYTHON="ON"';
+        $cmakeArgs += '-DKICAD_SCRIPTING_WXPYTHON=ON';
         if( $settings.SentryDsn -ne "" ) {
-            $cmakeArgs += '-DKICAD_USE_SENTRY="ON"';
+            $cmakeArgs += '-DKICAD_USE_SENTRY=ON';
             $cmakeArgs += "-DKICAD_SENTRY_DSN=$($settings.SentryDsn)";
         }
     }
