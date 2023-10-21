@@ -28,10 +28,15 @@
 
 !addplugindir /x86-ansi "./plugins/x86-ansi"
 !addplugindir /x86-unicode "./plugins/x86-unicode"
+!addincludedir ".\includes"
 
+!include "x64.nsh"
 !include "winmessages.nsh"
 !include "WinVer.nsh"
-!include "includes\nsProcess.nsh"
+!include "nsProcess.nsh"
+!include "NsisMultiUser.nsh"
+!include "StdUtils.nsh"
+!include "RecFind.nsh"
 
 ; General Product Description Definitions
 !define PRODUCT_NAME "KiCad"
@@ -41,10 +46,23 @@
 !define COPYRIGHT "Kicad Developers Team"
 !define COMMENTS ""
 
-!define ENV_HKLM 'HKLM "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"'
+; MultiUser plugin config
+; WARNING, WE PATCHED NsisMultiUser.nsh because it fails to use the \Programs
+; subfolder under LocalAppData, this is the folder microsoft enshrines for app installs
+!define MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS 0
+!define MULTIUSER_INSTALLMODE_ALLOW_ELEVATION 1
+!define MULTIUSER_INSTALLMODE_ALLOW_ELEVATION_IF_SILENT 1 ; required for silent-mode allusers-uninstall to work, when using the workaround for Windows elevation bug
+!define MULTIUSER_INSTALLMODE_DEFAULT_ALLUSERS 1
+!define MULTIUSER_INSTALLMODE_64_BIT 1  ; it's ridiculous the plugin controls the program files view
+!define KICAD_MULTIUSER_INSTALLMODE_64_BIT_32BITVIEW 1 ; We added this hack because we had 32-bit regview by default in 7.0 and are adding multi-user midcycle
+!define MULTIUSER_INSTALLMODE_INSTDIR "KiCad\${KICAD_VERSION}" ; the appended path we get installed to
+!define MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY "${PRODUCT_NAME} ${KICAD_VERSION}"
+!define MULTIUSER_INSTALLMODE_DISPLAYNAME "${PRODUCT_NAME} ${KICAD_VERSION}"
+!define PROGEXE "bin/kicad.exe"     ; used by the plugin
+!define VERSION "${PACKAGE_VERSION}" ; used by the plugin
 
 !define FILE_ASSOC_PREFIX	"KiCad"
-!define SOFTWARE_CLASSES_ROOT_KEY 'HKLM'
+!define SOFTWARE_CLASSES_ROOT_KEY 'SHCTX'
 
 !define gflag ;Needed to use ifdef and such
 ;Define on command line //DPACKAGE_VERSION=42
@@ -61,7 +79,7 @@
 !endif
 
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME} ${KICAD_VERSION}"
-!define UNINST_ROOT "HKLM"
+!define UNINST_ROOT "SHCTX"
 
 ;Define libraries download urls
 !ifdef LIBRARIES_TAG
@@ -80,9 +98,6 @@ Var DELETE_DOWNLOADED_FILES
 ;Properly display all languages (Installer will not work on Windows 95, 98 or ME!)
 Unicode true
 
-;Comment out the following SetCompressor command while testing this script
-;SetCompressor /final /solid lzma
-
 CRCCheck force
 ;XPStyle on
 Name "${PRODUCT_NAME} ${PACKAGE_VERSION}"
@@ -91,17 +106,6 @@ Name "${PRODUCT_NAME} ${PACKAGE_VERSION}"
   !define OUTFILE "kicad-${PACKAGE_VERSION}-${OPTION_STRING}.exe"
 !endif
 OutFile ${OUTFILE}
-
-; Request that we are executed as admin rights so we can install into
-; PROGRAMFILES without ending up in the virtual store
-RequestExecutionLevel admin
-
-!if ${ARCH} == 'x86_64'
-  InstallDir "$PROGRAMFILES64\KiCad\${KICAD_VERSION}"
-!else
-  InstallDir "$PROGRAMFILES\KiCad\${KICAD_VERSION}"
-!endif
-InstallDirRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME} ${KICAD_VERSION}" InstallLocation
 
 ; Define a variable with start menu path for later use
 !define SMPATH "$SMPROGRAMS\KiCad ${KICAD_VERSION}"
@@ -123,16 +127,20 @@ BrandingText "KiCad installer for Windows"
 !define MUI_WELCOMEFINISHPAGE_BITMAP "kicad-welcome.bmp"
 
 ; Language Selection Dialog Settings
-!define MUI_LANGDLL_REGISTRY_ROOT "${UNINST_ROOT}"
+!define MUI_LANGDLL_REGISTRY_ROOT SHCTX
 !define MUI_LANGDLL_REGISTRY_KEY "${PRODUCT_UNINST_KEY}"
 !define MUI_LANGDLL_REGISTRY_VALUENAME "NSIS:Language"
 
 ; Installer pages
-!define MUI_CUSTOMFUNCTION_GUIINIT onMyGuiInit
 !define MUI_CUSTOMFUNCTION_UNGUIINIT un.onMyGuiInit
 !define MUI_WELCOMEPAGE_TEXT $(WELCOME_PAGE_TEXT)
 !define MUI_WELCOMEPAGE_TITLE_3LINES
+
+; Pages
+!define MUI_PAGE_CUSTOMFUNCTION_PRE PageWelcomeLicensePre
 !insertmacro MUI_PAGE_WELCOME
+
+!insertmacro MULTIUSER_PAGE_INSTALLMODE
 ;!insertmacro MUI_PAGE_LICENSE $(MUILicense)
 !insertmacro MUI_PAGE_COMPONENTS
 
@@ -144,6 +152,7 @@ BrandingText "KiCad installer for Windows"
 !insertmacro MUI_PAGE_FINISH
 
 ; Uninstaller pages
+!insertmacro MULTIUSER_UNPAGE_INSTALLMODE
 !insertmacro MUI_UNPAGE_INSTFILES
 
 ; Language files
@@ -162,6 +171,7 @@ BrandingText "KiCad installer for Windows"
 !include "lang\Spanish.nsh"
 !include "lang\Greek.nsh"
 !include "lang\Chinese.nsh"
+!include "NsisMultiUserLang.nsh"
 
 VIProductVersion "0.0.0.0" ; Dummy version, because this can only be X.X.X.X
 VIAddVersionKey "ProductName" "${COMPANY_NAME}"
@@ -190,6 +200,12 @@ VIAddVersionKey "FileVersion" "${PACKAGE_VERSION}"
 !define SetEnvironmentVariable "Kernel32::SetEnvironmentVariable(t, t)i"
 
 Function .onInit
+	${ifnot} ${UAC_IsInnerInstance}
+    Call PreventMultiInstances
+	${endif}
+
+  !insertmacro MULTIUSER_INIT
+
   !ifdef MSVC
   ; MSVC builds use python 3.8+ which dropped windows 7 support and will crash
   ${IfNot} ${AtLeastWin8.1}
@@ -197,23 +213,6 @@ Function .onInit
       Quit
   ${EndIf}
   !endif
-
-  ; Check if we already have an install (MSYS2)
-  ; Refuse to run until its uninstalled
-  ReadRegStr $0 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "DisplayName"
-  ${If} $0 != ""
-    ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "MSVC"
-  !ifdef MSVC
-    ; MSVC over MSYS2 is bad
-    ${If} $1 != 1
-  !else
-    ; MSYS2 OVER MSVC is bad
-    ${If} $1 == 1
-  !endif
-      MessageBox MB_OK|MB_TOPMOST $(ERROR_UNINSTALL_FIRST)
-      Quit
-    ${EndIf}
-  ${EndIf}
 
   !ifdef LIBRARIES_TAG
   StrCpy $DELETE_DOWNLOADED_FILES "unknown"
@@ -231,8 +230,11 @@ Function .onInit
 
 FunctionEnd
 
-Function onMyGuiInit
-  Call PreventMultiInstances
+; This handles skipping the welcome/license pages when UAC escalates to the inner installer
+Function PageWelcomeLicensePre
+	${if} $InstallShowPagesBeforeComponents = 0
+		Abort ; don't display the Welcome and License pages
+	${endif}
 FunctionEnd
 
 Function ModifyFinishPage
@@ -419,46 +421,68 @@ Section $(TITLE_SEC_MAIN) SEC01
   ${RegisterApplication} "pl_editor.exe" "$(APP_FRIENDLY_PLEDITOR) ${KICAD_VERSION}"
 SectionEnd
 
+!macro RecursiveReadOnlyFlagFiles BasePath
+    ${if} $MultiUser.InstallMode == "CurrentUser"
+      ${RecFindOpen} "${BasePath}" $R0 $R1
+      ${RecFindFirst}
+        SetFileAttributes "${BasePath}\$R0\$R1" READONLY
+      ${RecFindNext}
+      ${RecFindClose}
+    ${endif}
+!macroend
+
 SectionGroup /e $(TITLE_SEC_LIBRARIES) SEC03
   !ifndef LIBRARIES_TAG
   Section $(TITLE_SEC_SCHLIB) SEC03_SCHLIB
     SetOverwrite try
-	!insertmacro ExclusiveDetailPrint $(INSTALLING_SCH_LIBS)
+    !insertmacro ExclusiveDetailPrint $(INSTALLING_SCH_LIBS)
     SetOutPath "$INSTDIR\share\kicad\symbols"
     File /nonfatal /r "..\share\kicad\symbols\*"
+  
+    !insertmacro RecursiveReadOnlyFlagFiles "$INSTDIR\share\kicad\symbols\"
   SectionEnd
   !else
   Section /o $(TITLE_SEC_SCHLIB) SEC03_SCHLIB
     AddSize 24576 ; 24MB
     !insertmacro DownloadAndExtract "${KICAD_SYMBOLS_FILE}" "${KICAD_SYMBOLS_URL}" "symbols" "${KICAD_SYMBOLS_FOLDER}" "$INSTDIR\share\kicad\" "symbols"
+
+    !insertmacro RecursiveReadOnlyFlagFiles "$INSTDIR\share\kicad\symbols\"
   SectionEnd
   !endif
 
   !ifndef LIBRARIES_TAG
   Section $(TITLE_SEC_FPLIB) SEC03_FOOTPRINTS
     SetOverwrite try
-	!insertmacro ExclusiveDetailPrint $(INSTALLING_PCB_LIBS)
+    !insertmacro ExclusiveDetailPrint $(INSTALLING_PCB_LIBS)
     SetOutPath "$INSTDIR\share\kicad\footprints"
     File /nonfatal /r "..\share\kicad\footprints\*"
+
+    !insertmacro RecursiveReadOnlyFlagFiles "$INSTDIR\share\kicad\footprints\"
   SectionEnd
   !else
   Section /o $(TITLE_SEC_FPLIB) SEC03_FOOTPRINTS
     AddSize 81920 ; 80MB
     !insertmacro DownloadAndExtract "${KICAD_FOOTPRINTS_FILE}" "${KICAD_FOOTPRINTS_URL}" "footprints" "${KICAD_FOOTPRINTS_FOLDER}" "$INSTDIR\share\kicad\" "footprints"
+
+    !insertmacro RecursiveReadOnlyFlagFiles "$INSTDIR\share\kicad\footprints\"
   SectionEnd
   !endif
 
   !ifndef LIBRARIES_TAG
   Section $(TITLE_SEC_PACKAGES3D) SEC03_PACKAGES3D
     SetOverwrite try
-	!insertmacro ExclusiveDetailPrint $(INSTALLING_3D_MODELS)
+    !insertmacro ExclusiveDetailPrint $(INSTALLING_3D_MODELS)
     SetOutPath "$INSTDIR\share\kicad\3dmodels"
     File /nonfatal /r "..\share\kicad\3dmodels\*"
+    
+    !insertmacro RecursiveReadOnlyFlagFiles "$INSTDIR\share\kicad\3dmodels\"
   SectionEnd
   !else
   Section /o $(TITLE_SEC_PACKAGES3D) SEC03_PACKAGES3D
     AddSize 5767168 ; 5.5GB
     !insertmacro DownloadAndExtract "${KICAD_PACKAGES3D_FILE}" "${KICAD_PACKAGES3D_URL}" "3d models" "${KICAD_PACKAGES3D_FOLDER}" "$INSTDIR\share\kicad\" "3dmodels"
+
+    !insertmacro RecursiveReadOnlyFlagFiles "$INSTDIR\share\kicad\3dmodels\"
   SectionEnd
   !endif
 SectionGroupEnd
@@ -544,7 +568,6 @@ SectionEnd
 Section -CreateShortcuts
   !insertmacro ExclusiveDetailPrint $(CREATING_SHORTCUTS)
   SetOutPath $INSTDIR
-  SetShellVarContext all
 
   RMDir /r "${SMPATH}"
   CreateDirectory "${SMPATH}"
@@ -562,24 +585,10 @@ Section -CreateShortcuts
 SectionEnd
 
 Section -CreateAddRemoveEntry
-  !insertmacro ExclusiveDetailPrint $(CREATING_PROGRAM_ENTRY)
-  WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "DisplayName" "${PRODUCT_NAME} ${KICAD_VERSION}"
-  WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PACKAGE_VERSION}"
-  WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "Publisher" "${COMPANY_NAME}"
-  WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "UninstallString" "$\"$INSTDIR\uninstaller.exe$\""
-  WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${KICAD_MAIN_SITE}"
-  WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "DisplayIcon" "$INSTDIR\bin\kicad.exe"
-  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "NoModify" "1"
-  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "NoRepair" "1"
-  WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "Comments" "${COMMENTS}"
-  WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "URLUpdateInfo" "${KICAD_MAIN_SITE}"
-  WriteRegStr ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "InstallLocation" "$INSTDIR"
+	SetOutPath $INSTDIR
+  WriteUninstaller "${UNINSTALL_FILENAME}"
 
-  !ifdef MSVC
-  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "MSVC" "1"
-  !endif
-
-  WriteUninstaller "$INSTDIR\uninstaller.exe"
+  !insertmacro MULTIUSER_RegistryAddInstallInfo ; add registry keys
 SectionEnd
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
@@ -607,13 +616,59 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC07} $(DESC_SEC_FILE_ASSOC)
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
+Var SemiSilentMode ; installer started uninstaller in semi-silent mode using /SS parameter
+Var RunningFromInstaller ; installer started uninstaller using /uninstall parameter
+Var RunningAsShellUser ; uninstaller restarted itself under the user of the running shell
+
 Function un.onInit
+	${GetParameters} $R0
+  
+	${GetOptions} $R0 "/uninstall" $R1
+	${ifnot} ${errors}
+		StrCpy $RunningFromInstaller 1
+	${else}
+		StrCpy $RunningFromInstaller 0
+	${endif}
+
+	${GetOptions} $R0 "/SS" $R1
+	${ifnot} ${errors}
+		StrCpy $SemiSilentMode 1
+		StrCpy $RunningFromInstaller 1
+		SetAutoClose true ; auto close (if no errors) if we are called from the installer; if there are errors, will be automatically set to false
+	${else}
+		StrCpy $SemiSilentMode 0
+	${endif}
+
+	${GetOptions} $R0 "/shelluser" $R1
+	${ifnot} ${errors}
+		StrCpy $RunningAsShellUser 1
+	${else}
+		StrCpy $RunningAsShellUser 0
+	${endif}
+
+	${ifnot} ${UAC_IsInnerInstance}
+	${andif} $RunningFromInstaller = 0
+		; Restarting the uninstaller using the user of the running shell, in order to overcome the Windows bugs that:
+		; - Elevates the uninstallers of single-user installations when called from 'Apps & features' of Windows 10
+		; causing them to fail when using a different account for elevation.
+		; - Elevates the uninstallers of all-users installations when called from 'Add/Remove Programs' of Control Panel,
+		; preventing them of eleveting on their own and correctly recognize the user that started the uninstaller. If a
+		; different account was used for elevation, all user-context operations will be performed for the user of that
+		; account. In this case, the fix causes the elevetion prompt to be displayed twice (one from Control Panel and
+		; one from the uninstaller).
+		${if} ${UAC_IsAdmin}
+		${andif} $RunningAsShellUser = 0
+			${StdUtils.ExecShellAsUser} $0 "$INSTDIR\${UNINSTALL_FILENAME}" "open" "/shelluser $R0"
+			Quit
+		${endif}
+    Call un.PreventMultiInstances
+	${endif}
+
+	!insertmacro MULTIUSER_UNINIT
   !insertmacro MUI_UNGETLANGUAGE
 FunctionEnd
 
 Function un.onMyGuiInit
-  Call un.PreventMultiInstances
-
   !insertmacro KiCadRunningProccessesCheck
 
   MessageBox MB_ICONEXCLAMATION|MB_YESNO|MB_DEFBUTTON2|MB_TOPMOST $(UNINST_PROMPT) /SD IDYES IDYES +2
@@ -630,7 +685,6 @@ Section Uninstall
   Delete "$INSTDIR\uninstaller.exe"
 
   ;remove start menu shortcuts and web page links
-  SetShellVarContext all
   !insertmacro ExclusiveDetailPrint $(REMOVING_SHORTCUTS)
   RMDir /r "${SMPATH}"
   Delete "$DESKTOP\KiCad ${KICAD_VERSION}.lnk"
@@ -667,20 +721,6 @@ Section Uninstall
   Delete "$INSTDIR\*.txt"
   RMDir "$INSTDIR"
 
-  ;remove environment only if it was "installed" last
-  ClearErrors
-  ReadRegDWORD $0 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "EnvInstalled"
-  IfErrors FinishUninstall 0
-
-  IntCmp $0 1 0 FinishUninstall FinishUninstall
-
-  !insertmacro ExclusiveDetailPrint $(REMOVING_ENV_VARS)
-  DeleteRegValue ${ENV_HKLM} KICAD_TEMPLATE_DIR
-  DeleteRegValue ${ENV_HKLM} KISYS3DMOD
-  DeleteRegValue ${ENV_HKLM} KISYSMOD
-  DeleteRegValue ${ENV_HKLM} KICAD_SYMBOL_DIR
-  SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
-
   ;remove file association only if it was installed
   ClearErrors
   ReadRegDWORD $0 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "FileAssocInstalled"
@@ -703,7 +743,7 @@ Section Uninstall
   ;and access to other people's registry entries. So for now we will leave the application registry keys.
 
   ;remove installation registary keys
-  DeleteRegKey ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}"
+  !insertmacro MULTIUSER_RegistryRemoveInstallInfo ; Remove registry keys	
   SetAutoClose true
 SectionEnd
 

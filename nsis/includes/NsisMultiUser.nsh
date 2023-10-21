@@ -66,6 +66,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 		!define /redef MULTIUSER_INSTALLMODE_DEFAULT_CURRENTUSER 1
 	!endif
 	!define /ifndef MULTIUSER_INSTALLMODE_64_BIT 0 ; set to 1 for 64-bit installers
+	!define /ifndef KICAD_MULTIUSER_INSTALLMODE_64_BIT_32BITVIEW 0 ; set to 1 for dumb reasons
 	!define /ifndef MULTIUSER_INSTALLMODE_INSTDIR "${PRODUCT_NAME}" ; suggested name of directory to install (under $PROGRAMFILES32/$PROGRAMFILES64 or $LOCALAPPDATA\Programs)
 
 	!define /ifndef MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY "${PRODUCT_NAME}" ; registry key for UNINSTALL info, placed under [HKLM|HKCU]\Software\Microsoft\Windows\CurrentVersion\Uninstall	(can be ${PRODUCT_NAME} or some {GUID})
@@ -372,6 +373,7 @@ RequestExecutionLevel user ; will ask elevation only if necessary
 
 		${if} ${RunningX64} ; fix for https://github.com/Drizin/NsisMultiUser/issues/11
 			${if} ${MULTIUSER_INSTALLMODE_64_BIT} = 0
+				${orif} ${KICAD_MULTIUSER_INSTALLMODE_64_BIT_32BITVIEW} = 1
 				; HKLM\Software\Microsoft\Windows\CurrentVersion\Uninstall gets redirected to HKLM\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall,
 				; for HKCU there's no redirection
 				SetRegView 32 ; someday, when NSIS is 64-bit...

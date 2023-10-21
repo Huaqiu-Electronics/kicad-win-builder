@@ -54,6 +54,7 @@
 !define MULTIUSER_INSTALLMODE_ALLOW_ELEVATION_IF_SILENT 1 ; required for silent-mode allusers-uninstall to work, when using the workaround for Windows elevation bug
 !define MULTIUSER_INSTALLMODE_DEFAULT_ALLUSERS 1
 !define MULTIUSER_INSTALLMODE_64_BIT 1  ; it's ridiculous the plugin controls the program files view
+!define KICAD_MULTIUSER_INSTALLMODE_64_BIT_32BITVIEW 0 ; unsure the 32-bit hack is off
 !define MULTIUSER_INSTALLMODE_INSTDIR "KiCad\${KICAD_VERSION}" ; the appended path we get installed to
 !define MULTIUSER_INSTALLMODE_UNINSTALL_REGISTRY_KEY "${PRODUCT_NAME} ${KICAD_VERSION}"
 !define MULTIUSER_INSTALLMODE_DISPLAYNAME "${PRODUCT_NAME} ${KICAD_VERSION}"
