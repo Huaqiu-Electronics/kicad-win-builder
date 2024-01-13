@@ -9,7 +9,7 @@
     },
     "sources": {
         "kicad": {
-            "ref": "tag/8.0.00-rc1"
+            "ref": "tag/8.0.0-rc1"
         },
         "symbols": {
             "ref": "branch/master"
