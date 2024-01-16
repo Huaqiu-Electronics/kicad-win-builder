@@ -397,6 +397,9 @@ Section $(TITLE_SEC_MAIN) SEC01
   SetOutPath "$INSTDIR\etc"
   File /r "..\etc\*"
 
+  SetOutPath "$INSTDIR\share\locale"
+  File /nonfatal /r "..\share\locale\*"
+
   SetOutPath "$INSTDIR\share\kicad\internat"
   File /nonfatal /r "..\share\kicad\internat\*"
 
@@ -717,10 +720,12 @@ Section Uninstall
   RMDir /r "$INSTDIR\help"
   RMDir /r "$INSTDIR\ssl\certs"
   RMDir /r "$INSTDIR\ssl"
+  RMDir /r "$INSTDIR\share\locale"
   
   !insertmacro ExclusiveDetailPrint $(REMOVING_LIBRARIES)
   RMDir /r "$INSTDIR\share\symbols"
   RMDir /r "$INSTDIR\share\footprints"
+  RMDir /r "$INSTDIR\share\3dmodels"
   RMDir /r "$INSTDIR\share\kicad\template"
   RMDir /r "$INSTDIR\share\kicad\internat"
   RMDir /r "$INSTDIR\share\kicad\demos"
