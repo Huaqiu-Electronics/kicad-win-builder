@@ -1018,6 +1018,7 @@ function Start-Prepare-Package {
     $destRoot = Join-Path -Path $PSScriptRoot -ChildPath ".out\$buildName\"
     $destBin = Join-Path -Path $destRoot -ChildPath "bin\"
     $destLib = Join-Path -Path $destRoot -ChildPath "lib\"
+    $destShare = Join-Path -Path $destRoot -ChildPath "share\"
     $destEtc = Join-Path -Path $destRoot -ChildPath "etc\"
 
     # Now delete the existing output content
@@ -1106,6 +1107,12 @@ function Start-Prepare-Package {
     $ngspiceDestLib = Join-Path -Path $destLib -ChildPath "ngspice\"
     Write-Host "Copying ngspice lib $ngspiceLib to $destLib"
     Copy-Item $ngspiceLib -Destination $ngspiceDestLib -Recurse -Container -Force
+
+    #wx locale
+    $vcpkgLocaleShare = Join-Path -Path $vcpkgInstalledRoot -ChildPath "share\locale"
+    $destLocaleShare = Join-Path -Path $destShare -ChildPath "locale\"
+    Write-Host "Copying share locale $vcpkgLocaleShare to $destLocaleShare"
+    Copy-Item $vcpkgLocaleShare -Destination $destLocaleShare -Recurse -Container -Force
 
     ### fixup for 64-bit....ngspice appends "64" to the end of the code model names wrongly
     if( $arch -eq [Arch]::x64 )
