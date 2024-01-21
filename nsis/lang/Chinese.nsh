@@ -66,18 +66,18 @@ LangString FILE_DESC_KICAD_WKS ${LANG_SIMPCHINESE} "KiCad 图框"
 
 ;Application Friendly Names (for windows explorer hook)
 LangString APP_FRIENDLY_KICAD ${LANG_SIMPCHINESE} "KiCad"
-LangString APP_FRIENDLY_PCBNEW ${LANG_SIMPCHINESE} "KiCad - Pcbnew"
-LangString APP_FRIENDLY_EESCHEMA ${LANG_SIMPCHINESE} "KiCad - Eeschema"
+LangString APP_FRIENDLY_PCBNEW ${LANG_SIMPCHINESE} "KiCad - PCB Editor"
+LangString APP_FRIENDLY_EESCHEMA ${LANG_SIMPCHINESE} "KiCad - Schematic Editor"
 LangString APP_FRIENDLY_PLEDITOR ${LANG_SIMPCHINESE} "KiCad - 图框编辑器"
 
 ;Application names
 LangString APP_NAME_KICAD ${LANG_SIMPCHINESE} "KiCad"
-LangString APP_NAME_PCBNEW ${LANG_SIMPCHINESE} "Pcbnew"
-LangString APP_NAME_EESCHEMA ${LANG_SIMPCHINESE} "Eeschema"
-LangString APP_NAME_PLEDITOR ${LANG_SIMPCHINESE} "图框编辑器"
-LangString APP_NAME_PCBCALCULATOR ${LANG_SIMPCHINESE} "PCB 计算器"
-LangString APP_NAME_BITMAP2COMPONENT ${LANG_SIMPCHINESE} "BMP 到元件"
-LangString APP_NAME_GERBVIEW ${LANG_SIMPCHINESE} "Gerbview"
+LangString APP_NAME_PCBNEW ${LANG_SIMPCHINESE} "PCB Editor (pcbnew.exe)"
+LangString APP_NAME_EESCHEMA ${LANG_SIMPCHINESE} "Schematic Editor (eeschema.exe)"
+LangString APP_NAME_PLEDITOR ${LANG_SIMPCHINESE} "图框编辑器 (pl_editor.exe)"
+LangString APP_NAME_PCBCALCULATOR ${LANG_SIMPCHINESE} "PCB 计算器 (pcb_calculator.exe)"
+LangString APP_NAME_BITMAP2COMPONENT ${LANG_SIMPCHINESE} "BMP 到元件 (bitmap2component.exe)"
+LangString APP_NAME_GERBVIEW ${LANG_SIMPCHINESE} "Gerber Viewer (gerbview.exe)"
 
 ;General messages
 LangString PROGRAM_IS_OPEN_ERROR ${LANG_SIMPCHINESE} "$R1 目前正在运行！在允许继续之前，您必须关闭程序。"

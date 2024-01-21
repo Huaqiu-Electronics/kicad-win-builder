@@ -66,18 +66,18 @@ LangString FILE_DESC_KICAD_WKS ${LANG_ITALIAN} "KiCad Page Layout"
 
 ;Application Friendly Names (for windows explorer hook)
 LangString APP_FRIENDLY_KICAD ${LANG_ITALIAN} "KiCad"
-LangString APP_FRIENDLY_PCBNEW ${LANG_ITALIAN} "KiCad - Pcbnew"
-LangString APP_FRIENDLY_EESCHEMA ${LANG_ITALIAN} "KiCad - Eeschema"
+LangString APP_FRIENDLY_PCBNEW ${LANG_ITALIAN} "KiCad - PCB Editor"
+LangString APP_FRIENDLY_EESCHEMA ${LANG_ITALIAN} "KiCad - Schematic Editor"
 LangString APP_FRIENDLY_PLEDITOR ${LANG_ITALIAN} "KiCad - Page Layout Editor"
 
 ;Application names
-LangString APP_NAME_KICAD ${LANG_ITALIAN} "KiCad"
-LangString APP_NAME_PCBNEW ${LANG_ITALIAN} "Pcbnew"
-LangString APP_NAME_EESCHEMA ${LANG_ITALIAN} "Eeschema"
-LangString APP_NAME_PLEDITOR ${LANG_ITALIAN} "Page Layout Editor"
-LangString APP_NAME_PCBCALCULATOR ${LANG_ITALIAN} "PCB Calculator"
-LangString APP_NAME_BITMAP2COMPONENT ${LANG_ITALIAN} "Bitmap to Component"
-LangString APP_NAME_GERBVIEW ${LANG_ITALIAN} "Gerbview"
+LangString APP_NAME_KICAD ${LANG_ITALIAN} "KiCad (kicad.exe)"
+LangString APP_NAME_PCBNEW ${LANG_ITALIAN} "PCB Editor (pcbnew.exe)"
+LangString APP_NAME_EESCHEMA ${LANG_ITALIAN} "Schematic Editor (eeschema.exe)"
+LangString APP_NAME_PLEDITOR ${LANG_ITALIAN} "Drawing Sheet Editor (pl_editor.exe)"
+LangString APP_NAME_PCBCALCULATOR ${LANG_ITALIAN} "PCB Calculator (pcb_calculator.exe)"
+LangString APP_NAME_BITMAP2COMPONENT ${LANG_ITALIAN} "Image Converter (bitmap2component.exe)"
+LangString APP_NAME_GERBVIEW ${LANG_ITALIAN} "Gerber Viewer (gerbview.exe)"
 
 ;General messages
 LangString PROGRAM_IS_OPEN_ERROR ${LANG_ITALIAN} "$R1 is currently running! You must close the program before you are allowed continue."
