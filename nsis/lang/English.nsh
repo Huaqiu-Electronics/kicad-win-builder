@@ -10,10 +10,7 @@ This is free open source software licensed under the GPL.$\r$\n$\r$\n\
 Click Next to continue."
 
 ;Error messages
-LangString ERROR_ADMIN_REQ  ${LANG_ENGLISH} "Admin rights are required to install KiCad!"
-LangString ERROR_WIN9X      ${LANG_ENGLISH} "Error! This can't run under Windows 9x!"
 LangString ERROR_WIN_MIN    ${LANG_ENGLISH} "A minimum of Windows 8.1 is required to install KiCad using this installer"
-LangString ERROR_UNINSTALL_FIRST    ${LANG_ENGLISH} "You must run the uninstaller on your existing KiCad ${KICAD_VERSION} installation to proceed with installation"
 LangString ERROR_WRONG_ARCH         ${LANG_ENGLISH} "This installer is for a different processor architecture (${ARCH}), please use the correct installer"
 
 ;Other languages

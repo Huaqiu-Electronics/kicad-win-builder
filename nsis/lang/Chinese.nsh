@@ -10,10 +10,7 @@ LangString WELCOME_PAGE_TEXT ${LANG_SIMPCHINESE} "此安装程序将指导您完
 单击“下一步”继续。"
 
 ;Error messages
-LangString ERROR_ADMIN_REQ  ${LANG_SIMPCHINESE} "安装 KiCad 需要管理员权限！"
-LangString ERROR_WIN9X      ${LANG_SIMPCHINESE} "错误！这不能在 Windows 9x 下运行！"
 LangString ERROR_WIN_MIN    ${LANG_SIMPCHINESE} "要使用此安装程序安装 KiCad，至少需要 Windows 8.1"
-LangString ERROR_UNINSTALL_FIRST    ${LANG_SIMPCHINESE} "您必须在现有 KiCad ${KICAD_VERSION} 安装上运行卸载程序才能继续安装"
 LangString ERROR_WRONG_ARCH         ${LANG_SIMPCHINESE} "This installer is for a different processor architecture (${ARCH}), please use the correct installer"
 
 ;Other languages
