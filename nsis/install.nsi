@@ -591,13 +591,13 @@ Section -CreateShortcuts
   CreateDirectory "${SMPATH}"
   CreateShortCut "${SMPATH}\Uninstall.lnk" "$INSTDIR\uninstaller.exe"
   CreateShortCut "${SMPATH}\KiCad ${KICAD_VERSION}.lnk" "$INSTDIR\bin\kicad.exe"
-  CreateShortCut "${SMPATH}\Schematic Editor ${KICAD_VERSION} (standalone).lnk" "$INSTDIR\bin\eeschema.exe"
-  CreateShortCut "${SMPATH}\PCB Editor ${KICAD_VERSION} (standalone).lnk" "$INSTDIR\bin\pcbnew.exe"
-  CreateShortCut "${SMPATH}\Gerber Viewer ${KICAD_VERSION}.lnk" "$INSTDIR\bin\gerbview.exe"
-  CreateShortCut "${SMPATH}\Image Converter ${KICAD_VERSION}.lnk" "$INSTDIR\bin\bitmap2component.exe"
-  CreateShortCut "${SMPATH}\Calculator Tools ${KICAD_VERSION}.lnk" "$INSTDIR\bin\pcb_calculator.exe"
-  CreateShortCut "${SMPATH}\Drawing Sheet Editor ${KICAD_VERSION}.lnk" "$INSTDIR\bin\pl_editor.exe"
-  CreateShortCut "${SMPATH}\KiCad ${KICAD_VERSION} Command Prompt.lnk" "%comspec%" '/k "$INSTDIR\bin\kicad-cmd.bat"'
+  CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_EESCHEMA).lnk" "$INSTDIR\bin\eeschema.exe"
+  CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_PCBNEW).lnk" "$INSTDIR\bin\pcbnew.exe"
+  CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_GERBVIEW).lnk" "$INSTDIR\bin\gerbview.exe"
+  CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_BITMAP2COMPONENT).lnk" "$INSTDIR\bin\bitmap2component.exe"
+  CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_PCBCALCULATOR).lnk" "$INSTDIR\bin\pcb_calculator.exe"
+  CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_PLEDITOR).lnk" "$INSTDIR\bin\pl_editor.exe"
+  CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_CMD).lnk" "%comspec%" '/k "$INSTDIR\bin\kicad-cmd.bat"'
 
   CreateShortCut "$DESKTOP\KiCad ${KICAD_VERSION}.lnk" "$INSTDIR\bin\kicad.exe"
 SectionEnd
