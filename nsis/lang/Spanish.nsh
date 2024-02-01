@@ -79,6 +79,15 @@ LangString APP_NAME_PCBCALCULATOR ${LANG_SPANISH} "PCB Calculator (pcb_calculato
 LangString APP_NAME_BITMAP2COMPONENT ${LANG_SPANISH} "Image Converter (bitmap2component.exe)"
 LangString APP_NAME_GERBVIEW ${LANG_SPANISH} "Gerber Viewer (gerbview.exe)"
 
+;Shortcut names
+LangString SHORTCUT_NAME_EESCHEMA ${LANG_SPANISH} "Schematic Editor ${KICAD_VERSION} (standalone)"
+LangString SHORTCUT_NAME_PCBNEW ${LANG_SPANISH} "PCB Editor ${KICAD_VERSION} (standalone)"
+LangString SHORTCUT_NAME_GERBVIEW ${LANG_SPANISH} "Gerber Viewer ${KICAD_VERSION}"
+LangString SHORTCUT_NAME_BITMAP2COMPONENT ${LANG_SPANISH} "Image Converter ${KICAD_VERSION}"
+LangString SHORTCUT_NAME_PCBCALCULATOR ${LANG_SPANISH} "Calculator Tools ${KICAD_VERSION}"
+LangString SHORTCUT_NAME_PLEDITOR ${LANG_SPANISH} "Drawing Sheet Editor ${KICAD_VERSION}"
+LangString SHORTCUT_NAME_CMD ${LANG_SPANISH} "KiCad ${KICAD_VERSION} Command Prompt"
+
 ;General messages
 LangString PROGRAM_IS_OPEN_ERROR ${LANG_SPANISH} "$R1 is currently running! You must close the program before you are allowed continue."
 
