@@ -24,7 +24,7 @@
 
   ;program level extension entry
   WriteRegExpandStr ${SOFTWARE_CLASSES_ROOT_KEY} "Software\Classes\${FILE_ASSOC_PREFIX}.$R0.${KICAD_VERSION}" "" "$R2"
-  WriteRegExpandStr ${SOFTWARE_CLASSES_ROOT_KEY} "Software\Classes\${FILE_ASSOC_PREFIX}.$R0.${KICAD_VERSION}\" "DefaultIcon" "$INSTDIR\bin\$R1,$R3"
+  WriteRegExpandStr ${SOFTWARE_CLASSES_ROOT_KEY} "Software\Classes\${FILE_ASSOC_PREFIX}.$R0.${KICAD_VERSION}\DefaultIcon" "" "$INSTDIR\bin\$R1,$R3"
   WriteRegExpandStr ${SOFTWARE_CLASSES_ROOT_KEY} "Software\Classes\${FILE_ASSOC_PREFIX}.$R0.${KICAD_VERSION}\shell\open\command" "" '$INSTDIR\bin\$R1 "%1"'
 
   Pop $R3
