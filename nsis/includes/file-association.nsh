@@ -44,6 +44,36 @@
 !define CreateFileAssociation `!insertmacro CreateFileAssociationCall`
 !define DeleteFileAssociation `!insertmacro _DeleteFileAssociationFunc`
 
+!macro _CreateFileAssociationNoIconFunc
+  Exch $R0 ;ext
+  Exch
+  Exch $R1 ;exe
+  Exch
+  Exch 2
+  Exch $R2 ;desc
+
+  ;global extension reference to program
+  WriteRegExpandStr ${SOFTWARE_CLASSES_ROOT_KEY} "Software\Classes\.$R0\OpenWithProgids\" "${FILE_ASSOC_PREFIX}.$R0.${KICAD_VERSION}" ""
+
+  ;program level extension entry
+  WriteRegExpandStr ${SOFTWARE_CLASSES_ROOT_KEY} "Software\Classes\${FILE_ASSOC_PREFIX}.$R0.${KICAD_VERSION}" "" "$R2"
+  WriteRegExpandStr ${SOFTWARE_CLASSES_ROOT_KEY} "Software\Classes\${FILE_ASSOC_PREFIX}.$R0.${KICAD_VERSION}\shell\open\command" "" '$INSTDIR\bin\$R1 "%1"'
+
+  Pop $R3
+  Pop $R2
+  Pop $R1
+  Pop $R0
+!macroend
+
+!macro CreateFileAssociationNoIconCall EXT EXE DESCRIPTION
+  Push `${DESCRIPTION}`
+  Push `${EXE}`
+  Push `${EXT}`
+  ${CallArtificialFunction} _CreateFileAssociationNoIconFunc
+!macroend
+
+!define CreateFileAssociationNoIcon `!insertmacro CreateFileAssociationNoIconCall`
+
 ;--------------------------------
 
 !macro _RegisterApplicationFunc

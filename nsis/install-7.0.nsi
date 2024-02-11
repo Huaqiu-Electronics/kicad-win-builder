@@ -558,12 +558,12 @@ SectionGroupEnd
 
 Section $(TITLE_SEC_FILE_ASSOC) SEC07
   !insertmacro ExclusiveDetailPrint $(SETTING_FILE_ASSOCS)
-  ${CreateFileAssociation} "kicad_pcb" "pcbnew.exe" "$(FILE_DESC_KICAD_PCB) ${KICAD_VERSION}" "icon_pcbnew"
-  ${CreateFileAssociation} "sch" "eeschema.exe" "$(FILE_DESC_SCH) ${KICAD_VERSION}" "icon_eeschema"
-  ${CreateFileAssociation} "kicad_sch" "eeschema.exe" "$(FILE_DESC_SCH) ${KICAD_VERSION}" "icon_eeschema"
-  ${CreateFileAssociation} "pro" "kicad.exe" "$(FILE_DESC_PRO) ${KICAD_VERSION}" "icon_kicad"
-  ${CreateFileAssociation} "kicad_pro" "kicad.exe" "$(FILE_DESC_PRO) ${KICAD_VERSION}" "icon_kicad"
-  ${CreateFileAssociation} "kicad_wks" "pl_editor.exe" "$(FILE_DESC_KICAD_WKS) ${KICAD_VERSION}" "icon_pagelayout_editor"
+  ${CreateFileAssociationNoIcon} "kicad_pcb" "pcbnew.exe" "$(FILE_DESC_KICAD_PCB) ${KICAD_VERSION}"
+  ${CreateFileAssociationNoIcon} "sch" "eeschema.exe" "$(FILE_DESC_SCH) ${KICAD_VERSION}"
+  ${CreateFileAssociationNoIcon} "kicad_sch" "eeschema.exe" "$(FILE_DESC_SCH) ${KICAD_VERSION}"
+  ${CreateFileAssociationNoIcon} "pro" "kicad.exe" "$(FILE_DESC_PRO) ${KICAD_VERSION}"
+  ${CreateFileAssociationNoIcon} "kicad_pro" "kicad.exe" "$(FILE_DESC_PRO) ${KICAD_VERSION}"
+  ${CreateFileAssociationNoIcon} "kicad_wks" "pl_editor.exe" "$(FILE_DESC_KICAD_WKS) ${KICAD_VERSION}"
 
   WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "FileAssocInstalled" "1"
 SectionEnd
