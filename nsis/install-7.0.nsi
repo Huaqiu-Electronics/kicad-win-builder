@@ -705,6 +705,8 @@ Section Uninstall
   RMDir /r "$INSTDIR\help"
   RMDir /r "$INSTDIR\ssl\certs"
   RMDir /r "$INSTDIR\ssl"
+  RMDir /r "$INSTDIR\fonts"
+  RMDir /r "$INSTDIR\etc"
   
   !insertmacro ExclusiveDetailPrint $(REMOVING_LIBRARIES)
   RMDir /r "$INSTDIR\share\symbols"
