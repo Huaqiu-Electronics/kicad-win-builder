@@ -576,13 +576,14 @@ Section $(TITLE_SEC_FILE_ASSOC) SEC07
   ; The strange negative numbers are the resource ids of the icons embedded into the exes, see resource.h in kicad's source
   ; They are negative because of a Windows requirement where negative means "lookup the absolute value" in the exe's manifest
   ${CreateFileAssociation} "kicad_pcb" "pcbnew.exe" "$(FILE_DESC_KICAD_PCB) ${KICAD_VERSION}" "-203"
-  ${CreateFileAssociation} "kicad_mod" "pcbnew.exe" "$(FILE_DESC_KICAD_PCB) ${KICAD_VERSION}" "-204"
   ${CreateFileAssociation} "sch" "eeschema.exe" "$(FILE_DESC_SCH) ${KICAD_VERSION}" "-201"
   ${CreateFileAssociation} "kicad_sch" "eeschema.exe" "$(FILE_DESC_SCH) ${KICAD_VERSION}" "-201"
-  ${CreateFileAssociation} "kicad_sym" "eeschema.exe" "$(FILE_DESC_SCH) ${KICAD_VERSION}" "-202"
   ${CreateFileAssociation} "pro" "kicad.exe" "$(FILE_DESC_PRO) ${KICAD_VERSION}" "-200"
   ${CreateFileAssociation} "kicad_pro" "kicad.exe" "$(FILE_DESC_PRO) ${KICAD_VERSION}" "-200"
   ${CreateFileAssociation} "kicad_wks" "pl_editor.exe" "$(FILE_DESC_KICAD_WKS) ${KICAD_VERSION}" "-205"
+  ;not currently supported for opening
+  ;${CreateFileAssociation} "kicad_sym" "eeschema.exe" "$(FILE_DESC_SYM) ${KICAD_VERSION}" "-202"
+  ;${CreateFileAssociation} "kicad_mod" "pcbnew.exe" "$(FILE_DESC_FP) ${KICAD_VERSION}" "-204"
 
   WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "FileAssocInstalled" "1"
 SectionEnd

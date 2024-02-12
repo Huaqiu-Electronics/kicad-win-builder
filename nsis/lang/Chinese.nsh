@@ -60,6 +60,8 @@ LangString FILE_DESC_KICAD_PCB ${LANG_SIMPCHINESE} "KiCad PCB 板"
 LangString FILE_DESC_SCH ${LANG_SIMPCHINESE} "KiCad 原理图"
 LangString FILE_DESC_PRO ${LANG_SIMPCHINESE} "KiCad 工程"
 LangString FILE_DESC_KICAD_WKS ${LANG_SIMPCHINESE} "KiCad 图框"
+LangString FILE_DESC_SYM ${LANG_SIMPCHINESE} "KiCad Symbol"
+LangString FILE_DESC_FP ${LANG_SIMPCHINESE} "KiCad Footprint"
 
 ;Application Friendly Names (for windows explorer hook)
 LangString APP_FRIENDLY_KICAD ${LANG_SIMPCHINESE} "KiCad"

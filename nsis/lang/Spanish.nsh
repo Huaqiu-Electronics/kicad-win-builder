@@ -59,13 +59,15 @@ LangString DESC_SEC_FILE_ASSOC ${LANG_SPANISH} "Creates file associations for Ki
 LangString FILE_DESC_KICAD_PCB ${LANG_SPANISH} "KiCad Board"
 LangString FILE_DESC_SCH ${LANG_SPANISH} "KiCad Schematic"
 LangString FILE_DESC_PRO ${LANG_SPANISH} "KiCad Project"
-LangString FILE_DESC_KICAD_WKS ${LANG_SPANISH} "KiCad Page Layout"
+LangString FILE_DESC_KICAD_WKS ${LANG_SPANISH} "KiCad Drawing Sheet"
+LangString FILE_DESC_SYM ${LANG_SPANISH} "KiCad Symbol"
+LangString FILE_DESC_FP ${LANG_SPANISH} "KiCad Footprint"
 
 ;Application Friendly Names (for windows explorer hook)
 LangString APP_FRIENDLY_KICAD ${LANG_SPANISH} "KiCad"
 LangString APP_FRIENDLY_PCBNEW ${LANG_SPANISH} "KiCad - PCB Editor"
 LangString APP_FRIENDLY_EESCHEMA ${LANG_SPANISH} "KiCad - Schematic Editor"
-LangString APP_FRIENDLY_PLEDITOR ${LANG_SPANISH} "KiCad - Page Layout Editor"
+LangString APP_FRIENDLY_PLEDITOR ${LANG_SPANISH} "KiCad - Drawing Sheet Editor"
 
 ;Application names
 LangString APP_NAME_KICAD ${LANG_SPANISH} "KiCad (kicad.exe)"
