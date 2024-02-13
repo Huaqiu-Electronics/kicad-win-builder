@@ -573,16 +573,40 @@ Section -CreateAddRemoveEntry
 SectionEnd
 
 Section -PostInstall
-  ${If} ${SectionIsSelected} ${SEC08}
-  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "StartMenuShortcuts" "1"
+  ${If} ${SectionIsSelected} ${SEC03_SCHLIB}
+  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionSymbols" "1"
   ${Else}
-  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "StartMenuShortcuts" "0"
+  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionSymbols" "0"
+  ${EndIf}
+  
+  ${If} ${SectionIsSelected} ${SEC03_FOOTPRINTS}
+  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionFootprints" "1"
+  ${Else}
+  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionFootprints" "0"
+  ${EndIf}
+  
+  ${If} ${SectionIsSelected} ${SEC03_PACKAGES3D}
+  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "Section3DModels" "1"
+  ${Else}
+  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "Section3DModels" "0"
+  ${EndIf}
+
+  ${If} ${SectionIsSelected} ${SEC05}
+  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionDemos" "1"
+  ${Else}
+  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionDemos" "0"
+  ${EndIf}
+
+  ${If} ${SectionIsSelected} ${SEC08}
+  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionStartMenuShortcuts" "1"
+  ${Else}
+  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionStartMenuShortcuts" "0"
   ${EndIf}
   
   ${If} ${SectionIsSelected} ${SEC07}
-  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "FileAssocInstalled" "1"
+  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionFileAssoc" "1"
   ${Else}
-  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "FileAssocInstalled" "0"
+  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionFileAssoc" "0"
   ${EndIf}
 
 SectionEnd
@@ -651,17 +675,47 @@ Function .onInit
   ; Change section selections based on already installed
   ; Check if we already have an install (MSYS2)
   ; Refuse to run until its uninstalled
-  ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "StartMenuShortcuts"
+  ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionStartMenuShortcuts"
   ${IfNot} ${Errors}
     ${If} $1 = 0
       !insertmacro UnselectSection ${SEC08}
     ${EndIf}
   ${EndIf}
   
-  ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "FileAssocInstalled"
+  ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionFileAssoc"
   ${IfNot} ${Errors}
     ${If} $1 = 0
       !insertmacro UnselectSection ${SEC07}
+    ${EndIf}
+  ${EndIf}
+  
+  !ifndef LIBRARIES_TAG
+  ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionSymbols"
+  ${IfNot} ${Errors}
+    ${If} $1 = 0
+      !insertmacro UnselectSection ${SEC03_SCHLIB}
+    ${EndIf}
+  ${EndIf}
+  
+  ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionFootprints"
+  ${IfNot} ${Errors}
+    ${If} $1 = 0
+      !insertmacro UnselectSection ${SEC03_FOOTPRINTS}
+    ${EndIf}
+  ${EndIf}
+  
+  ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "Section3DModels"
+  ${IfNot} ${Errors}
+    ${If} $1 = 0
+      !insertmacro UnselectSection ${SEC03_PACKAGES3D}
+    ${EndIf}
+  ${EndIf}
+  !endif
+
+  ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionDemos"
+  ${IfNot} ${Errors}
+    ${If} $1 = 0
+      !insertmacro UnselectSection ${SEC05}
     ${EndIf}
   ${EndIf}
 
