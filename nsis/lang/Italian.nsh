@@ -33,6 +33,7 @@ LangString TITLE_SEC_PACKAGES3D ${LANG_ITALIAN} "Footprint 3d models"
 LangString TITLE_SEC_DEMOS ${LANG_ITALIAN} "Progetti dimostrativi"
 LangString TITLE_SEC_DOCS ${LANG_ITALIAN} "File di aiuto"
 LangString TITLE_SEC_FILE_ASSOC ${LANG_ITALIAN} "File associations"
+LangString TITLE_SEC_START_MENU ${LANG_ITALIAN} "Start menu shortcuts"
 
 ;Component option descriptions
 LangString DESC_SEC_MAIN ${LANG_ITALIAN} "File dell'applicazione principale."
@@ -54,6 +55,7 @@ LangString DESC_SEC_DOCS_NL ${LANG_ITALIAN} "$(LANGUAGE_NAME_NL) $(TITLE_SEC_DOC
 LangString DESC_SEC_DOCS_PL ${LANG_ITALIAN} "$(LANGUAGE_NAME_PL) $(TITLE_SEC_DOCS)"
 LangString DESC_SEC_DOCS_ZH ${LANG_ITALIAN} "$(LANGUAGE_NAME_ZH) $(TITLE_SEC_DOCS)"
 LangString DESC_SEC_FILE_ASSOC ${LANG_ITALIAN} "Creates file associations for KiCad related files"
+LangString DESC_SEC_START_MENU ${LANG_ITALIAN} "Creates start menu shortcuts"
 
 ;File association descriptions (show in Windows Explorer)
 LangString FILE_DESC_KICAD_PCB ${LANG_ITALIAN} "KiCad Board"

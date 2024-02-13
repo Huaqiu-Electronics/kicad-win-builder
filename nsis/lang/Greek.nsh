@@ -33,6 +33,7 @@ LangString TITLE_SEC_PACKAGES3D ${LANG_GREEK} "Footprint 3d models"
 LangString TITLE_SEC_DEMOS ${LANG_GREEK} "Έργα επίδειξης"
 LangString TITLE_SEC_DOCS ${LANG_GREEK} "Αρχεία βοήθειας"
 LangString TITLE_SEC_FILE_ASSOC ${LANG_GREEK} "File associations"
+LangString TITLE_SEC_START_MENU ${LANG_GREEK} "Start menu shortcuts"
 
 ;Component option descriptions
 LangString DESC_SEC_MAIN ${LANG_GREEK} "Αρχεία κύριας εφαρμογής."
@@ -54,6 +55,7 @@ LangString DESC_SEC_DOCS_NL ${LANG_GREEK} "$(LANGUAGE_NAME_NL) $(TITLE_SEC_DOCS)
 LangString DESC_SEC_DOCS_PL ${LANG_GREEK} "$(LANGUAGE_NAME_PL) $(TITLE_SEC_DOCS)"
 LangString DESC_SEC_DOCS_ZH ${LANG_GREEK} "$(LANGUAGE_NAME_ZH) $(TITLE_SEC_DOCS)"
 LangString DESC_SEC_FILE_ASSOC ${LANG_GREEK} "Creates file associations for KiCad related files"
+LangString DESC_SEC_START_MENU ${LANG_GREEK} "Creates start menu shortcuts"
 
 ;File association descriptions (show in Windows Explorer)
 LangString FILE_DESC_KICAD_PCB ${LANG_GREEK} "KiCad Board"

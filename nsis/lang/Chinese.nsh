@@ -33,6 +33,7 @@ LangString TITLE_SEC_PACKAGES3D ${LANG_SIMPCHINESE} "封装 3D 模型"
 LangString TITLE_SEC_DEMOS ${LANG_SIMPCHINESE} "示范工程"
 LangString TITLE_SEC_DOCS ${LANG_SIMPCHINESE} "帮助文件"
 LangString TITLE_SEC_FILE_ASSOC ${LANG_SIMPCHINESE} "文件关联"
+LangString TITLE_SEC_START_MENU ${LANG_SIMPCHINESE} "Start menu shortcuts"
 
 ;Component option descriptions
 LangString DESC_SEC_MAIN ${LANG_SIMPCHINESE} "主要应用程序文件。"
@@ -54,6 +55,7 @@ LangString DESC_SEC_DOCS_NL ${LANG_SIMPCHINESE} "$(LANGUAGE_NAME_NL) $(TITLE_SEC
 LangString DESC_SEC_DOCS_PL ${LANG_SIMPCHINESE} "$(LANGUAGE_NAME_PL) $(TITLE_SEC_DOCS)"
 LangString DESC_SEC_DOCS_ZH ${LANG_SIMPCHINESE} "$(LANGUAGE_NAME_ZH) $(TITLE_SEC_DOCS)"
 LangString DESC_SEC_FILE_ASSOC ${LANG_SIMPCHINESE} "为 KiCad 相关文件创建文件关联"
+LangString DESC_SEC_START_MENU ${LANG_SIMPCHINESE} "Creates start menu shortcuts"
 
 ;File association descriptions (show in Windows Explorer)
 LangString FILE_DESC_KICAD_PCB ${LANG_SIMPCHINESE} "KiCad PCB 板"

@@ -37,6 +37,7 @@
 !include "NsisMultiUser.nsh"
 !include "StdUtils.nsh"
 !include "RecFind.nsh"
+!include "Sections.nsh"
 
 ; General Product Description Definitions
 !define PRODUCT_NAME "KiCad"
@@ -199,51 +200,6 @@ VIAddVersionKey "FileVersion" "${PACKAGE_VERSION}"
 
 !define SetEnvironmentVariable "Kernel32::SetEnvironmentVariable(t, t)i"
 
-Function .onInit
-	${ifnot} ${UAC_IsInnerInstance}
-    Call PreventMultiInstances
-	${endif}
-
-  !insertmacro MULTIUSER_INIT
-
-  !if ${ARCH} == 'arm64'
-    ${IfNot} ${IsNativeARM64}
-      MessageBox MB_OK|MB_TOPMOST $(ERROR_WRONG_ARCH)
-      Quit
-    ${endif}
-  !endif
-
-  !if ${ARCH} == 'x86_64'
-    SetRegView 64
-  !else if ${ARCH} == 'arm64'
-    SetRegView 64
-  !else
-    SetRegView 32
-  !endif
-
-  !ifdef MSVC
-  ; MSVC builds use python 3.8+ which dropped windows 7 support and will crash
-  ${IfNot} ${AtLeastWin8.1}
-      MessageBox MB_OK|MB_TOPMOST $(ERROR_WIN_MIN)
-      Quit
-  ${EndIf}
-  !endif
-
-  !ifdef LIBRARIES_TAG
-  StrCpy $DELETE_DOWNLOADED_FILES "unknown"
-  !endif
-
-  ReserveFile "install.ico"
-  ReserveFile "uninstall.ico"
-  ReserveFile "${NSISDIR}\Plugins\x86-unicode\LangDLL.dll"
-  ReserveFile "${NSISDIR}\Plugins\x86-unicode\System.dll"
-  ;!insertmacro MUI_LANGDLL_DISPLAY
-  Goto done
-
-  done:
-    Call EnableLiteMode
-
-FunctionEnd
 
 ; This handles skipping the welcome/license pages when UAC escalates to the inner installer
 Function PageWelcomeLicensePre
@@ -584,11 +540,9 @@ Section $(TITLE_SEC_FILE_ASSOC) SEC07
   ;not currently supported for opening
   ;${CreateFileAssociation} "kicad_sym" "eeschema.exe" "$(FILE_DESC_SYM) ${KICAD_VERSION}" "-202"
   ;${CreateFileAssociation} "kicad_mod" "pcbnew.exe" "$(FILE_DESC_FP) ${KICAD_VERSION}" "-204"
-
-  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "FileAssocInstalled" "1"
 SectionEnd
 
-Section -CreateShortcuts
+Section $(TITLE_SEC_START_MENU) SEC08
   !insertmacro ExclusiveDetailPrint $(CREATING_SHORTCUTS)
   SetOutPath $INSTDIR
 
@@ -603,7 +557,11 @@ Section -CreateShortcuts
   CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_PCBCALCULATOR).lnk" "$INSTDIR\bin\pcb_calculator.exe"
   CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_PLEDITOR).lnk" "$INSTDIR\bin\pl_editor.exe"
   CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_CMD).lnk" "%comspec%" '/k "$INSTDIR\bin\kicad-cmd.bat"'
+  
+SectionEnd
 
+Section -CreateDesktopShortcut
+  !insertmacro ExclusiveDetailPrint $(CREATING_SHORTCUTS)
   CreateShortCut "$DESKTOP\KiCad ${KICAD_VERSION}.lnk" "$INSTDIR\bin\kicad.exe"
 SectionEnd
 
@@ -612,6 +570,21 @@ Section -CreateAddRemoveEntry
   WriteUninstaller "${UNINSTALL_FILENAME}"
 
   !insertmacro MULTIUSER_RegistryAddInstallInfo ; add registry keys
+SectionEnd
+
+Section -PostInstall
+  ${If} ${SectionIsSelected} ${SEC08}
+  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "StartMenuShortcuts" "1"
+  ${Else}
+  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "StartMenuShortcuts" "0"
+  ${EndIf}
+  
+  ${If} ${SectionIsSelected} ${SEC07}
+  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "FileAssocInstalled" "1"
+  ${Else}
+  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "FileAssocInstalled" "0"
+  ${EndIf}
+
 SectionEnd
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
@@ -637,7 +610,73 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC06_PL} $(DESC_SEC_DOCS_PL)
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC06_ZH} $(DESC_SEC_DOCS_ZH)
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC07} $(DESC_SEC_FILE_ASSOC)
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC08} $(DESC_SEC_START_MENU)
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
+
+
+Function .onInit
+	${ifnot} ${UAC_IsInnerInstance}
+    Call PreventMultiInstances
+	${endif}
+
+  !insertmacro MULTIUSER_INIT
+
+  !if ${ARCH} == 'arm64'
+    ${IfNot} ${IsNativeARM64}
+      MessageBox MB_OK|MB_TOPMOST $(ERROR_WRONG_ARCH)
+      Quit
+    ${endif}
+  !endif
+
+  !if ${ARCH} == 'x86_64'
+    SetRegView 64
+  !else if ${ARCH} == 'arm64'
+    SetRegView 64
+  !else
+    SetRegView 32
+  !endif
+
+  !ifdef MSVC
+  ; MSVC builds use python 3.8+ which dropped windows 7 support and will crash
+  ${IfNot} ${AtLeastWin8.1}
+      MessageBox MB_OK|MB_TOPMOST $(ERROR_WIN_MIN)
+      Quit
+  ${EndIf}
+  !endif
+
+  !ifdef LIBRARIES_TAG
+  StrCpy $DELETE_DOWNLOADED_FILES "unknown"
+  !endif
+
+  ; Change section selections based on already installed
+  ; Check if we already have an install (MSYS2)
+  ; Refuse to run until its uninstalled
+  ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "StartMenuShortcuts"
+  ${IfNot} ${Errors}
+    ${If} $1 = 0
+      !insertmacro UnselectSection ${SEC08}
+    ${EndIf}
+  ${EndIf}
+  
+  ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "FileAssocInstalled"
+  ${IfNot} ${Errors}
+    ${If} $1 = 0
+      !insertmacro UnselectSection ${SEC07}
+    ${EndIf}
+  ${EndIf}
+
+  ReserveFile "install.ico"
+  ReserveFile "uninstall.ico"
+  ReserveFile "${NSISDIR}\Plugins\x86-unicode\LangDLL.dll"
+  ReserveFile "${NSISDIR}\Plugins\x86-unicode\System.dll"
+  ;!insertmacro MUI_LANGDLL_DISPLAY
+  Goto done
+
+  done:
+    Call EnableLiteMode
+
+FunctionEnd
+
 
 Var SemiSilentMode ; installer started uninstaller in semi-silent mode using /SS parameter
 Var RunningFromInstaller ; installer started uninstaller using /uninstall parameter
