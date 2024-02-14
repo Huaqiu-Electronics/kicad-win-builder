@@ -149,6 +149,9 @@ BrandingText "KiCad installer for Windows"
 !insertmacro MUI_PAGE_DIRECTORY
 
 !insertmacro MUI_PAGE_INSTFILES
+!define MUI_FINISHPAGE_RUN
+!define MUI_FINISHPAGE_RUN_TEXT "Launch ${PRODUCT_NAME} ${PACKAGE_VERSION}"
+!define MUI_FINISHPAGE_RUN_FUNCTION onFinishRun
 !define MUI_PAGE_CUSTOMFUNCTION_SHOW ModifyFinishPage
 !insertmacro MUI_PAGE_FINISH
 
@@ -224,6 +227,11 @@ Function ModifyFinishPage
   IntOp $7 6 * $7
   ; then we finally update the control size.. we don't want to move it, or change its z-order however
   System::Call "User32::SetWindowPos(i $mui.FinishPage.ShowReadme, i 0, i 0, i 0, i $6, i $7, i ${SWP_NOMOVE} | ${SWP_NOZORDER})"
+FunctionEnd
+
+Function onFinishRun
+  ; We need this to run as the current user even if the install was admin escalated
+  !insertmacro UAC_AsUser_ExecShell '' '$INSTDIR\bin\kicad.exe' '' '' SW_SHOWNORMAL
 FunctionEnd
 
 !macro KiCadRunningProccessesCheck
