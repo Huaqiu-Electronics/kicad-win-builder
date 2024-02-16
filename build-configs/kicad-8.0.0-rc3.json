@@ -12,13 +12,13 @@
             "ref": "tag/8.0.0-rc3"
         },
         "symbols": {
-            "ref": "branch/8.0.0-rc3"
+            "ref": "tag/8.0.0-rc3"
         },
         "footprints": {
-            "ref": "branch/8.0.0-rc3"
+            "ref": "tag/8.0.0-rc3"
         },
         "3dmodels": {
-            "ref": "branch/8.0.0-rc3"
+            "ref": "tag/8.0.0-rc3"
         },
         "templates": {
             "ref": "branch/master"
