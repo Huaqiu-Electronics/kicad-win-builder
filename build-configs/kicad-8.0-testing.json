@@ -1,0 +1,30 @@
+{
+    "name:": "KiCad 8.0.x Testing",
+    "output_prefix": "kicad-8.0-testing_",
+    "package_version": "8.0.0",
+    "train": "testing",
+    "build_mode": "Release",
+    "nsis": {
+        "file": "install-8.0.nsi"
+    },
+    "sources": {
+        "kicad": {
+            "ref": "branch/8.0"
+        },
+        "symbols": {
+            "tag": "8.0.0"
+        },
+        "footprints": {
+            "tag": "8.0.0"
+        },
+        "3dmodels": {
+            "tag": "8.0.0"
+        },
+        "templates": {
+            "tag": "8.0.0"
+        }
+    }, 
+    "vcpkg": {
+        "manifest_mode": true
+    }
+}
