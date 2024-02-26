@@ -11,7 +11,7 @@ LangString WELCOME_PAGE_TEXT ${LANG_SIMPCHINESE} "此安装程序将指导您完
 
 ;Error messages
 LangString ERROR_WIN_MIN    ${LANG_SIMPCHINESE} "要使用此安装程序安装 KiCad，至少需要 Windows 8.1"
-LangString ERROR_WRONG_ARCH         ${LANG_SIMPCHINESE} "This installer is for a different processor architecture (${ARCH}), please use the correct installer"
+LangString ERROR_WRONG_ARCH         ${LANG_SIMPCHINESE} "该安装程序适用于不同的处理器架构 (${ARCH})，请使用正确的安装程序"
 
 ;Other languages
 LangString LANGUAGE_NAME_EN ${LANG_SIMPCHINESE} "英语"
@@ -33,7 +33,7 @@ LangString TITLE_SEC_PACKAGES3D ${LANG_SIMPCHINESE} "封装 3D 模型"
 LangString TITLE_SEC_DEMOS ${LANG_SIMPCHINESE} "示范工程"
 LangString TITLE_SEC_DOCS ${LANG_SIMPCHINESE} "帮助文件"
 LangString TITLE_SEC_FILE_ASSOC ${LANG_SIMPCHINESE} "文件关联"
-LangString TITLE_SEC_START_MENU ${LANG_SIMPCHINESE} "Start menu shortcuts"
+LangString TITLE_SEC_START_MENU ${LANG_SIMPCHINESE} "开始菜单快捷方式"
 
 ;Component option descriptions
 LangString DESC_SEC_MAIN ${LANG_SIMPCHINESE} "主要应用程序文件。"
@@ -55,39 +55,39 @@ LangString DESC_SEC_DOCS_NL ${LANG_SIMPCHINESE} "$(LANGUAGE_NAME_NL) $(TITLE_SEC
 LangString DESC_SEC_DOCS_PL ${LANG_SIMPCHINESE} "$(LANGUAGE_NAME_PL) $(TITLE_SEC_DOCS)"
 LangString DESC_SEC_DOCS_ZH ${LANG_SIMPCHINESE} "$(LANGUAGE_NAME_ZH) $(TITLE_SEC_DOCS)"
 LangString DESC_SEC_FILE_ASSOC ${LANG_SIMPCHINESE} "为 KiCad 相关文件创建文件关联"
-LangString DESC_SEC_START_MENU ${LANG_SIMPCHINESE} "Creates start menu shortcuts"
+LangString DESC_SEC_START_MENU ${LANG_SIMPCHINESE} "创建开始菜单快捷方式"
 
 ;File association descriptions (show in Windows Explorer)
 LangString FILE_DESC_KICAD_PCB ${LANG_SIMPCHINESE} "KiCad PCB 板"
 LangString FILE_DESC_SCH ${LANG_SIMPCHINESE} "KiCad 原理图"
 LangString FILE_DESC_PRO ${LANG_SIMPCHINESE} "KiCad 工程"
 LangString FILE_DESC_KICAD_WKS ${LANG_SIMPCHINESE} "KiCad 图框"
-LangString FILE_DESC_SYM ${LANG_SIMPCHINESE} "KiCad Symbol"
-LangString FILE_DESC_FP ${LANG_SIMPCHINESE} "KiCad Footprint"
+LangString FILE_DESC_SYM ${LANG_SIMPCHINESE} "KiCad 符号"
+LangString FILE_DESC_FP ${LANG_SIMPCHINESE} "KiCad 封装"
 
 ;Application Friendly Names (for windows explorer hook)
 LangString APP_FRIENDLY_KICAD ${LANG_SIMPCHINESE} "KiCad"
-LangString APP_FRIENDLY_PCBNEW ${LANG_SIMPCHINESE} "KiCad - PCB Editor"
-LangString APP_FRIENDLY_EESCHEMA ${LANG_SIMPCHINESE} "KiCad - Schematic Editor"
+LangString APP_FRIENDLY_PCBNEW ${LANG_SIMPCHINESE} "KiCad - PCB 编辑器"
+LangString APP_FRIENDLY_EESCHEMA ${LANG_SIMPCHINESE} "KiCad - 原理图编辑器"
 LangString APP_FRIENDLY_PLEDITOR ${LANG_SIMPCHINESE} "KiCad - 图框编辑器"
 
 ;Application names
 LangString APP_NAME_KICAD ${LANG_SIMPCHINESE} "KiCad"
-LangString APP_NAME_PCBNEW ${LANG_SIMPCHINESE} "PCB Editor (pcbnew.exe)"
-LangString APP_NAME_EESCHEMA ${LANG_SIMPCHINESE} "Schematic Editor (eeschema.exe)"
+LangString APP_NAME_PCBNEW ${LANG_SIMPCHINESE} "PCB 编辑器 (pcbnew.exe)"
+LangString APP_NAME_EESCHEMA ${LANG_SIMPCHINESE} "原理图编辑器 (eeschema.exe)"
 LangString APP_NAME_PLEDITOR ${LANG_SIMPCHINESE} "图框编辑器 (pl_editor.exe)"
 LangString APP_NAME_PCBCALCULATOR ${LANG_SIMPCHINESE} "PCB 计算器 (pcb_calculator.exe)"
 LangString APP_NAME_BITMAP2COMPONENT ${LANG_SIMPCHINESE} "BMP 到元件 (bitmap2component.exe)"
-LangString APP_NAME_GERBVIEW ${LANG_SIMPCHINESE} "Gerber Viewer (gerbview.exe)"
+LangString APP_NAME_GERBVIEW ${LANG_SIMPCHINESE} "Gerber 查看器 (gerbview.exe)"
 
 ;Shortcut names
-LangString SHORTCUT_NAME_EESCHEMA ${LANG_SIMPCHINESE} "Schematic Editor ${KICAD_VERSION} (standalone)"
-LangString SHORTCUT_NAME_PCBNEW ${LANG_SIMPCHINESE} "PCB Editor ${KICAD_VERSION} (standalone)"
-LangString SHORTCUT_NAME_GERBVIEW ${LANG_SIMPCHINESE} "Gerber Viewer ${KICAD_VERSION}"
-LangString SHORTCUT_NAME_BITMAP2COMPONENT ${LANG_SIMPCHINESE} "Image Converter ${KICAD_VERSION}"
-LangString SHORTCUT_NAME_PCBCALCULATOR ${LANG_SIMPCHINESE} "Calculator Tools ${KICAD_VERSION}"
-LangString SHORTCUT_NAME_PLEDITOR ${LANG_SIMPCHINESE} "Drawing Sheet Editor ${KICAD_VERSION}"
-LangString SHORTCUT_NAME_CMD ${LANG_SIMPCHINESE} "KiCad ${KICAD_VERSION} Command Prompt"
+LangString SHORTCUT_NAME_EESCHEMA ${LANG_SIMPCHINESE} "原理图编辑器 ${KICAD_VERSION} (单机版)"
+LangString SHORTCUT_NAME_PCBNEW ${LANG_SIMPCHINESE} "PCB 编辑器 ${KICAD_VERSION} (单机版)"
+LangString SHORTCUT_NAME_GERBVIEW ${LANG_SIMPCHINESE} "Gerber 查看器 ${KICAD_VERSION}"
+LangString SHORTCUT_NAME_BITMAP2COMPONENT ${LANG_SIMPCHINESE} "图片转换器 ${KICAD_VERSION}"
+LangString SHORTCUT_NAME_PCBCALCULATOR ${LANG_SIMPCHINESE} "计算器工具 ${KICAD_VERSION}"
+LangString SHORTCUT_NAME_PLEDITOR ${LANG_SIMPCHINESE} "图框编辑器 ${KICAD_VERSION}"
+LangString SHORTCUT_NAME_CMD ${LANG_SIMPCHINESE} "KiCad ${KICAD_VERSION} 命令提示符"
 
 ;General messages
 LangString PROGRAM_IS_OPEN_ERROR ${LANG_SIMPCHINESE} "$R1 目前正在运行！在允许继续之前，您必须关闭程序。"
