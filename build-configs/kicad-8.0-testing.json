@@ -5,7 +5,7 @@
     "train": "testing",
     "build_mode": "Release",
     "nsis": {
-        "file": "install-8.0.nsi"
+        "file": "install.nsi"
     },
     "sources": {
         "kicad": {
