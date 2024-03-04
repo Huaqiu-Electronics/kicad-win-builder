@@ -1,7 +1,7 @@
 {
-    "name:": "KiCad 8.0.1",
+    "name:": "KiCad 8.0.1-rc1",
     "output_prefix": "kicad-",
-    "package_version": "8.0.1",
+    "package_version": "8.0.1-rc1",
     "train": "stable",
     "build_mode": "Release",
     "nsis": {
