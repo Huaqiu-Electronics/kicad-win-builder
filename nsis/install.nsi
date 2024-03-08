@@ -806,7 +806,7 @@ FunctionEnd
 
 Section Uninstall
   ;delete uninstaller first
-  Delete "$INSTDIR\uninstaller.exe"
+  Delete "$INSTDIR\${UNINSTALL_FILENAME}"
 
   ;remove start menu shortcuts and web page links
   !insertmacro ExclusiveDetailPrint $(REMOVING_SHORTCUTS)
