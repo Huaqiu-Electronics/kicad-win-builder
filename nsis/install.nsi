@@ -145,6 +145,7 @@ BrandingText "KiCad installer for Windows"
 ;!insertmacro MUI_PAGE_LICENSE $(MUILicense)
 !insertmacro MUI_PAGE_COMPONENTS
 
+!define MUI_PAGE_CUSTOMFUNCTION_SHOW onDirectoryPageShow
 !define MUI_PAGE_CUSTOMFUNCTION_LEAVE onDirectoryPageLeave
 !insertmacro MUI_PAGE_DIRECTORY
 
@@ -289,6 +290,19 @@ FunctionEnd
 	DetailPrint "${Msg}"
 	SetDetailsPrint none
 !macroend
+
+Function onDirectoryPageShow
+	${if} $CmdLineDir != ""
+		${orif} $HasCurrentModeInstallation = 1
+		FindWindow $R1 "#32770" "" $HWNDPARENT
+
+		GetDlgItem $0 $R1 1019 ; Directory edit
+		SendMessage $0 ${EM_SETREADONLY} 1 0 ; read-only is better than disabled, as user can copy contents
+
+		GetDlgItem $0 $R1 1001 ; Browse button
+		EnableWindow $0 0
+	${endif}
+FunctionEnd
 
 Function onDirectoryPageLeave
   !insertmacro KiCadRunningProccessesCheck
