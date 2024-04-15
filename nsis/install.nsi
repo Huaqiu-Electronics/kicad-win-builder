@@ -52,7 +52,7 @@
 ; subfolder under LocalAppData, this is the folder microsoft enshrines for app installs
 !define MULTIUSER_INSTALLMODE_ALLOW_BOTH_INSTALLATIONS 0
 !define MULTIUSER_INSTALLMODE_ALLOW_ELEVATION 1
-!define MULTIUSER_INSTALLMODE_ALLOW_ELEVATION_IF_SILENT 1 ; required for silent-mode allusers-uninstall to work, when using the workaround for Windows elevation bug
+!define MULTIUSER_INSTALLMODE_ALLOW_ELEVATION_IF_SILENT 0 ; required for silent-mode allusers-uninstall to work, when using the workaround for Windows elevation bug
 !define MULTIUSER_INSTALLMODE_DEFAULT_ALLUSERS 1
 !define MULTIUSER_INSTALLMODE_64_BIT 1  ; it's ridiculous the plugin controls the program files view
 !define KICAD_MULTIUSER_INSTALLMODE_64_BIT_32BITVIEW 0 ; unsure the 32-bit hack is off
