@@ -35,7 +35,7 @@ but they will not build due to dependency issues.
 ===== Initialize the builder
 This fetches any additional dependency tools we require for building that will be stored within the builder package structure
 
-`\build.ps1 -Init`
+`.\build.ps1 -Init`
 
 ===== Build Vcpkg
 This initializes vcpkg if required and builds the latest required dependencies for KiCad
