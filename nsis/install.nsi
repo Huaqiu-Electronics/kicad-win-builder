@@ -492,7 +492,7 @@ Section $(TITLE_SEC_DEMOS) SEC05
   File /nonfatal /r "..\share\doc\kicad\tutorials\*"
 SectionEnd
 
-SectionGroup $(TITLE_SEC_DOCS) SEC06
+SectionGroup -$(TITLE_SEC_DOCS) SEC06
   Section $(LANGUAGE_NAME_EN) SEC06_EN
 	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
