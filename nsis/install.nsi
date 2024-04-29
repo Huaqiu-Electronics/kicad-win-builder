@@ -493,55 +493,55 @@ Section $(TITLE_SEC_DEMOS) SEC05
 SectionEnd
 
 SectionGroup -$(TITLE_SEC_DOCS) SEC06
-  Section $(LANGUAGE_NAME_EN) SEC06_EN
+  Section -$(LANGUAGE_NAME_EN) SEC06_EN
 	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\en"
     File /nonfatal /r "..\share\doc\kicad\help\en\*"
   SectionEnd
-  Section $(LANGUAGE_NAME_DE) SEC06_DE
+  Section -$(LANGUAGE_NAME_DE) SEC06_DE
 	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\de"
     File /nonfatal /r "..\share\doc\kicad\help\de\*"
   SectionEnd
-  Section $(LANGUAGE_NAME_ES) SEC06_ES
+  Section -$(LANGUAGE_NAME_ES) SEC06_ES
 	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\es"
     File /nonfatal /r "..\share\doc\kicad\help\es\*"
   SectionEnd
-  Section $(LANGUAGE_NAME_FR) SEC06_FR
+  Section -$(LANGUAGE_NAME_FR) SEC06_FR
 	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\fr"
     File /nonfatal /r "..\share\doc\kicad\help\fr\*"
   SectionEnd
-  Section $(LANGUAGE_NAME_IT) SEC06_IT
+  Section -$(LANGUAGE_NAME_IT) SEC06_IT
 	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\it"
     File /nonfatal /r "..\share\doc\kicad\help\it\*"
   SectionEnd
-  Section $(LANGUAGE_NAME_JA) SEC06_JA
+  Section -$(LANGUAGE_NAME_JA) SEC06_JA
 	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\ja"
     File /nonfatal /r "..\share\doc\kicad\help\ja\*"
   SectionEnd
-  Section $(LANGUAGE_NAME_NL) SEC06_NL
+  Section -$(LANGUAGE_NAME_NL) SEC06_NL
 	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\nl"
     File /nonfatal /r "..\share\doc\kicad\help\nl\*"
   SectionEnd
-  Section $(LANGUAGE_NAME_PL) SEC06_PL
+  Section -$(LANGUAGE_NAME_PL) SEC06_PL
 	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\pl"
     File /nonfatal /r "..\share\doc\kicad\help\pl\*"
   SectionEnd
-  Section $(LANGUAGE_NAME_ZH) SEC06_ZH
+  Section -$(LANGUAGE_NAME_ZH) SEC06_ZH
 	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\zh"
