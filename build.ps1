@@ -1180,8 +1180,10 @@ function Start-Prepare-Package {
 
     ## now libxslt
     $xsltprocSource = "$vcpkgInstalledRootPrimary\tools\libxslt\xsltproc.exe"
-    Write-Host "Copying $xsltprocSource to $destBin"
-    Copy-Item $xsltprocSource -Destination $destBin -Recurse  -Force
+    if( Test-Path -Path $xsltprocSource ) {
+        Write-Host "Copying $xsltprocSource to $destBin"
+        Copy-Item $xsltprocSource -Destination $destBin -Recurse  -Force
+    }
 
     if( $sign ) {
         Get-ChildItem $destBin -Recurse -Filter *.exe |
