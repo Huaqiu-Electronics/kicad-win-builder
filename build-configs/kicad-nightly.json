@@ -1,7 +1,7 @@
 {
     "name:": "KiCad Nightly",
     "output_prefix": "kicad-nightly-",
-    "package_version": "6.99",
+    "package_version": "8.99",
     "train": "nightly",
     "build_mode": "Release",
     "nsis": {

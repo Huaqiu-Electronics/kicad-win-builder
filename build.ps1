@@ -100,7 +100,7 @@ param(
     [Parameter(Mandatory=$False, ParameterSetName="package")]
     [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
     [string]$BuildConfigName = 'kicad-nightly',
-
+    
     [Parameter(Mandatory=$False, ParameterSetName="build")]
     [Parameter(Mandatory=$False, ParameterSetName="package")]
     [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
@@ -521,7 +521,7 @@ function Build-Kicad {
     $cmakeBuildFolder = "build/$buildName"
     $generator = "Ninja"
 
-    #delete the old build folderhttps://gitlab.com/kicad/code/kicad.git
+    #delete the old build folder https://gitlab.com/kicad/code/kicad.git
     if($fresh) {
         Remove-Item $cmakeBuildFolder -Recurse -ErrorAction SilentlyContinue
     }
@@ -607,6 +607,17 @@ function Build-Kicad {
     Pop-Location
 }
 
+function script:Get-Source-Repo ([string] $sourceKey, [string] $defaultRepo) {
+    if(  $buildConfig.sources.PSObject.Properties.Match($sourceKey) )
+    {
+        if( $buildConfig.sources.$sourceKey.PSobject.Properties.Name -contains "repo" )
+        {
+            return $buildConfig.sources.$sourceKey.repo
+        }    
+    }
+    return $defaultRepo
+}
+
 function script:Get-Source-Ref ([string] $sourceKey) {
     if(  $buildConfig.sources.PSObject.Properties.Match($sourceKey) )
     {
@@ -629,7 +640,7 @@ function Start-Build {
         [bool]$latest = $False
     )
 
-    Get-Source -url https://gitlab.com/kicad/code/kicad.git `
+    Get-Source -url (Get-Source-Repo -sourceKey "kicad" -defaultRepo "https://gitlab.com/kicad/code/kicad.git") `
                -dest (Get-Source-Path kicad) `
                -sourceType git `
                -latest $latest `
