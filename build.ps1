@@ -1258,6 +1258,9 @@ function Start-Package-Nsis {
 
     $packageVersion = Get-KiCad-PackageVersion
     $kicadVersion = Get-KiCad-Version
+    
+    # needed to copy vcredist
+    Set-MSVCEnvironment -Arch $arch -VersionMin $settings.VsVersionMin -VersionMax $settings.VsVersionMax
 
     $nsisArch = Get-NSISArch -Arch $arch
 
@@ -1276,8 +1279,13 @@ function Start-Package-Nsis {
 
     ## now nsis
     $nsisSource = Join-Path -Path $PSScriptRoot -ChildPath "nsis\"
-    Write-Host "Copying nsis $nsisSource to $nsisDest"
+    Write-Host "Copying nsis $nsisSource to $destRoot"
     Copy-Item $nsisSource -Destination $destRoot -Recurse -Container -Force
+
+    ## copy redist over to nsis folder from MSVC itself
+    $vcredistDest = Join-Path -Path $destRoot -ChildPath "nsis\vcredist\"
+    New-Item -Path $vcredistDest -ItemType "directory"
+    Copy-Item -Path "$env:VCToolsRedistDir\*" -Destination $vcredistDest -Include vc_redist*
 
     ## Run NSIS
     $nsisScript = Join-Path -Path $destRoot -ChildPath "nsis\$($buildConfig.nsis.file)"
