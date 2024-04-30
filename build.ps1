@@ -1284,8 +1284,14 @@ function Start-Package-Nsis {
 
     ## copy redist over to nsis folder from MSVC itself
     $vcredistDest = Join-Path -Path $destRoot -ChildPath "nsis\vcredist\"
-    New-Item -Path $vcredistDest -ItemType "directory"
+    if( -not (Test-Path $vcredistDest) ) {
+        New-Item -Path $vcredistDest -ItemType "directory"
+    }
     Copy-Item -Path "$env:VCToolsRedistDir\*" -Destination $vcredistDest -Include vc_redist*
+
+    ## default
+    $redistVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$env:VCToolsRedistDir\vc_redist.x64.exe")
+    $vcredistBuild = $redistVersion.FileBuildPart
 
     ## Run NSIS
     $nsisScript = Join-Path -Path $destRoot -ChildPath "nsis\$($buildConfig.nsis.file)"
@@ -1331,6 +1337,7 @@ function Start-Package-Nsis {
             /DOUTFILE="..\..\$outFileName" `
             /DARCH="$nsisArch" `
             /DLIBRARIES_TAG="$libRefName" `
+            /DVCRUNTIME_MINIMUM_BLD="$vcredistBuild" `
             /DMSVC `
             "$nsisScript"
     }
@@ -1340,6 +1347,7 @@ function Start-Package-Nsis {
             /DKICAD_VERSION=$kicadVersion `
             /DOUTFILE="..\..\$outFileName" `
             /DARCH="$nsisArch" `
+            /DVCRUNTIME_MINIMUM_BLD="$vcredistBuild" `
             /DMSVC `
             "$nsisScript"
     }

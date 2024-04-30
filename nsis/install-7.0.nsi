@@ -78,6 +78,10 @@
   !define KICAD_VERSION "unknown"
 !endif
 
+!ifndef VCRUNTIME_MINIMUM_BLD
+  !define VCRUNTIME_MINIMUM_BLD 32532
+!endif
+
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME} ${KICAD_VERSION}"
 !define UNINST_ROOT "SHCTX"
 
@@ -319,7 +323,6 @@ FunctionEnd
 
 !ifdef MSVC
 Section -Prerequisites
-  !define VCRUNTIME_MINIMUM_BLD 32532 
   !if ${ARCH} == 'x86_64'
     ReadRegDword $R1 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Installed"
     ReadRegDword $R2 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Bld"
