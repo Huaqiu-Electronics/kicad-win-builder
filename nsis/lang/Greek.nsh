@@ -34,6 +34,7 @@ LangString TITLE_SEC_DEMOS ${LANG_GREEK} "Έργα επίδειξης"
 LangString TITLE_SEC_DOCS ${LANG_GREEK} "Αρχεία βοήθειας"
 LangString TITLE_SEC_FILE_ASSOC ${LANG_GREEK} "File associations"
 LangString TITLE_SEC_START_MENU ${LANG_GREEK} "Start menu shortcuts"
+LangString TITLE_SEC_DESKTOP_SHORTCUT  ${LANG_GREEK} "Desktop shortcut"
 
 ;Component option descriptions
 LangString DESC_SEC_MAIN ${LANG_GREEK} "Αρχεία κύριας εφαρμογής."

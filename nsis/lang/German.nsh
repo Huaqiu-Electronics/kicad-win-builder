@@ -34,6 +34,7 @@ LangString TITLE_SEC_DEMOS ${LANG_GERMAN} "Demo Projekte"
 LangString TITLE_SEC_DOCS ${LANG_GERMAN} "Hilfedateien"
 LangString TITLE_SEC_FILE_ASSOC ${LANG_GERMAN} "File associations"
 LangString TITLE_SEC_START_MENU ${LANG_GERMAN} "Start menu shortcuts"
+LangString TITLE_SEC_DESKTOP_SHORTCUT  ${LANG_GERMAN} "Desktop shortcut"
 
 ;Component option descriptions
 LangString DESC_SEC_MAIN ${LANG_GERMAN} "Dateien für das Hauptprogramm."
