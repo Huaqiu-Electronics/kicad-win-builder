@@ -56,6 +56,7 @@ LangString DESC_SEC_DOCS_PL ${LANG_GREEK} "$(LANGUAGE_NAME_PL) $(TITLE_SEC_DOCS)
 LangString DESC_SEC_DOCS_ZH ${LANG_GREEK} "$(LANGUAGE_NAME_ZH) $(TITLE_SEC_DOCS)"
 LangString DESC_SEC_FILE_ASSOC ${LANG_GREEK} "Creates file associations for KiCad related files"
 LangString DESC_SEC_START_MENU ${LANG_GREEK} "Creates start menu shortcuts"
+LangString DESC_SEC_DESKTOP_SHORTCUTS ${LANG_GREEK} "Creates desktop shortcuts"
 
 ;File association descriptions (show in Windows Explorer)
 LangString FILE_DESC_KICAD_PCB ${LANG_GREEK} "KiCad Board"

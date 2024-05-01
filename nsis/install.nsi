@@ -585,7 +585,7 @@ Section $(TITLE_SEC_START_MENU) SEC08
   
 SectionEnd
 
-Section -CreateDesktopShortcut
+Section $(TITLE_SEC_DESKTOP_SHORTCUT) SEC09
   !insertmacro ExclusiveDetailPrint $(CREATING_SHORTCUTS)
   CreateShortCut "$DESKTOP\KiCad ${KICAD_VERSION}.lnk" "$INSTDIR\bin\kicad.exe"
 SectionEnd
@@ -633,7 +633,12 @@ Section -PostInstall
   ${Else}
   WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionFileAssoc" "0"
   ${EndIf}
-
+  
+  ${If} ${SectionIsSelected} ${SEC09}
+  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionDesktopShortcut" "1"
+  ${Else}
+  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionDesktopShortcut" "0"
+  ${EndIf}
 SectionEnd
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
@@ -660,6 +665,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC06_ZH} $(DESC_SEC_DOCS_ZH)
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC07} $(DESC_SEC_FILE_ASSOC)
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC08} $(DESC_SEC_START_MENU)
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC09} $(DESC_SEC_DESKTOP_SHORTCUTS)
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 
@@ -704,6 +710,13 @@ Function .onInit
   ${IfNot} ${Errors}
     ${If} $1 = 0
       !insertmacro UnselectSection ${SEC08}
+    ${EndIf}
+  ${EndIf}
+
+  ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionDesktopShortcut"
+  ${IfNot} ${Errors}
+    ${If} $1 = 0
+      !insertmacro UnselectSection ${SEC09}
     ${EndIf}
   ${EndIf}
   
