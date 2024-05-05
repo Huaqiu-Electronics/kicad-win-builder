@@ -162,6 +162,7 @@ BrandingText "KiCad installer for Windows"
 
 ; Uninstaller pages
 !insertmacro MULTIUSER_UNPAGE_INSTALLMODE
+UninstPage custom un.AskAboutSettings ;Custom page for asking about settings
 !insertmacro MUI_UNPAGE_INSTFILES
 
 ; Language files
@@ -833,6 +834,32 @@ Function un.onUninstSuccess
   MessageBox MB_ICONINFORMATION|MB_OK|MB_TOPMOST $(UNINST_SUCCESS) /SD IDOK
 FunctionEnd
 
+; Variables required to persist state
+Var UnCheckbox_RemoveAllSettings
+Var UnCheckbox_RemoveAllSettings_State
+
+Function un.AskAboutSettings
+  !insertmacro MUI_HEADER_TEXT $(UNINSTALL_OPTIONS_TITLE) $(UNINSTALL_OPTIONS_SUBTITLE)
+  nsDialogs::Create 1018
+  Pop $0
+  ${If} $0 == error
+      Abort
+  ${EndIf}
+
+  StrCpy $UnCheckbox_RemoveAllSettings_State 0
+
+	${NSD_CreateCheckbox} 0 0u 100% 20u $(UNINSTALL_OPTIONS_REMOVE_ALL_SETTINGS)
+	Pop $UnCheckbox_RemoveAllSettings
+  GetFunctionAddress $0 un.OnCheckbox_RemoveAllSettings
+  nsDialogs::OnClick $UnCheckbox_RemoveAllSettings $0
+
+  nsDialogs::Show
+FunctionEnd
+
+Function un.OnCheckbox_RemoveAllSettings
+    ${NSD_GetState} $UnCheckbox_RemoveAllSettings $UnCheckbox_RemoveAllSettings_State
+FunctionEnd
+
 Section Uninstall
   ;delete uninstaller first
   Delete "$INSTDIR\${UNINSTALL_FILENAME}"
@@ -879,27 +906,34 @@ Section Uninstall
 
   ;remove file association only if it was installed
   ClearErrors
-  ReadRegDWORD $0 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "FileAssocInstalled"
-  IfErrors FinishUninstall 0
+  ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "FileAssocInstalled"
+  ${IfNot} ${Errors}
+    ${If} $1 = 1
+      ;delete file associations
+      !insertmacro ExclusiveDetailPrint $(REMOVING_FILE_ASSOC)
+      ${DeleteFileAssociation} "kicad_pcb"
+      ${DeleteFileAssociation} "sch"
+      ${DeleteFileAssociation} "kicad_sch"
+      ${DeleteFileAssociation} "pro"
+      ${DeleteFileAssociation} "kicad_pro"
+      ${DeleteFileAssociation} "kicad_wks"
+    ${EndIf}
+  ${EndIf}
 
-  IntCmp $0 1 0 FinishUninstall FinishUninstall
-
-  ;delete file associations
-  !insertmacro ExclusiveDetailPrint $(REMOVING_FILE_ASSOC)
-  ${DeleteFileAssociation} "kicad_pcb"
-  ${DeleteFileAssociation} "sch"
-  ${DeleteFileAssociation} "kicad_sch"
-  ${DeleteFileAssociation} "pro"
-  ${DeleteFileAssociation} "kicad_pro"
-  ${DeleteFileAssociation} "kicad_wks"
-
-  FinishUninstall:
   ;Note - application registry keys are stored in the users individual registry hive (HKCU\Software\kicad".
   ;It might be possible to remove these keys as well but it would require a lot of testing of permissions
   ;and access to other people's registry entries. So for now we will leave the application registry keys.
 
   ;remove installation registary keys
   !insertmacro MULTIUSER_RegistryRemoveInstallInfo ; Remove registry keys
+
+  ${If} $UnCheckbox_RemoveAllSettings_State == 1
+    ; Left until the very end because we want to change shell var context and delete the current user settings
+    SetShellVarContext current
+    RMDir /r "$APPDATA\kicad\${KICAD_VERSION}\"
+    RMDir /r "$LOCALAPPDATA\kicad\${KICAD_VERSION}\"
+  ${EndIf}
+
   SetAutoClose true
 SectionEnd
 

@@ -120,3 +120,7 @@ LangString REMOVING_LIBRARIES ${LANG_GREEK} "Removing libraries..."
 LangString REMOVING_DOCS ${LANG_GREEK} "Removing documentation..."
 LangString REMOVING_ENV_VARS ${LANG_GREEK} "Removing environment variables..."
 LangString REMOVING_FILE_ASSOC ${LANG_GREEK} "Removing file associations..."
+
+LangString UNINSTALL_OPTIONS_TITLE ${LANG_GREEK} "Uninstall Options"
+LangString UNINSTALL_OPTIONS_SUBTITLE ${LANG_GREEK} "Additional options for a uninstall"
+LangString UNINSTALL_OPTIONS_REMOVE_ALL_SETTINGS ${LANG_GREEK} "Would you like to remove all stored KiCad settings? (current user files only)"

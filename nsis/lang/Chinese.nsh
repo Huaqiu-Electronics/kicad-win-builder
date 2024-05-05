@@ -120,3 +120,8 @@ LangString REMOVING_LIBRARIES ${LANG_SIMPCHINESE} "正在删除库..."
 LangString REMOVING_DOCS ${LANG_SIMPCHINESE} "正在删除文档..."
 LangString REMOVING_ENV_VARS ${LANG_SIMPCHINESE} "正在删除环境变量..."
 LangString REMOVING_FILE_ASSOC ${LANG_SIMPCHINESE} "正在删除文件关联..."
+
+
+LangString UNINSTALL_OPTIONS_TITLE ${LANG_SIMPCHINESE} "Uninstall Options"
+LangString UNINSTALL_OPTIONS_SUBTITLE ${LANG_SIMPCHINESE} "Additional options for a uninstall"
+LangString UNINSTALL_OPTIONS_REMOVE_ALL_SETTINGS ${LANG_SIMPCHINESE} "Would you like to remove all stored KiCad settings? (current user files only)"
