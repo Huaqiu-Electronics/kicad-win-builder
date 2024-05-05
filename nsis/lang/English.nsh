@@ -96,8 +96,8 @@ LangString PROGRAM_IS_OPEN_ERROR ${LANG_ENGLISH} "$R1 is currently running! You 
 
 LangString CLEANUP_PROMPT ${LANG_ENGLISH} "Remove downloaded files after installation?"
 LangString UNINST_PROMPT ${LANG_ENGLISH} "Are you sure you want to completely remove $(^Name) and all of its components? $\n\
-This will also remove all modified and new files, symbols and footprints in the program directory \
-(including python modules installed by user)!"
+This will also remove all files, symbols and footprints in the KiCad installation directory. Any of your KiCad files located outside the installation
+directory will remain untouched."
 
 LangString UNINST_SUCCESS ${LANG_ENGLISH} "$(^Name) was successfully removed from your computer."
 LangString INSTALLER_RUNNING ${LANG_ENGLISH} "The installer is already running."
