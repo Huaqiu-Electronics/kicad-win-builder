@@ -348,12 +348,12 @@ SectionEnd
 Section $(TITLE_SEC_MAIN) SEC01
   SectionIn RO
   SetOverwrite try
-
+  
   !insertmacro ExclusiveDetailPrint $(INSTALLING_APPS)
   ; delete contents of \bin\ itself to avoid any weird conflicts between versions
   ; not a foolproof solution for all conflicts that could occur
   Delete "$INSTDIR\bin\*.*"
-
+  
   ; clean contents of python because otherwise out of date things can remain and get loaded
   RMDir /r "$INSTDIR\bin\DLLs\"
   RMDir /r "$INSTDIR\bin\Lib\"
@@ -374,7 +374,7 @@ Section $(TITLE_SEC_MAIN) SEC01
 
   SetOutPath "$INSTDIR\lib"
   File /r "..\lib\*"
-
+  
   SetOutPath "$INSTDIR\etc"
   File /r "..\etc\*"
 
@@ -386,7 +386,7 @@ Section $(TITLE_SEC_MAIN) SEC01
 
   SetOutPath "$INSTDIR\share\kicad\template"
   File /nonfatal /r "..\share\kicad\template\*"
-
+  
   SetOutPath "$INSTDIR\share\kicad\resources"
   File /nonfatal /r "..\share\kicad\resources\*"
 
@@ -437,7 +437,7 @@ SectionGroup /e $(TITLE_SEC_LIBRARIES) SEC03
     !insertmacro ExclusiveDetailPrint $(INSTALLING_SCH_LIBS)
     SetOutPath "$INSTDIR\share\kicad\symbols"
     File /nonfatal /r "..\share\kicad\symbols\*"
-
+  
     !insertmacro RecursiveReadOnlyFlagFiles "$INSTDIR\share\kicad\symbols\"
   SectionEnd
   !else
@@ -473,7 +473,7 @@ SectionGroup /e $(TITLE_SEC_LIBRARIES) SEC03
     !insertmacro ExclusiveDetailPrint $(INSTALLING_3D_MODELS)
     SetOutPath "$INSTDIR\share\kicad\3dmodels"
     File /nonfatal /r "..\share\kicad\3dmodels\*"
-
+    
     !insertmacro RecursiveReadOnlyFlagFiles "$INSTDIR\share\kicad\3dmodels\"
   SectionEnd
   !else
@@ -573,7 +573,6 @@ Section $(TITLE_SEC_START_MENU) SEC08
 
   RMDir /r "${SMPATH}"
   CreateDirectory "${SMPATH}"
-  CreateShortCut "${SMPATH}\Uninstall.lnk" "$INSTDIR\${UNINSTALL_FILENAME}"
   CreateShortCut "${SMPATH}\KiCad ${KICAD_VERSION}.lnk" "$INSTDIR\bin\kicad.exe"
   CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_EESCHEMA).lnk" "$INSTDIR\bin\eeschema.exe"
   CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_PCBNEW).lnk" "$INSTDIR\bin\pcbnew.exe"
@@ -582,7 +581,7 @@ Section $(TITLE_SEC_START_MENU) SEC08
   CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_PCBCALCULATOR).lnk" "$INSTDIR\bin\pcb_calculator.exe"
   CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_PLEDITOR).lnk" "$INSTDIR\bin\pl_editor.exe"
   CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_CMD).lnk" "%comspec%" '/k "$INSTDIR\bin\kicad-cmd.bat"'
-
+  
 SectionEnd
 
 Section $(TITLE_SEC_DESKTOP_SHORTCUT) SEC09
@@ -603,13 +602,13 @@ Section -PostInstall
   ${Else}
   WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionSymbols" "0"
   ${EndIf}
-
+  
   ${If} ${SectionIsSelected} ${SEC03_FOOTPRINTS}
   WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionFootprints" "1"
   ${Else}
   WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionFootprints" "0"
   ${EndIf}
-
+  
   ${If} ${SectionIsSelected} ${SEC03_PACKAGES3D}
   WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "Section3DModels" "1"
   ${Else}
@@ -627,13 +626,13 @@ Section -PostInstall
   ${Else}
   WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionStartMenuShortcuts" "0"
   ${EndIf}
-
+  
   ${If} ${SectionIsSelected} ${SEC07}
   WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionFileAssoc" "1"
   ${Else}
   WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionFileAssoc" "0"
   ${EndIf}
-
+  
   ${If} ${SectionIsSelected} ${SEC09}
   WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionDesktopShortcut" "1"
   ${Else}
@@ -719,14 +718,14 @@ Function .onInit
       !insertmacro UnselectSection ${SEC09}
     ${EndIf}
   ${EndIf}
-
+  
   ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionFileAssoc"
   ${IfNot} ${Errors}
     ${If} $1 = 0
       !insertmacro UnselectSection ${SEC07}
     ${EndIf}
   ${EndIf}
-
+  
   !ifndef LIBRARIES_TAG
   ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionSymbols"
   ${IfNot} ${Errors}
@@ -734,14 +733,14 @@ Function .onInit
       !insertmacro UnselectSection ${SEC03_SCHLIB}
     ${EndIf}
   ${EndIf}
-
+  
   ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionFootprints"
   ${IfNot} ${Errors}
     ${If} $1 = 0
       !insertmacro UnselectSection ${SEC03_FOOTPRINTS}
     ${EndIf}
   ${EndIf}
-
+  
   ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "Section3DModels"
   ${IfNot} ${Errors}
     ${If} $1 = 0
@@ -776,7 +775,7 @@ Var RunningAsShellUser ; uninstaller restarted itself under the user of the runn
 
 Function un.onInit
 	${GetParameters} $R0
-
+  
 	${GetOptions} $R0 "/uninstall" $R1
 	${ifnot} ${errors}
 		StrCpy $RunningFromInstaller 1
@@ -858,7 +857,7 @@ Section Uninstall
   RMDir /r "$INSTDIR\ssl"
   RMDir /r "$INSTDIR\share\locale"
   RMDir /r "$INSTDIR\etc"
-
+  
   !insertmacro ExclusiveDetailPrint $(REMOVING_LIBRARIES)
   RMDir /r "$INSTDIR\share\symbols"
   RMDir /r "$INSTDIR\share\footprints"
@@ -866,7 +865,7 @@ Section Uninstall
   RMDir /r "$INSTDIR\share\kicad\template"
   RMDir /r "$INSTDIR\share\kicad\internat"
   RMDir /r "$INSTDIR\share\kicad\demos"
-
+  
   !insertmacro ExclusiveDetailPrint $(REMOVING_DOCS)
   RMDir /r "$INSTDIR\share\doc\kicad\tutorials"
   RMDir /r "$INSTDIR\share\doc\kicad\help"
@@ -900,7 +899,7 @@ Section Uninstall
   ;and access to other people's registry entries. So for now we will leave the application registry keys.
 
   ;remove installation registary keys
-  !insertmacro MULTIUSER_RegistryRemoveInstallInfo ; Remove registry keys
+  !insertmacro MULTIUSER_RegistryRemoveInstallInfo ; Remove registry keys	
   SetAutoClose true
 SectionEnd
 

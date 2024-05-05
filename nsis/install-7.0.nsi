@@ -577,7 +577,6 @@ Section -CreateShortcuts
 
   RMDir /r "${SMPATH}"
   CreateDirectory "${SMPATH}"
-  CreateShortCut "${SMPATH}\Uninstall.lnk" "$INSTDIR\uninstaller.exe"
   CreateShortCut "${SMPATH}\KiCad ${KICAD_VERSION}.lnk" "$INSTDIR\bin\kicad.exe"
   CreateShortCut "${SMPATH}\Schematic Editor ${KICAD_VERSION}.lnk" "$INSTDIR\bin\eeschema.exe"
   CreateShortCut "${SMPATH}\PCB Editor ${KICAD_VERSION}.lnk" "$INSTDIR\bin\pcbnew.exe"
