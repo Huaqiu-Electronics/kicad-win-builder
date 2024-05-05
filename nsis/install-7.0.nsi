@@ -355,12 +355,12 @@ SectionEnd
 Section $(TITLE_SEC_MAIN) SEC01
   SectionIn RO
   SetOverwrite try
-  
+
   !insertmacro ExclusiveDetailPrint $(INSTALLING_APPS)
   ; delete contents of \bin\ itself to avoid any weird conflicts between versions
   ; not a foolproof solution for all conflicts that could occur
   Delete "$INSTDIR\bin\*.*"
-  
+
   ; clean contents of python because otherwise out of date things can remain and get loaded
   RMDir /r "$INSTDIR\bin\DLLs\"
   RMDir /r "$INSTDIR\bin\Lib\"
@@ -381,7 +381,7 @@ Section $(TITLE_SEC_MAIN) SEC01
 
   SetOutPath "$INSTDIR\lib"
   File /r "..\lib\*"
-  
+
   SetOutPath "$INSTDIR\etc"
   File /r "..\etc\*"
 
@@ -393,7 +393,7 @@ Section $(TITLE_SEC_MAIN) SEC01
 
   SetOutPath "$INSTDIR\share\kicad\template"
   File /nonfatal /r "..\share\kicad\template\*"
-  
+
   SetOutPath "$INSTDIR\share\kicad\resources"
   File /nonfatal /r "..\share\kicad\resources\*"
 
@@ -444,7 +444,7 @@ SectionGroup /e $(TITLE_SEC_LIBRARIES) SEC03
     !insertmacro ExclusiveDetailPrint $(INSTALLING_SCH_LIBS)
     SetOutPath "$INSTDIR\share\kicad\symbols"
     File /nonfatal /r "..\share\kicad\symbols\*"
-  
+
     !insertmacro RecursiveReadOnlyFlagFiles "$INSTDIR\share\kicad\symbols\"
   SectionEnd
   !else
@@ -480,7 +480,7 @@ SectionGroup /e $(TITLE_SEC_LIBRARIES) SEC03
     !insertmacro ExclusiveDetailPrint $(INSTALLING_3D_MODELS)
     SetOutPath "$INSTDIR\share\kicad\3dmodels"
     File /nonfatal /r "..\share\kicad\3dmodels\*"
-    
+
     !insertmacro RecursiveReadOnlyFlagFiles "$INSTDIR\share\kicad\3dmodels\"
   SectionEnd
   !else
@@ -627,7 +627,7 @@ Var RunningAsShellUser ; uninstaller restarted itself under the user of the runn
 
 Function un.onInit
 	${GetParameters} $R0
-  
+
 	${GetOptions} $R0 "/uninstall" $R1
 	${ifnot} ${errors}
 		StrCpy $RunningFromInstaller 1
@@ -709,7 +709,7 @@ Section Uninstall
   RMDir /r "$INSTDIR\ssl"
   RMDir /r "$INSTDIR\fonts"
   RMDir /r "$INSTDIR\etc"
-  
+
   !insertmacro ExclusiveDetailPrint $(REMOVING_LIBRARIES)
   RMDir /r "$INSTDIR\share\symbols"
   RMDir /r "$INSTDIR\share\footprints"
@@ -717,7 +717,7 @@ Section Uninstall
   RMDir /r "$INSTDIR\share\kicad\template"
   RMDir /r "$INSTDIR\share\kicad\internat"
   RMDir /r "$INSTDIR\share\kicad\demos"
-  
+
   !insertmacro ExclusiveDetailPrint $(REMOVING_DOCS)
   RMDir /r "$INSTDIR\share\doc\kicad\tutorials"
   RMDir /r "$INSTDIR\share\doc\kicad\help"
@@ -751,7 +751,7 @@ Section Uninstall
   ;and access to other people's registry entries. So for now we will leave the application registry keys.
 
   ;remove installation registary keys
-  !insertmacro MULTIUSER_RegistryRemoveInstallInfo ; Remove registry keys	
+  !insertmacro MULTIUSER_RegistryRemoveInstallInfo ; Remove registry keys
   SetAutoClose true
 SectionEnd
 
