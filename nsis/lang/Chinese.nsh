@@ -34,7 +34,7 @@ LangString TITLE_SEC_DEMOS ${LANG_SIMPCHINESE} "示范工程"
 LangString TITLE_SEC_DOCS ${LANG_SIMPCHINESE} "帮助文件"
 LangString TITLE_SEC_FILE_ASSOC ${LANG_SIMPCHINESE} "文件关联"
 LangString TITLE_SEC_START_MENU ${LANG_SIMPCHINESE} "开始菜单快捷方式"
-LangString TITLE_SEC_DESKTOP_SHORTCUT  ${LANG_SIMPCHINESE} "Desktop shortcut"
+LangString TITLE_SEC_DESKTOP_SHORTCUT  ${LANG_SIMPCHINESE} "桌面快捷方式"
 
 ;Component option descriptions
 LangString DESC_SEC_MAIN ${LANG_SIMPCHINESE} "主要应用程序文件。"
@@ -57,7 +57,7 @@ LangString DESC_SEC_DOCS_PL ${LANG_SIMPCHINESE} "$(LANGUAGE_NAME_PL) $(TITLE_SEC
 LangString DESC_SEC_DOCS_ZH ${LANG_SIMPCHINESE} "$(LANGUAGE_NAME_ZH) $(TITLE_SEC_DOCS)"
 LangString DESC_SEC_FILE_ASSOC ${LANG_SIMPCHINESE} "为 KiCad 相关文件创建文件关联"
 LangString DESC_SEC_START_MENU ${LANG_SIMPCHINESE} "创建开始菜单快捷方式"
-LangString DESC_SEC_DESKTOP_SHORTCUTS ${LANG_SIMPCHINESE} "Creates desktop shortcuts"
+LangString DESC_SEC_DESKTOP_SHORTCUTS ${LANG_SIMPCHINESE} "创建桌面快捷方式"
 
 ;File association descriptions (show in Windows Explorer)
 LangString FILE_DESC_KICAD_PCB ${LANG_SIMPCHINESE} "KiCad PCB 板"
@@ -122,6 +122,6 @@ LangString REMOVING_ENV_VARS ${LANG_SIMPCHINESE} "正在删除环境变量..."
 LangString REMOVING_FILE_ASSOC ${LANG_SIMPCHINESE} "正在删除文件关联..."
 
 
-LangString UNINSTALL_OPTIONS_TITLE ${LANG_SIMPCHINESE} "Uninstall Options"
-LangString UNINSTALL_OPTIONS_SUBTITLE ${LANG_SIMPCHINESE} "Additional options for a uninstall"
-LangString UNINSTALL_OPTIONS_REMOVE_ALL_SETTINGS ${LANG_SIMPCHINESE} "Would you like to remove all stored KiCad settings? (current user files only)"
+LangString UNINSTALL_OPTIONS_TITLE ${LANG_SIMPCHINESE} "卸载选项"
+LangString UNINSTALL_OPTIONS_SUBTITLE ${LANG_SIMPCHINESE} "卸载的其他选项"
+LangString UNINSTALL_OPTIONS_REMOVE_ALL_SETTINGS ${LANG_SIMPCHINESE} "您想删除所有已存储的 KiCad 设置吗？(仅限当前用户文件）"
