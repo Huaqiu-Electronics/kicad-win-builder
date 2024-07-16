@@ -175,9 +175,9 @@ Import-Module $PSScriptRoot\KiBuild -Force -DisableNameChecking
 
 $vcpkgCommit = "3f530d4827b064f5894e94a8946473d40999826e";
 
-$cmakeFolder = 'cmake-3.29.1-windows-x86_64'
-$cmakeDownload = 'https://github.com/Kitware/CMake/releases/download/v3.29.1/cmake-3.29.1-windows-x86_64.zip'
-$cmakeChecksum = "C8CF6ED50551D00AD8CD1F3B232810CD0A8B43B4A1D4F1393F0A575D423884DC"
+$cmakeFolder = 'cmake-3.29.2-windows-x86_64'
+$cmakeDownload = 'https://github.com/Kitware/CMake/releases/download/v3.29.2/cmake-3.29.2-windows-x86_64.zip'
+$cmakeChecksum = "86B5DE51F60A0E9D62BE4D8CA76EA467D154083D356FCC9AF1409606BE341CD8"
 
 $ninjaFolder = 'ninja-win'
 $ninjaDownload = 'https://github.com/ninja-build/ninja/releases/download/v1.11.1/ninja-win.zip'
