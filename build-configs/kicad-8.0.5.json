@@ -1,0 +1,30 @@
+{
+    "name:": "KiCad 8.0.5",
+    "output_prefix": "kicad-",
+    "package_version": "8.0.5",
+    "train": "stable",
+    "build_mode": "Release",
+    "nsis": {
+        "file": "install.nsi"
+    },
+    "sources": {
+        "kicad": {
+            "ref": "tag/8.0.5"
+        },
+        "symbols": {
+            "ref": "tag/8.0.5"
+        },
+        "footprints": {
+            "ref": "tag/8.0.5"
+        },
+        "3dmodels": {
+            "ref": "tag/8.0.5"
+        },
+        "templates": {
+            "ref": "tag/8.0.5"
+        }
+    }, 
+    "vcpkg": {
+        "manifest_mode": true
+    }
+}
