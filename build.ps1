@@ -613,18 +613,7 @@ function Build-Kicad {
     } else {
         Write-Host "Invoking cmake build" -ForegroundColor Yellow
 
-        & {
-            $ErrorActionPreference = 'SilentlyContinue'
-            cmake --build $cmakeBuildFolder -j 2>&1 | % ToString
-        }
-
-        if ($LastExitCode -ne 0) {
-            Write-Error "Failure with cmake build"
-            Pop-Location
-            Exit [ExitCodes]::CMakeBuildFailure
-        } else {
-            Write-Host "Build complete" -ForegroundColor Green
-        }
+        Start-Process "cmake" -ArgumentList "--build $cmakeBuildFolder -j" -NoNewWindow -Wait -ErrorAction SilentlyContinue
     }
 
     #restore path
