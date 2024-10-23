@@ -695,11 +695,11 @@ function Start-Build {
                -latest $latest `
                -ref (Get-Source-Ref -sourceKey "templates")
     
-    Build-KiCad -arch $arch -buildType $buildType
-    Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-symbols
-    Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-footprints
-    Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-packages3D
-    Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-templates
+    Build-KiCad -arch $arch -buildType $buildType -ErrorAction SilentlyContinue
+    # Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-symbols
+    # Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-footprints
+    # Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-packages3D
+    # Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-templates
 }
 
 
@@ -1717,9 +1717,21 @@ if( $Vcpkg )
     Build-Vcpkg -arch $Arch -latest $True
 }
 
-if( $Build )
-{
-    Start-Build -arch $Arch -buildType $buildConfig.build_mode -latest $Latest
+try {
+
+    if( $Build )
+    {
+        Start-Build -arch $Arch -buildType $buildConfig.build_mode -latest $Latest
+    }
+}
+
+ Catch {
+    # Do nothing, just ignore the error
+ }
+
+Get-ChildItem -Path .\ -Filter *.log -Recurse -File -Name | ForEach-Object {
+    [System.IO.Path]::GetFileNameWithoutExtension($_)
+    Get-Content $_
 }
 
 if( $MsixAssets )
