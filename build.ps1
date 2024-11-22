@@ -100,7 +100,7 @@ param(
     [Parameter(Mandatory=$False, ParameterSetName="package")]
     [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
     # NOTE Change to your build config
-    [string]$BuildConfigName = 'kicad-test',
+    [string]$BuildConfigName = 'kicad-nightly',
 
     [Parameter(Mandatory=$False, ParameterSetName="build")]
     [Parameter(Mandatory=$False, ParameterSetName="package")]
@@ -665,7 +665,7 @@ function Start-Build {
     )
 
     # NOTE Change to your own fork
-    Get-Source -url https://gitlab.com/kicad-hq/kicad.git `
+    Get-Source -url https://gitlab.com/Liangtie/kicad.git `
                -dest (Get-Source-Path kicad) `
                -sourceType git `
                -latest $latest `
