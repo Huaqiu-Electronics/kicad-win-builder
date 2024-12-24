@@ -210,6 +210,9 @@ $s5cmdFolderName = "s5cmd_1.4.0_Windows-64bit"
 $sentryCliDownload = 'https://github.com/getsentry/sentry-cli/releases/download/1.74.3/sentry-cli-Windows-x86_64.exe'
 $sentryCliChecksum = "0D2F372D98F53EA4D4DF26161F1F821D5322B00A0227CE84EC939BF271C720AD"
 
+$azureSignToolDownload = 'https://github.com/vcsjones/AzureSignTool/releases/download/v6.0.0/AzureSignTool-x64.exe'
+$azureSignToolChecksum = '012001BB072EE36719AECC570D4566C6407A49AE6E6E85DB8201F58122BCA967'
+
 
 $7zaFolderName = "7z2201-extra"
 
@@ -220,9 +223,6 @@ $swigWinPath = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $swigwinFold
 $gettextPath = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "/$gettextFolderName/bin"
 $doxygenPath = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $doxygenFolderName
 $nsisPath = Join-Path -Path (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $nsisFolderName) -ChildPath "bin/"
-
-$azureSignToolVersion = "3.0.0"
-$azureSignToolPath = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "azuresigntool-$azureSignToolVersion"
 
 $env:Path = $swigWinPath+";"+$gettextPath+";"+$nsisPath+";"+$doxygenPath+";"+$env:PATH
 
@@ -359,7 +359,7 @@ function Set-Aliases()
 
     if( -not (Test-Path alias:azuresigntool ) )
     {
-        $tmp = Join-Path -Path $azureSignToolPath -ChildPath "azuresigntool.exe"
+        $tmp = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "azuresigntool.exe"
         Set-Alias azuresigntool $tmp -Option AllScope -Scope Global
     }
 
@@ -735,6 +735,13 @@ function Start-Init {
              -Checksum $vswhereChecksum `
              -ExtractZip $False
 
+    Get-Tool -ToolName "azuresigntool" `
+             -Url $azureSignToolDownload `
+             -DestPath ($BuilderPaths.SupportRoot+'azuresigntool.exe') `
+             -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "azuresigntool.exe") `
+             -Checksum $azureSignToolChecksum `
+             -ExtractZip $False
+
     Get-Tool -ToolName "sentry-cli" `
             -Url $sentryCliDownload `
             -DestPath ($BuilderPaths.SupportRoot+'sentry-cli.exe') `
@@ -757,15 +764,6 @@ function Start-Init {
              -ExtractZip $true `
              -ZipRelocate $False `
              -ExtractInSupportRoot $False
-
-    if( -not (Test-Path $azureSignToolPath ) ) {
-        if (Get-Command "dotnet.exe" -ErrorAction SilentlyContinue) {
-            dotnet tool install AzureSignTool --version $azureSignToolVersion --tool-path $azureSignToolPath
-        }
-        else {
-            Write-Warning "Missing dotnet executable to install azure sign tool"
-        }
-    }
 
     $7zaSource = Join-Path -Path $PSScriptRoot -ChildPath "\support\7z2201-extra.zip"
     Expand-Tool -ToolName "7za" `
