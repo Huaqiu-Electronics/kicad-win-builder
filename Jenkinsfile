@@ -57,7 +57,7 @@ def do_package(arches, lite) {
 
       withCredentials([azureServicePrincipal('kicad-azuresigntool')]) {
         try {
-          $signString = ' -Sign -SignAKV $True -AKVUrl "https://kicad-codesign.vault.azure.net/" -AKVTenantId $Env:AZURE_TENANT_ID -AKVAppId $Env:AZURE_CLIENT_ID -AKVAppSecret $Env:AZURE_CLIENT_SECRET -AKVCertName KiCadCodeSign'
+          $signString = ' -Sign -SignAKV $True -AKVUrl "https://kicad-codesign.vault.azure.net/" -AKVTenantId $Env:AZURE_TENANT_ID -AKVAppId $Env:AZURE_CLIENT_ID -AKVAppSecret $Env:AZURE_CLIENT_SECRET -AKVCertName "' + params.AKV_KEY_NAME + '"'
 
           if( lite ) {
               echo "Building lite package"
@@ -96,6 +96,7 @@ pipeline {
         booleanParam(name: 'BUILD_ARM64', defaultValue: true, description: 'Build arm64')
         booleanParam(name: 'BUILD_X64', defaultValue: true, description: 'Build 64-bit')
         booleanParam(name: 'BUILD_X86', defaultValue: false, description: 'Build 32-bit')
+        text(name: 'AKV_KEY_NAME', defaultValue: 'KiCadCodeSign', description: 'Name of code sign cert in Azure Key Vault')
     }
 
 
