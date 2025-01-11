@@ -77,7 +77,10 @@ def get_user_docu_path():
     
     return buf.value
 
-sys.path = []
+in_venv = sys.prefix != sys.base_prefix
+
+if not in_venv:
+    sys.path = []
 
 current_directory = os.path.dirname(os.path.realpath(__file__))
 site.addsitedir(os.path.join(current_directory, '..\\..\\DLLs'))
@@ -108,7 +111,7 @@ if kicad_product_version:
 
 user_docus_path = get_user_docu_path()
 
-if kicad_version:
+if kicad_version and not in_venv:
     # sysconfig override
     user_base = os.path.join(user_docus_path, f'KiCad\\{kicad_version}\\3rdparty\\')
     os.environ["PYTHONUSERBASE"] = user_base
