@@ -9,7 +9,7 @@
     },
     "sources": {
         "kicad": {
-            "ref": "branch/release/8.0"
+            "ref": "branch/fix/auibar_mem_leak"
         },
         "symbols": {
             "ref": "tag/8.0.8"
