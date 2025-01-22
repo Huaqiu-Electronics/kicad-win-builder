@@ -1,7 +1,7 @@
 {
-    "name:": "KiCad Huaqiu 8.0.8 ",
+    "name:": "KiCad Huaqiu 9.0.0 ",
     "output_prefix": "kicad-huaqiu-",
-    "package_version": "8.0.8",
+    "package_version": "9.0.0",
     "train": "stable",
     "build_mode": "Release",
     "nsis": {
@@ -9,7 +9,7 @@
     },
     "sources": {
         "kicad": {
-            "ref": "branch/release/8.0"
+            "ref": "branch/test-release/9.0"
         },
         "symbols": {
             "ref": "tag/8.0.8"
