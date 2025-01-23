@@ -96,7 +96,7 @@ pipeline {
         booleanParam(name: 'BUILD_ARM64', defaultValue: true, description: 'Build arm64')
         booleanParam(name: 'BUILD_X64', defaultValue: true, description: 'Build 64-bit')
         booleanParam(name: 'BUILD_X86', defaultValue: false, description: 'Build 32-bit')
-        text(name: 'AKV_KEY_NAME', defaultValue: 'KiCadCodeSign', description: 'Name of code sign cert in Azure Key Vault')
+        text(name: 'AKV_KEY_NAME', defaultValue: 'KiCad2025SigningKey', description: 'Name of code sign cert in Azure Key Vault')
     }
 
 
