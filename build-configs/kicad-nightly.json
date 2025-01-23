@@ -9,7 +9,7 @@
     },
     "sources": {
         "kicad": {
-            "ref": "branch/master"
+            "ref": "branch/nightly"
         },
         "symbols": {
             "ref": "branch/master"
