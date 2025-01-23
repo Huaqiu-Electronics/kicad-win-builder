@@ -100,7 +100,7 @@ param(
     [Parameter(Mandatory=$False, ParameterSetName="package")]
     [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
     # NOTE Change to your build config
-    [string]$BuildConfigName = 'kicad-hq',
+    [string]$BuildConfigName = 'kicad-nightly',
 
     [Parameter(Mandatory=$False, ParameterSetName="build")]
     [Parameter(Mandatory=$False, ParameterSetName="package")]
