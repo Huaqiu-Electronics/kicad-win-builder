@@ -1,7 +1,7 @@
 {
     "name:": "KiCad Huaqiu 9.0.0 ",
     "output_prefix": "kicad-huaqiu-",
-    "package_version": "9.0.0",
+    "package_version": "9.0.0-rc2",
     "train": "stable",
     "build_mode": "Release",
     "nsis": {
