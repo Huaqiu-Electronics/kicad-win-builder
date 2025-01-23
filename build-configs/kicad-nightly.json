@@ -1,8 +1,8 @@
 {
     "name:": "KiCad Nightly",
     "output_prefix": "kicad-nightly-",
-    "package_version": "8.99",
-    "train": "nightly",
+    "package_version": "nightly",
+    "train": "stable",
     "build_mode": "Release",
     "nsis": {
         "file": "install.nsi"

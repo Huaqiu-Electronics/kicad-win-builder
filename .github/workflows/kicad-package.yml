@@ -69,7 +69,7 @@ jobs:
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.HUAQIU_ELECTRONICS_TOKEN }}
-          file: ./.out/kicad-huaqiu-${{ steps.latest-release.outputs.tag }}-x86_64.exe
-          asset_name: kicad-huaqiu-${{ steps.latest-release.outputs.tag }}-x86_64.exe
+          file: ./.out/kicad-nightly-x86_64.exe
+          asset_name: kicad-nightly-x86_64.exe
           overwrite: true
-          tag: ${{ steps.latest-release.outputs.tag }}
+          tag: kicad-nightly
