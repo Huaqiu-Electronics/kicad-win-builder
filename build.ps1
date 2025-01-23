@@ -977,6 +977,33 @@ function Sign-File {
 }
 
 
+function Sign-Files {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [string]$Path
+    )
+
+    Write-Host "Signing files by path: $Path" -ForegroundColor Blue
+
+    if( $SignAKV ) {
+        azuresigntool sign -kvt "$AKVTenantId" -fd sha256 `
+                            -td sha256 -kvu "$AKVUrl" -kvi "$AKVAppId" `
+                            -kvs "$AKVAppSecret" -kvc "$AKVCertName" `
+                            -tr http://timestamp.digicert.com -q "$Path"
+
+        if ($LastExitCode -ne 0) {
+            Write-Error "Error signing file $File, exit code $LastExitCode"
+            Exit [ExitCodes]::SignFail
+        }
+    }
+    else {
+        Write-Error "Only AKV support for multi-file signing"
+        Exit [ExitCodes]::SignFail
+    }
+}
+
+
 function Start-Prepare-Package {
     [CmdletBinding()]
     param(
@@ -1196,32 +1223,11 @@ function Start-Prepare-Package {
     }
 
     if( $sign ) {
-        Get-ChildItem $destBin -Recurse -Filter *.exe |
-        Foreach-Object {
-            Sign-File -File $_.FullName
-        }
-
-        Get-ChildItem $destBin -Recurse -Filter *.dll |
-        Foreach-Object {
-            Sign-File -File $_.FullName
-        }
-
-        Get-ChildItem $destBin -Recurse -Filter *.kiface |
-        Foreach-Object {
-            Sign-File -File $_.FullName
-        }
-
-        # python
-        Get-ChildItem $destBin -Recurse -Filter *.pyd |
-        Foreach-Object {
-            Sign-File -File $_.FullName
-        }
-
-        # ngspice
-        Get-ChildItem $ngspiceDestLib -Recurse -Filter *.cm |
-        Foreach-Object {
-            Sign-File -File $_.FullName
-        }
+        Sign-Files Path $destBin+"**\*.exe"
+        Sign-Files Path $destBin+"**\*.dll"
+        Sign-Files Path $destBin+"**\*.kiface"
+        Sign-Files Path $destBin+"**\*.kifacpyde"
+        Sign-Files Path $ngspiceDestLib+"**\*.cm"
     }
 
     Write-Host "Package prep complete" -ForegroundColor Green
@@ -1275,22 +1281,28 @@ function Start-Package-Nsis {
     $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
 
     $destRoot = Join-Path -Path $PSScriptRoot -ChildPath ".out\$buildName\"
+    $destBin = Join-Path -Path $destRoot -ChildPath "bin\"
 
     ## now nsis
     $nsisSource = Join-Path -Path $PSScriptRoot -ChildPath "nsis\"
     Write-Host "Copying nsis $nsisSource to $destRoot"
     Copy-Item $nsisSource -Destination $destRoot -Recurse -Container -Force
 
-    ## copy redist over to nsis folder from MSVC itself
-    $vcredistDest = Join-Path -Path $destRoot -ChildPath "nsis\vcredist\"
-    if( -not (Test-Path $vcredistDest) ) {
-        New-Item -Path $vcredistDest -ItemType "directory"
-    }
-    Copy-Item -Path "$env:VCToolsRedistDir\*" -Destination $vcredistDest -Include vc_redist*
+    # determine if we need to provide the vcredist
+    $vcredistBuild=""
+    $testPath = Join-Path -Path $destBin -ChildPath "vcruntime140.dll"
+    if( -not (Test-Path $testPath) ) {
+        $vcredistDest = Join-Path -Path $destRoot -ChildPath "nsis\vcredist\"
+        if( -not (Test-Path $vcredistDest) ) {
+            New-Item -Path $vcredistDest -ItemType "directory"
+        }
 
-    ## default
-    $redistVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$env:VCToolsRedistDir\vc_redist.x64.exe")
-    $vcredistBuild = $redistVersion.FileBuildPart
+        Copy-Item -Path "$env:VCToolsRedistDir\*" -Destination $vcredistDest -Include vc_redist*
+
+        ## default
+        $redistVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$env:VCToolsRedistDir\vc_redist.x64.exe")
+        $vcredistBuild = $redistVersion.FileBuildPart
+    }
 
     ## Run NSIS
     $nsisScript = Join-Path -Path $destRoot -ChildPath "nsis\$($buildConfig.nsis.file)"

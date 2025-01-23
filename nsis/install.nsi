@@ -79,10 +79,6 @@
   !define KICAD_VERSION "unknown"
 !endif
 
-!ifndef VCRUNTIME_MINIMUM_BLD
-  !define VCRUNTIME_MINIMUM_BLD 32532
-!endif
-
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME} ${KICAD_VERSION}"
 !define UNINST_ROOT "SHCTX"
 
@@ -317,32 +313,37 @@ FunctionEnd
 
 !ifdef MSVC
 Section -Prerequisites
-  !if ${ARCH} == 'x86_64'
-    ReadRegDword $R1 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Installed"
-    ReadRegDword $R2 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Bld"
-    !define VC_REDIST "VC_redist.x64.exe"
-  !else if ${ARCH} == 'arm64'
-    ReadRegDword $R1 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\ARM64" "Installed"
-    ReadRegDword $R2 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\ARM64" "Bld"
-    !define VC_REDIST "VC_redist.arm64.exe"
-  !else
-    ReadRegDword $R1 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x86" "Installed"
-    ReadRegDword $R2 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x86" "Bld"
-    !define VC_REDIST "VC_redist.x86.exe"
+!ifdef VCRUNTIME_MINIMUM_BLD
+  !if "${VCRUNTIME_MINIMUM_BLD}" != ""
+    !if ${ARCH} == 'x86_64'
+      ReadRegDword $R1 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Installed"
+      ReadRegDword $R2 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Bld"
+      !define VC_REDIST "VC_redist.x64.exe"
+    !else if ${ARCH} == 'arm64'
+      ReadRegDword $R1 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\ARM64" "Installed"
+      ReadRegDword $R2 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\ARM64" "Bld"
+      !define VC_REDIST "VC_redist.arm64.exe"
+    !else
+      ReadRegDword $R1 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x86" "Installed"
+      ReadRegDword $R2 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x86" "Bld"
+      !define VC_REDIST "VC_redist.x86.exe"
+    !endif
+
+    SetOutPath "$INSTDIR"
+
+
+    ${If} $R1 != "1"
+      ${OrIf} $R2 < ${VCRUNTIME_MINIMUM_BLD}
+        File "vcredist\${VC_REDIST}"
+        ${If} ${Silent}
+        ExecWait '"$INSTDIR\${VC_REDIST}" /install /quiet /norestart'
+        ${Else}
+        ExecWait '"$INSTDIR\${VC_REDIST}" /install /passive /norestart'
+        ${EndIf}
+        Delete "$INSTDIR\${VC_REDIST}"
+    ${EndIf}
   !endif
-
-  SetOutPath "$INSTDIR"
-
-  ${If} $R1 != "1"
-    ${OrIf} $R2 < ${VCRUNTIME_MINIMUM_BLD}
-      File "vcredist\${VC_REDIST}"
-      ${If} ${Silent}
-      ExecWait '"$INSTDIR\${VC_REDIST}" /install /quiet /norestart'
-      ${Else}
-      ExecWait '"$INSTDIR\${VC_REDIST}" /install /passive /norestart'
-      ${EndIf}
-      Delete "$INSTDIR\${VC_REDIST}"
-  ${EndIf}
+!endif
 SectionEnd
 !endif
 
