@@ -977,33 +977,6 @@ function Sign-File {
 }
 
 
-function Sign-Files {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$True)]
-        [string]$Path
-    )
-
-    Write-Host "Signing files by path: $Path" -ForegroundColor Blue
-
-    if( $SignAKV ) {
-        azuresigntool sign -kvt "$AKVTenantId" -fd sha256 `
-                            -td sha256 -kvu "$AKVUrl" -kvi "$AKVAppId" `
-                            -kvs "$AKVAppSecret" -kvc "$AKVCertName" `
-                            -tr http://timestamp.digicert.com -q "$Path"
-
-        if ($LastExitCode -ne 0) {
-            Write-Error "Error signing file $File, exit code $LastExitCode"
-            Exit [ExitCodes]::SignFail
-        }
-    }
-    else {
-        Write-Error "Only AKV support for multi-file signing"
-        Exit [ExitCodes]::SignFail
-    }
-}
-
-
 function Start-Prepare-Package {
     [CmdletBinding()]
     param(
@@ -1223,11 +1196,32 @@ function Start-Prepare-Package {
     }
 
     if( $sign ) {
-        Sign-Files Path $destBin+"**\*.exe"
-        Sign-Files Path $destBin+"**\*.dll"
-        Sign-Files Path $destBin+"**\*.kiface"
-        Sign-Files Path $destBin+"**\*.kifacpyde"
-        Sign-Files Path $ngspiceDestLib+"**\*.cm"
+        Get-ChildItem $destBin -Recurse -Filter *.exe |
+        Foreach-Object {
+            Sign-File -File $_.FullName
+        }
+
+        Get-ChildItem $destBin -Recurse -Filter *.dll |
+        Foreach-Object {
+            Sign-File -File $_.FullName
+        }
+
+        Get-ChildItem $destBin -Recurse -Filter *.kiface |
+        Foreach-Object {
+            Sign-File -File $_.FullName
+        }
+
+        # python
+        Get-ChildItem $destBin -Recurse -Filter *.pyd |
+        Foreach-Object {
+            Sign-File -File $_.FullName
+        }
+
+        # ngspice
+        Get-ChildItem $ngspiceDestLib -Recurse -Filter *.cm |
+        Foreach-Object {
+            Sign-File -File $_.FullName
+        }
     }
 
     Write-Host "Package prep complete" -ForegroundColor Green
