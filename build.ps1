@@ -1298,6 +1298,16 @@ function Start-Package-Nsis {
         $vcredistBuild = $redistVersion.FileBuildPart
     }
 
+    ## HACKFIX
+    ## Last minute commit to 9.0 introduced path limit breaking file
+    $badFile = Join-Path -Path $destRoot -ChildPath = "share\kicad\demos\kit-dev-coldfire-xilinx_5213\kit-dev-coldfire.pretty\DSUB-9_Female_Horizontal_P2.77x2.84mm_EdgePinOffset7.70mm_Housed_MountingHolesOffset9.12mm.kicad_mod"
+    $badFile = "\\?\" + $badFile;
+    if( Test-Path $badFile )
+    {
+        Remove-Item -Path $badFile
+    }
+
+
     ## Run NSIS
     $nsisScript = Join-Path -Path $destRoot -ChildPath "nsis\$($buildConfig.nsis.file)"
 
