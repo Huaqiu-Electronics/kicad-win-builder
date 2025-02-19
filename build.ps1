@@ -959,6 +959,7 @@ function Sign-File {
         azuresigntool sign -kvt "$AKVTenantId" -fd sha256 `
                             -td sha256 -kvu "$AKVUrl" -kvi "$AKVAppId" `
                             -kvs "$AKVAppSecret" -kvc "$AKVCertName" `
+                            --skip-signed `
                             -tr http://timestamp.digicert.com -q "$File"
 
         if ($LastExitCode -ne 0) {
