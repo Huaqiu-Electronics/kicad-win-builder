@@ -339,8 +339,8 @@ Section -Prerequisites
 
   SetOutPath "$INSTDIR"
 
-  ${If} $R1 != "1"
-    ${OrIf} $R2 < ${VCRUNTIME_MINIMUM_BLD}
+  ${If} $R1 <> 1
+    ${OrIf} $R2 u< ${VCRUNTIME_MINIMUM_BLD}
       File "vcredist\${VC_REDIST}"
       ${If} ${Silent}
       ExecWait '"$INSTDIR\${VC_REDIST}" /install /quiet /norestart'
