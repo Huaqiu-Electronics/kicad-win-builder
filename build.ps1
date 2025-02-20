@@ -1301,11 +1301,6 @@ function Start-Package-Nsis {
 
     ## HACKFIX
     ## Last minute commit to 9.0 introduced path limit breaking file
-    [System.AppContext]::SetSwitch('Switch.System.IO.UseLegacyPathHandling', $false)
-    [System.AppContext]::SetSwitch('Switch.System.IO.BlockLongPaths', $false)
-    [System.Type]::GetType('System.AppContextSwitches').GetField('_useLegacyPathHandling', [System.Reflection.BindingFlags]::Static -bor [System.Reflection.BindingFlags]::NonPublic).SetValue($null, 0)
-    [System.Type]::GetType('System.AppContextSwitches').GetField('_blockLongPaths', [System.Reflection.BindingFlags]::Static -bor [System.Reflection.BindingFlags]::NonPublic).SetValue($null, 0)
-
     $badFile = Join-Path -Path $destRoot -ChildPath "share\kicad\demos\kit-dev-coldfire-xilinx_5213\kit-dev-coldfire.pretty\DSUB-9_Female_Horizontal_P2.77x2.84mm_EdgePinOffset7.70mm_Housed_MountingHolesOffset9.12mm.kicad_mod"
     if( Test-Path -Path $badFile )
     {
