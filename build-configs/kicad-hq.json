@@ -1,7 +1,7 @@
 {
     "name:": "KiCad Huaqiu 9.0.0 ",
     "output_prefix": "kicad-huaqiu-",
-    "package_version": "9.0.0-rc2",
+    "package_version": "9.0.0-rc4",
     "train": "stable",
     "build_mode": "Release",
     "nsis": {
@@ -9,31 +9,31 @@
     },
     "sources": {
         "kicad": {
-            "ref": "branch/test-release/9.0"
+            "ref": "branch/feat/9.0/copilot"
         },
         "symbols": {
-            "ref": "tag/8.0.8"
+            "ref": "tag/9.0.0"
         },
         "footprints": {
-            "ref": "tag/8.0.8"
+            "ref": "tag/9.0.0"
         },
         "3dmodels": {
-            "ref": "tag/8.0.8"
+            "ref": "tag/9.0.0"
         },
         "templates": {
-            "ref": "tag/8.0.8"
+            "ref": "tag/9.0.0"
         },
         "hqpcb": {
-            "ref": "KiCAD-HQPCB-2.0.5"
+            "ref": "KiCAD-HQPCB-2.0.7"
         },
         "hqpcb-sha256": {
-            "ref": "a02883987ad17b28cf669a395fb6ffbb8de93e328244579a2c486041465e31f0"
+            "ref": "fa28b30524de4413a26e19bc76aaa6fac32d9e04b42a8e58f5d074e4b2b49182"
         },
         "hqdfm": {
-            "ref": "KICAD-HQDFM-1.0.2"
+            "ref": "KICAD-HQDFM-2.0.1"
         },
         "hqdfm-sha256": {
-            "ref": "66fad2c5eefe5088f39b19109e26cf6d6ca6e83d75a8f074580689417c2eb49f"
+            "ref": "85e0e95819a3a321362f6232766a4a44ddebd752c237b6ba984f49e96435fa3e"
         }
     }, 
     "vcpkg": {
