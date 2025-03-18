@@ -1,0 +1,30 @@
+{
+    "name:": "KiCad 9.0.1-rc1",
+    "output_prefix": "kicad-",
+    "package_version": "9.0.1-rc1",
+    "train": "stable",
+    "build_mode": "Release",
+    "nsis": {
+        "file": "install.nsi"
+    },
+    "sources": {
+        "kicad": {
+            "ref": "tag/9.0.1-rc1"
+        },
+        "symbols": {
+            "ref": "tag/9.0.1-rc1"
+        },
+        "footprints": {
+            "ref": "tag/9.0.1-rc1"
+        },
+        "3dmodels": {
+            "ref": "tag/9.0.1-rc1"
+        },
+        "templates": {
+            "ref": "tag/9.0.1-rc1"
+        }
+    }, 
+    "vcpkg": {
+        "manifest_mode": true
+    }
+}
