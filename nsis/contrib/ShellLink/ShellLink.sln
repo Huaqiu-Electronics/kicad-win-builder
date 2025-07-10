@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36127.28 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ShellLink", "ShellLink.vcxproj", "{30513246-84A4-47ED-8BCE-FFDDB6B607AE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release Unicode|Win32 = Release Unicode|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{30513246-84A4-47ED-8BCE-FFDDB6B607AE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{30513246-84A4-47ED-8BCE-FFDDB6B607AE}.Debug|Win32.Build.0 = Debug|Win32
+		{30513246-84A4-47ED-8BCE-FFDDB6B607AE}.Release Unicode|Win32.ActiveCfg = Release Unicode|Win32
+		{30513246-84A4-47ED-8BCE-FFDDB6B607AE}.Release Unicode|Win32.Build.0 = Release Unicode|Win32
+		{30513246-84A4-47ED-8BCE-FFDDB6B607AE}.Release|Win32.ActiveCfg = Release|Win32
+		{30513246-84A4-47ED-8BCE-FFDDB6B607AE}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9F2DE35A-255D-46D9-9E99-1C834019EF59}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,7 @@
+contrib/ShellLink/.vs/
+contrib/ShellLink/Debug
+contrib/ShellLink/Release
+contrib/ShellLink/Release Unicode
+
+*.vcxproj.filters
+*.vcxproj.user
