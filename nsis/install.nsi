@@ -38,6 +38,7 @@
 !include "StdUtils.nsh"
 !include "RecFind.nsh"
 !include "Sections.nsh"
+!include shortcut-properties.nsh
 
 ; General Product Description Definitions
 !define PRODUCT_NAME "KiCad"
@@ -575,6 +576,9 @@ Section $(TITLE_SEC_START_MENU) SEC08
   RMDir /r "${SMPATH}"
   CreateDirectory "${SMPATH}"
   CreateShortCut "${SMPATH}\KiCad ${KICAD_VERSION}.lnk" "$INSTDIR\bin\kicad.exe"
+
+  !insertmacro ShortcutSetAppId "${SMPATH}\KiCad ${KICAD_VERSION}.lnk" "Kicad.Kicad.kicad.${KICAD_VERSION}"
+
   CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_EESCHEMA).lnk" "$INSTDIR\bin\eeschema.exe"
   CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_PCBNEW).lnk" "$INSTDIR\bin\pcbnew.exe"
   CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_GERBVIEW).lnk" "$INSTDIR\bin\gerbview.exe"
