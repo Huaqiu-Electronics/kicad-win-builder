@@ -20,6 +20,8 @@ Changes:  -code has been rewritten
 
 #include <windows.h>
 #include <shlobj.h>
+#include <propvarutil.h>
+#include <propkey.h>
 
 #define xatoi
 //#include "ConvFunc.h"
@@ -49,6 +51,7 @@ Changes:  -code has been rewritten
 #define SHELLLINKTYPE_SETSHOWMODE 15
 #define SHELLLINKTYPE_SETWORKINGDIR 16
 #define SHELLLINKTYPE_SETRUNASADMIN 17
+#define SHELLLINKTYPE_SETAPPMODELID 18
 
 void ShortCutData(int nType);
 
@@ -152,23 +155,121 @@ NSISFUNC(SetShortCutWorkingDirectory)
 
 NSISFUNC(SetRunAsAdministrator)
 {
-  EXDLL_INIT();
+	EXDLL_INIT();
 	ShortCutData(SHELLLINKTYPE_SETRUNASADMIN);
 }
+
+NSISFUNC(SetAppModelId)
+{
+	EXDLL_INIT();
+	ShortCutData(SHELLLINKTYPE_SETAPPMODELID);
+}
+
+errno_t local_memcpy_s(void* dest, rsize_t destsz, const void* src, rsize_t count)
+{
+	if (dest == NULL) {
+		return EINVAL;
+	}
+	if (src == NULL) {
+		return EINVAL;
+	}
+
+	if (count > destsz) {
+		return ERANGE;
+	}
+
+	char* d = (char*)dest;
+	const char* s = (const char*)src;
+
+	for (rsize_t i = 0; i < count; ++i) {
+		d[i] = s[i];
+	}
+	return 0;
+}
+
+void* local_memset(void* s, int c, size_t n) {
+	unsigned char* p = (unsigned char*)s;
+
+	unsigned char val = (unsigned char)c;
+
+	for (size_t i = 0; i < n; ++i) {
+		p[i] = val;
+	}
+
+	return s;
+}
+
+inline void LocalPropVariantInit(_Out_ PROPVARIANT* pvar)
+{
+	local_memset(pvar, 0, sizeof(PROPVARIANT));
+}
+
+size_t local_wcslen(const wchar_t* s) {
+	size_t length = 0; // Initialize a counter for the length
+
+	// Loop through the wide characters until the null wide terminator (L'\0') is found.
+	// The loop condition *s++ checks the current wide character and then advances the pointer.
+	while (*s != L'\0') {
+		length++; // Increment the length for each non-null wide character
+		s++;      // Move to the next wide character
+	}
+
+	return length; // Return the total count
+}
+
+inline HRESULT LocalInitPropVariantFromString(_In_ PCWSTR psz, _Out_ PROPVARIANT* ppropvar)
+{
+	HRESULT hr = psz != nullptr ? S_OK : E_INVALIDARG; // Previous API behavior counter to the SAL requirement.
+	if (SUCCEEDED(hr))
+	{
+		SIZE_T const byteCount = static_cast<SIZE_T>((local_wcslen(psz) + 1) * sizeof(*psz));
+		V_UNION(ppropvar, pwszVal) = static_cast<PWSTR>(CoTaskMemAlloc(byteCount));
+		hr = V_UNION(ppropvar, pwszVal) ? S_OK : E_OUTOFMEMORY;
+		if (SUCCEEDED(hr))
+		{
+			local_memcpy_s(V_UNION(ppropvar, pwszVal), byteCount, psz, byteCount);
+			V_VT(ppropvar) = VT_LPWSTR;
+		}
+	}
+	if (FAILED(hr))
+	{
+		LocalPropVariantInit(ppropvar);
+	}
+	return hr;
+}
+
 
 void ShortCutData(int nType)
 {
 	HRESULT hRes;
 	IShellLink* psl;
 	IPersistFile* ppf;
+	IPropertyStore* pps = nullptr;
 
-  int nBuf;
-  WORD wHotkey;
-  TCHAR* szBuf = (TCHAR*)LocalAlloc(LPTR, sizeof(TCHAR)*MAX_PATH);
-  TCHAR* szBuf2 = (TCHAR*)LocalAlloc(LPTR, sizeof(TCHAR)*MAX_PATH);
+	int nBuf;
+	WORD wHotkey;
+	TCHAR* szBuf = (TCHAR*)LocalAlloc(LPTR, sizeof(TCHAR)*MAX_PATH);
+	TCHAR* szBuf2 = (TCHAR*)LocalAlloc(LPTR, sizeof(TCHAR)*MAX_PATH);
+
+	if( szBuf == NULL || szBuf2 == NULL )
+	{
+		if( szBuf )
+			LocalFree(szBuf);
+		if( szBuf2 )
+			LocalFree(szBuf2);
+		pushstring(TEXT("-1"));
+		return;
+	}
 
 	popstring(szBuf);
-	if (nType > SHELLLINKTYPE_GETWORKINGDIR) popstring(szBuf2);
+	if (local_wcslen(szBuf) < 5)	// 5 is one of the smallest valid paths and still not even really valid
+	{
+		pushstring(TEXT("-1"));
+		return;
+	}
+
+	if (nType > SHELLLINKTYPE_GETWORKINGDIR)
+		popstring(szBuf2);
 
 	hRes=CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (LPVOID*) &psl);
 	if (hRes == S_OK)
@@ -286,16 +387,43 @@ void ShortCutData(int nType)
 						}; break;
 						case SHELLLINKTYPE_SETRUNASADMIN:
 						{
-              IShellLinkDataList* pdl;
-              hRes=psl->QueryInterface(IID_IShellLinkDataList, (void**)&pdl);
-              if (hRes == S_OK)
-              {
-                DWORD dwFlags = 0;
-							  hRes=pdl->GetFlags(&dwFlags);
-                if (hRes == S_OK && (dwFlags & SLDF_RUNAS_USER) != SLDF_RUNAS_USER)
-                  hRes=pdl->SetFlags(dwFlags | SLDF_RUNAS_USER);
-                pdl->Release();
-              }
+							IShellLinkDataList* pdl;
+							hRes=psl->QueryInterface(IID_IShellLinkDataList, (void**)&pdl);
+							if (hRes == S_OK)
+							{
+								DWORD dwFlags = 0;
+								hRes=pdl->GetFlags(&dwFlags);
+								if (hRes == S_OK && (dwFlags & SLDF_RUNAS_USER) != SLDF_RUNAS_USER)
+									hRes=pdl->SetFlags(dwFlags | SLDF_RUNAS_USER);
+
+								pdl->Release();
+							}
+						}; break;
+						case SHELLLINKTYPE_SETAPPMODELID:
+						{
+							if (local_wcslen(szBuf2) < 1)
+							{
+								pushstring(TEXT("-1"));
+								return;
+							}
+
+							PROPVARIANT pv;
+							hRes = LocalInitPropVariantFromString(szBuf2, &pv);
+
+							if (hRes == S_OK)
+							{
+								hRes = psl->QueryInterface(IID_IPropertyStore, (void**)&pps);
+								if (hRes == S_OK)
+								{
+									hRes = pps->SetValue(PKEY_AppUserModel_ID, pv);
+									if (hRes == S_OK)
+									{
+										hRes = pps->Commit();
+									}
+
+									PropVariantClear(&pv);
+								}
+							}
 						}; break;
 					}
 					if (hRes == S_OK) hRes=ppf->Save(NULL, FALSE);
@@ -313,6 +441,7 @@ void ShortCutData(int nType)
 		#endif
 
 		// Cleanup:
+		if (pps) pps->Release();
 		if (ppf) ppf->Release();
 		if (psl) psl->Release();
 	}

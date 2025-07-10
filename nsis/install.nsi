@@ -577,7 +577,7 @@ Section $(TITLE_SEC_START_MENU) SEC08
   CreateDirectory "${SMPATH}"
   CreateShortCut "${SMPATH}\KiCad ${KICAD_VERSION}.lnk" "$INSTDIR\bin\kicad.exe"
 
-  !insertmacro ShortcutSetAppId "${SMPATH}\KiCad ${KICAD_VERSION}.lnk" "Kicad.Kicad.kicad.${KICAD_VERSION}"
+  ShellLink::SetAppModelId "${SMPATH}\KiCad ${KICAD_VERSION}.lnk" "Kicad.Kicad.kicad.${KICAD_VERSION}"
 
   CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_EESCHEMA).lnk" "$INSTDIR\bin\eeschema.exe"
   CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_PCBNEW).lnk" "$INSTDIR\bin\pcbnew.exe"
