@@ -38,7 +38,6 @@
 !include "StdUtils.nsh"
 !include "RecFind.nsh"
 !include "Sections.nsh"
-!include shortcut-properties.nsh
 
 ; General Product Description Definitions
 !define PRODUCT_NAME "KiCad"
