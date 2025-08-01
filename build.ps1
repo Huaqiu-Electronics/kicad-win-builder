@@ -1276,6 +1276,15 @@ function Start-Prepare-Package {
             Write-Error "Error installing extra requirements"
             Exit [ExitCodes]::ExtraRequirements
         }
+
+        $mcpRequirements = Join-Path -Path $PSScriptRoot -ChildPath "\support\mcprequirements.txt"
+
+        Write-Host "Making sure the mcp requirements are included"
+        & $pythonBin -m pip install -r $mcpRequirements
+        if ($LastExitCode -ne 0) {
+            Write-Error "Error installing mcp requirements"
+            Exit [ExitCodes]::McpRequirements
+        }        
     }
 
     ### patch python manifest
