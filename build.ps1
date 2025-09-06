@@ -214,7 +214,7 @@ $azureSignToolDownload = 'https://github.com/vcsjones/AzureSignTool/releases/dow
 $azureSignToolChecksum = '012001BB072EE36719AECC570D4566C6407A49AE6E6E85DB8201F58122BCA967'
 
 
-$7zaFolderName = "7z2201-extra"
+$7zaFolderName = "7z2409-extra"
 
 Init-Paths $PSScriptRoot
 $BuilderPaths = Get-BuilderPaths
@@ -765,7 +765,7 @@ function Start-Init {
              -ZipRelocate $False `
              -ExtractInSupportRoot $False
 
-    $7zaSource = Join-Path -Path $PSScriptRoot -ChildPath "\support\7z2201-extra.zip"
+    $7zaSource = Join-Path -Path $PSScriptRoot -ChildPath "\support\7z2409-extra.zip"
     Expand-Tool -ToolName "7za" `
              -SourcePath $7zaSource `
              -DestPath (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "$7zaFolderName/")
