@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  create_archive:
+  create_full_package:
     runs-on: windows-2022
     steps:
       - name: Get latest tag
