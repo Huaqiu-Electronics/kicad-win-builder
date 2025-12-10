@@ -50,6 +50,10 @@
 #   Lite will build the light version of the installer (no libraries)
 ##
 
+#  Copyright (C) 2021-2022 Mark Roszko <mark.roszko@gmail.com>
+#  Copyright (C) 2021-2022 KiCad Developers
+# ... (License header omitted for brevity) ...
+
 param(
     [Parameter(Position = 0, Mandatory=$True, ParameterSetName="config")]
     [Switch]$Config,
@@ -119,6 +123,11 @@ param(
     [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
     [switch]$Lite,
     
+    [Parameter(Mandatory=$False, ParameterSetName="build")]
+    [Parameter(Mandatory=$False, ParameterSetName="package")]
+    [Parameter(Mandatory=$False, ParameterSetName="preparepackage")]
+    [switch]$Portable,
+
     [Parameter(Mandatory=$False, ParameterSetName="package")]
     [bool]$Prepare = $True,
     
@@ -169,6 +178,9 @@ param(
 
 Import-Module $PSScriptRoot\KiBuild -Force -DisableNameChecking
 
+# ... (Previous variable definitions remain unchanged) ...
+# Copy everything from line 147 to 376 from original file here 
+# (Includes Base setup, Load Config, Aliases, Build-Library-Source, Install-Library, Install-Kicad)
 
 ###
 ## Base setup
@@ -509,7 +521,9 @@ function Build-Kicad {
         [ValidateSet('Release', 'Debug')]
         [string]$buildType = 'Release',
         [Parameter(Mandatory=$False)]
-        [bool]$fresh = $False
+        [bool]$fresh = $False,
+        [Parameter(Mandatory=$False)]
+        [bool]$portable = $False
     )
 
     $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
@@ -577,6 +591,11 @@ function Build-Kicad {
         '-DVCPKG_MANIFEST_MODE=ON',
         "-DKICAD_RUN_FROM_BUILD_DIR=1"
     )
+    
+    if ($portable) {
+        Write-Host "Building in Portable mode" -ForegroundColor Cyan
+        $cmakeArgs += '-DIS_PORTABLE=ON'
+    }
 
     if( $arch -ne [Arch]::arm64 ) {
         $cmakeArgs += '-DKICAD_SCRIPTING_WXPYTHON=ON';
@@ -661,7 +680,9 @@ function Start-Build {
         [ValidateSet('Release', 'Debug')]
         [string]$buildType = 'Release',
         [Parameter(Mandatory=$False)]
-        [bool]$latest = $False
+        [bool]$latest = $False,
+        [Parameter(Mandatory=$False)]
+        [bool]$portable = $False
     )
 
     # NOTE Change to your own fork
@@ -671,37 +692,47 @@ function Start-Build {
                -latest $latest `
                -ref (Get-Source-Ref -sourceKey "kicad")
 
-    Get-Source -url https://gitlab.com/kicad/libraries/kicad-symbols.git `
-               -dest (Get-Source-Path kicad-symbols) `
-               -sourceType git `
-               -latest $latest `
-               -ref (Get-Source-Ref -sourceKey "symbols")
+    # If portable, we do not need the libraries
+    if (-not $portable) {
+        Get-Source -url https://gitlab.com/kicad/libraries/kicad-symbols.git `
+                   -dest (Get-Source-Path kicad-symbols) `
+                   -sourceType git `
+                   -latest $latest `
+                   -ref (Get-Source-Ref -sourceKey "symbols")
 
-    Get-Source -url https://gitlab.com/kicad/libraries/kicad-footprints.git `
-               -dest (Get-Source-Path kicad-footprints) `
-               -sourceType git `
-               -latest $latest `
-               -ref (Get-Source-Ref -sourceKey "footprints")
+        Get-Source -url https://gitlab.com/kicad/libraries/kicad-footprints.git `
+                   -dest (Get-Source-Path kicad-footprints) `
+                   -sourceType git `
+                   -latest $latest `
+                   -ref (Get-Source-Ref -sourceKey "footprints")
 
-    Get-Source -url https://gitlab.com/kicad/libraries/kicad-packages3D.git `
-               -dest (Get-Source-Path kicad-packages3D) `
-               -sourceType git `
-               -latest $latest `
-               -ref (Get-Source-Ref -sourceKey "3dmodels")
+        Get-Source -url https://gitlab.com/kicad/libraries/kicad-packages3D.git `
+                   -dest (Get-Source-Path kicad-packages3D) `
+                   -sourceType git `
+                   -latest $latest `
+                   -ref (Get-Source-Ref -sourceKey "3dmodels")
 
-    Get-Source -url https://gitlab.com/kicad/libraries/kicad-templates.git `
-               -dest (Get-Source-Path kicad-templates) `
-               -sourceType git `
-               -latest $latest `
-               -ref (Get-Source-Ref -sourceKey "templates")
+        Get-Source -url https://gitlab.com/kicad/libraries/kicad-templates.git `
+                   -dest (Get-Source-Path kicad-templates) `
+                   -sourceType git `
+                   -latest $latest `
+                   -ref (Get-Source-Ref -sourceKey "templates")
+    }
     
-    Build-KiCad -arch $arch -buildType $buildType
-    Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-symbols
-    Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-footprints
-    Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-packages3D
-    Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-templates
+    Build-KiCad -arch $arch -buildType $buildType -portable $portable
+
+    if (-not $portable) {
+        Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-symbols
+        Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-footprints
+        Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-packages3D
+        Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-templates
+    }
 }
 
+# ... (Start-Init to Sign-File functions remain unchanged, copying lines 619 to 934) ...
+# Copy everything from line 619 to 934 from original file here 
+# Includes Start-Init, Get-Vcpkg-Triplet, Get-Build-Name, Build-Vcpkg, Get-KiCad-CommitHash, 
+# Get-KiCad-PackageVersion, Get-KiCad-Version, Get-KiCad-PackageVersion-Msix, Sign-File-HQ, Sign-File
 
 function Start-Init {
     # The progress bar slows down download performance by absurd amounts, turn it off
@@ -1022,6 +1053,7 @@ function Sign-File {
     }
 }
 
+
 $hqpcbPluginName = (Get-Source-Ref -sourceKey "hqpcb")
 $hqpcbDownload = "https://raw.githubusercontent.com/Huaqiu-Electronics/kicad-hqpcb-zip/refs/heads/master/$hqpcbPluginName.zip"
 $hqpcbChecksum = (Get-Source-Ref -sourceKey "hqpcb-sha256")
@@ -1049,7 +1081,9 @@ function Start-Prepare-Package {
         [Parameter(Mandatory=$False)]
         [bool]$sign = $False,
         [Parameter(Mandatory=$False)]
-        [bool]$sentryArtifact = $false
+        [bool]$sentryArtifact = $false,
+        [Parameter(Mandatory=$False)]
+        [bool]$portable = $False
     )
     # Required for signing
     Set-MSVCEnvironment -Arch $arch -VersionMin $settings.VsVersionMin -VersionMax $settings.VsVersionMax
@@ -1067,6 +1101,9 @@ function Start-Prepare-Package {
     Write-Host "KiCad Version: $kicadVersion"
     if($lite) {
         Write-Host "Lite package"
+    }
+    elseif($portable) {
+        Write-Host "Portable package"
     }
     else {
         Write-Host "Full package"
@@ -1156,7 +1193,7 @@ function Start-Prepare-Package {
         7za a -tzip -mm=lzma -bsp0 $sentrySrcOutPath -x!*\ ($bundleOutFolder+"\*") -r0
     }
 
-    if( -not $lite )
+    if( -not $lite -and -not $portable)
     {
         Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-symbols
         Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-footprints
@@ -1535,6 +1572,46 @@ function Start-Package-Pdb() {
 
 }
 
+function Start-Package-Portable {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$True)]
+        [Arch]$arch,
+        [Parameter(Mandatory=$False)]
+        [ValidateSet('Release', 'Debug')]
+        [string]$buildType = "Release"
+    )
+
+    $packageVersion = Get-KiCad-PackageVersion
+    $kicadVersion = Get-KiCad-Version
+    $nsisArch = Get-NSISArch -Arch $arch
+    
+    Write-Host "Packaging Portable Version" -ForegroundColor Cyan
+    Write-Host "Package Version: $packageVersion"
+
+    $buildName = Get-Build-Name -Arch $arch -BuildType $buildType
+    $destRoot = Join-Path -Path $PSScriptRoot -ChildPath ".out\$buildName\"
+
+    if (-not (Test-Path $destRoot)) {
+        Write-Error "Output directory $destRoot not found!"
+        Exit [ExitCodes]::PackageFail
+    }
+
+    $outFileName = "$($buildConfig.output_prefix)$packageVersion-$nsisArch.zip"
+    $outFilePath = Join-Path -Path $BuilderPaths.OutRoot -ChildPath $outFileName
+
+    # Zip the entire output directory content
+    # We zip contents of destRoot into the zip
+    7za a -tzip -mm=lzma -bsp0 $outFilePath "$destRoot\*" -r
+
+    if ($LastExitCode -ne 0) {
+        Write-Error "Error creating portable zip package"
+        Exit [ExitCodes]::PackageFail
+    }
+
+    Write-Host "Portable package created: $outFilePath" -ForegroundColor Green
+}
+
 function Create-AppxManifest {
     [CmdletBinding()]
     param(
@@ -1771,7 +1848,7 @@ if( $Vcpkg )
 
 if( $Build )
 {
-    Start-Build -arch $Arch -buildType $buildConfig.build_mode -latest $Latest
+    Start-Build -arch $Arch -buildType $buildConfig.build_mode -latest $Latest -portable $Portable
 }
 
 if( $MsixAssets )
@@ -1781,7 +1858,7 @@ if( $MsixAssets )
 
 if( $PreparePackage -or ($Package -and $Prepare) )
 {
-    Start-Prepare-Package -arch $Arch -buildType $buildConfig.build_mode -includeVcpkgDebugSymbols $false -lite $Lite -sign $Sign -sentryArtifact $SentryArtifact
+    Start-Prepare-Package -arch $Arch -buildType $buildConfig.build_mode -includeVcpkgDebugSymbols $false -lite $Lite -sign $Sign -sentryArtifact $SentryArtifact -portable $Portable
 }
 
 if( $PackageSentry )
@@ -1791,7 +1868,10 @@ if( $PackageSentry )
 
 if( $Package )
 {
-    if( $PackType -eq 'nsis' )
+    if( $Portable ) {
+        Start-Package-Portable -arch $Arch -buildType $buildConfig.build_mode
+    }
+    elseif( $PackType -eq 'nsis' )
     {
         Start-Package-Nsis -arch $Arch -buildType $buildConfig.build_mode -includeVcpkgDebugSymbols $false -lite $Lite -postCleanup $PostCleanup -sign $Sign
     }

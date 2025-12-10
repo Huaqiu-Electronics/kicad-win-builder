@@ -1,4 +1,3 @@
----
 name: KiCAD client packaging
 on:
   # # Github will remove the cache if not used in 7 days
@@ -89,5 +88,67 @@ jobs:
           repo_token: ${{ secrets.HUAQIU_ELECTRONICS_TOKEN }}
           file: ./.out/kicad-huaqiu-${{ steps.latest-release.outputs.tag }}-x86_64-vcpkg-pdbs.zip
           asset_name: kicad-huaqiu-${{ steps.latest-release.outputs.tag }}-x86_64-vcpkg-pdbs.zip
+          overwrite: true
+          tag: ${{ steps.latest-release.outputs.tag }}
+
+  create_portable_package:
+    runs-on: windows-2022
+    steps:
+      - name: Get latest tag
+        uses: oprypin/find-latest-tag@v1
+        with:
+          repository: Huaqiu-Electronics/kicad-win-builder
+          releases-only: true
+        id: latest-release
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Try load downloaded cache
+        uses: actions/cache@v3
+        with:
+          key: package-downloaded
+          restore-keys: |
+            package-downloaded
+          path: |
+            .build
+            .downloads
+            .support
+
+      - name: Try load vcpkg binary cache
+        uses: actions/cache@v3
+        with:
+          key: vcpkg-binary-cache
+          restore-keys: |
+            vcpkg-binary-cache
+          path: C:/Users/runneradmin/AppData/Local/vcpkg/archives
+
+      - name: Configure
+        run: ./build.ps1 -Config -UseMsvcCmake $False
+
+      - name: Checkout any required tools
+        run: ./build.ps1 -Init
+
+      - name: Checkout any required tools, setup build environment variables
+        run: ./build.ps1 -Env -Arch x64
+
+      - name: Rebuilds vcpkg dependencies
+        run: ./build.ps1 -Vcpkg -Latest -Arch x64
+
+      - name: Triggers a build
+        run: ./build.ps1 -Build -Latest -Arch x64 -BuildType Release -Portable
+
+      - name: Triggers a package operation
+        run: ./build.ps1 -PreparePackage  -Arch x64 -BuildType Release -Portable
+
+      - name: Triggers a package operation Zip
+        run: ./build.ps1 -Package -Arch x64 -BuildType Release -Portable
+
+      - name: Upload portable zip as asset to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.HUAQIU_ELECTRONICS_TOKEN }}
+          file: ./.out/kicad-huaqiu-${{ steps.latest-release.outputs.tag }}-x86_64.zip
+          asset_name: kicad-huaqiu-${{ steps.latest-release.outputs.tag }}-x86_64.zip
           overwrite: true
           tag: ${{ steps.latest-release.outputs.tag }}
