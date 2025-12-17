@@ -52,6 +52,7 @@
 
 #  Copyright (C) 2021-2022 Mark Roszko <mark.roszko@gmail.com>
 #  Copyright (C) 2021-2022 KiCad Developers
+# ... (License header omitted for brevity) ...
 
 param(
     [Parameter(Position = 0, Mandatory=$True, ParameterSetName="config")]
@@ -177,6 +178,9 @@ param(
 
 Import-Module $PSScriptRoot\KiBuild -Force -DisableNameChecking
 
+# ... (Previous variable definitions remain unchanged) ...
+# Copy everything from line 147 to 376 from original file here 
+# (Includes Base setup, Load Config, Aliases, Build-Library-Source, Install-Library, Install-Kicad)
 
 ###
 ## Base setup
@@ -725,6 +729,10 @@ function Start-Build {
     }
 }
 
+# ... (Start-Init to Sign-File functions remain unchanged, copying lines 619 to 934) ...
+# Copy everything from line 619 to 934 from original file here 
+# Includes Start-Init, Get-Vcpkg-Triplet, Get-Build-Name, Build-Vcpkg, Get-KiCad-CommitHash, 
+# Get-KiCad-PackageVersion, Get-KiCad-Version, Get-KiCad-PackageVersion-Msix, Sign-File-HQ, Sign-File
 
 function Start-Init {
     # The progress bar slows down download performance by absurd amounts, turn it off
@@ -1058,14 +1066,6 @@ $searchPluginName = (Get-Source-Ref -sourceKey "search")
 $searchDownload = "https://raw.githubusercontent.com/Huaqiu-Electronics/kicad-hqdfm-zip/refs/heads/master/$searchPluginName.zip"
 $searchChecksum = (Get-Source-Ref -sourceKey "search-sha256")
 
-$mcpClientRef = (Get-Source-Ref -sourceKey "kicad-mcp-client")
-$mcpClientBranch = $mcpClientRef -replace "branch/", ""
-$mcpClientDownload = "https://github.com/Huaqiu-Electronics/kicad-mcp-client/archive/refs/heads/$mcpClientBranch.zip"
-
-$mcpServerRef = (Get-Source-Ref -sourceKey "kicad-mcp-server")
-$mcpServerBranch = $mcpServerRef -replace "branch/", ""
-$mcpServerDownload = "https://github.com/Huaqiu-Electronics/kicad-mcp-server/archive/refs/heads/$mcpServerBranch.zip"
-
 function Start-Prepare-Package {
     [CmdletBinding()]
     param(
@@ -1166,22 +1166,6 @@ function Start-Prepare-Package {
              -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "$searchluginName.zip") `
              -Checksum $searchChecksum `
              -ExtractZip $False `
-             -ExtractInSupportRoot $False
-
-    Get-Tool -ToolName "MCP-Client" `
-             -Url $mcpClientDownload `
-             -DestPath $destBin `
-             -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "kicad-mcp-client.zip") `
-             -Checksum "" `
-             -ExtractZip $True `
-             -ExtractInSupportRoot $False
-
-    Get-Tool -ToolName "MCP-Server" `
-             -Url $mcpServerDownload `
-             -DestPath $destBin `
-             -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "kicad-mcp-server.zip") `
-             -Checksum "" `
-             -ExtractZip $True `
              -ExtractInSupportRoot $False
 
     # Perfect time to create the sentry artifact
