@@ -40,6 +40,12 @@
         },
         "search-sha256": {
             "ref": "2b660bf97fafdf25f32a89c3c3d664cc615559fb994a03fbfa146966b5799e45"
+        },
+        "kicad-mcp-client": {
+            "ref": "branch/main"
+        },
+        "kicad-mcp-server": {
+            "ref": "branch/main"
         }
     },
     "vcpkg": {
