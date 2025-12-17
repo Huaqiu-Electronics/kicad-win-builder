@@ -1133,6 +1133,36 @@ function Start-Prepare-Package {
 
     Install-Kicad -arch $arch -buildType $buildType
 
+    # kicad-mcp-client
+    $mcpClientRef = Get-Source-Ref -sourceKey "kicad-mcp-client"
+    if (-not $mcpClientRef) { $mcpClientRef = "branch/main" }
+    
+    $mcpClientDest = Join-Path -Path $destBin -ChildPath "kicad-mcp-client"
+    Get-Source -url "https://github.com/Huaqiu-Electronics/kicad-mcp-client" `
+               -dest $mcpClientDest `
+               -sourceType git `
+               -latest $True `
+               -ref $mcpClientRef
+
+    if( Test-Path (Join-Path $mcpClientDest ".git") ) {
+        Remove-Item (Join-Path $mcpClientDest ".git") -Recurse -Force
+    }
+
+    # kicad-mcp-server
+    $mcpServerRef = Get-Source-Ref -sourceKey "kicad-mcp-server"
+    if (-not $mcpServerRef) { $mcpServerRef = "branch/main" }
+
+    $mcpServerDest = Join-Path -Path $destBin -ChildPath "kicad-mcp-server"
+    Get-Source -url "https://github.com/Huaqiu-Electronics/kicad-mcp-server" `
+               -dest $mcpServerDest `
+               -sourceType git `
+               -latest $True `
+               -ref $mcpServerRef
+
+    if( Test-Path (Join-Path $mcpServerDest ".git") ) {
+        Remove-Item (Join-Path $mcpServerDest ".git") -Recurse -Force
+    }
+
     $desthqPlugin = Join-Path -Path $destShare -ChildPath "kicad\resources\hqplugins\"
 
     Write-Host "desthqPlugin: $desthqPlugin"
