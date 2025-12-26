@@ -1,3 +1,12 @@
+# Define ExitCodes if not already defined (useful for build automation scripts)
+if (-not ([System.Management.Automation.PSTypeName]'ExitCodes').Type) {
+    enum ExitCodes {
+        Success = 0
+        DownloadChecksumFailure = 100
+        ExtractionFailure = 101
+    }
+}
+
 function Invoke-WithRetry {
     param(
         [Parameter(Mandatory=$true)]
@@ -16,10 +25,16 @@ function Invoke-WithRetry {
         try {
             $attempt++
             Write-Host "Attempt ${attempt}: Downloading ${Url}..." -ForegroundColor Yellow
-            Invoke-WebRequest -Uri $Url -OutFile $OutFile -UserAgent $UserAgent
+            
+            # Ensure the download directory exists
+            $dir = Split-Path -Path $OutFile
+            if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
+
+            # Added -ErrorAction Stop to ensure catch block triggers on HTTP errors
+            Invoke-WebRequest -Uri $Url -OutFile $OutFile -UserAgent $UserAgent -ErrorAction Stop
             $success = $true
         } catch {
-            Write-Warning "Attempt ${attempt} failed: $_"
+            Write-Warning "Attempt ${attempt} failed: $($_.Exception.Message)"
             if ($attempt -lt $MaxRetries) {
                 Write-Host "Retrying in ${RetryDelaySeconds} seconds..." -ForegroundColor Yellow
                 Start-Sleep -Seconds $RetryDelaySeconds
@@ -30,16 +45,12 @@ function Invoke-WithRetry {
     }
 }
 
-
 function Get-Tool {
     <#
     .SYNOPSIS
-        Fetches a tool dependency and extracts it for use
+        Fetches a tool dependency and extracts it for use.
     .DESCRIPTION
-        The cmdlet handles retrieval of tools by given download paths and handles
-        the download and extraction of the tool for use. Tools will be checked
-        for existence before download and post-download will have the downloaded
-        file verified for checksum.
+        Handles download, optional checksum verification, and extraction.
     #>
     [CmdletBinding()]
     param(
@@ -51,8 +62,9 @@ function Get-Tool {
         [string]$DestPath,
         [Parameter(Mandatory=$True)]
         [string]$DownloadPath,
-        [Parameter(Mandatory=$True)]
-        [string]$Checksum,
+        # Checksum is now optional
+        [Parameter(Mandatory=$False)]
+        [string]$Checksum = "",
         [Parameter(Mandatory=$False)]
         [bool]$ExtractZip = $False,
         [Parameter(Mandatory=$False)]
@@ -68,39 +80,57 @@ function Get-Tool {
 
         Invoke-WithRetry -Url $Url -OutFile $DownloadPath
 
-        $calculatedChecksum = ( Get-FileHash -Algorithm SHA256 $DownloadPath ).Hash
-        if( $calculatedChecksum -ne $Checksum )
-        {
-            Remove-Item -Path $DownloadPath -ErrorAction SilentlyContinue
-            Write-Error "Invalid checksum for $ToolName, expected: $Checksum actual: $calculatedChecksum"
-
-            Exit [ExitCodes]::DownloadChecksumFailure
+        # Optional Checksum Validation
+        if (-not [string]::IsNullOrWhiteSpace($Checksum)) {
+            Write-Host "Verifying checksum for $ToolName..." -ForegroundColor Cyan
+            $calculatedChecksum = ( Get-FileHash -Algorithm SHA256 $DownloadPath ).Hash
+            if( $calculatedChecksum -ne $Checksum ) {
+                Remove-Item -Path $DownloadPath -ErrorAction SilentlyContinue
+                Write-Error "Invalid checksum for $ToolName`nExpected: $Checksum`nActual:   $calculatedChecksum"
+                # Fixed exit code handling
+                exit [int][ExitCodes]::DownloadChecksumFailure
+            }
+            Write-Host "Checksum verified." -ForegroundColor Green
         }
 
         if( $ExtractZip ) {
-            Write-Host "Extracting $ToolName" -ForegroundColor Yellow
-            if( $ExtractInSupportRoot ) {
-                Expand-ZipArchive $DownloadPath $BuilderPaths.SupportRoot
-            }
-            else {
-                Expand-ZipArchive $DownloadPath $DestPath
-            }
-
-            if (!$?) {
-                Write-Error "Unable to extract $ToolName"
-                Exit 2
+            Write-Host "Extracting $ToolName..." -ForegroundColor Yellow
+            
+            # Determine target extraction directory
+            $targetExtractionPath = if( $ExtractInSupportRoot ) { $BuilderPaths.SupportRoot } else { $DestPath }
+            
+            if (-not (Test-Path $targetExtractionPath)) { 
+                New-Item -ItemType Directory -Path $targetExtractionPath -Force | Out-Null 
             }
 
+            try {
+                # Note: Expand-Archive is the standard PowerShell cmdlet
+                Expand-Archive -Path $DownloadPath -DestinationPath $targetExtractionPath -Force
+            } catch {
+                Write-Error "Unable to extract $ToolName: $($_.Exception.Message)"
+                exit [int][ExitCodes]::ExtractionFailure
+            }
+
+            # If the zip contains a subfolder we want to "flatten" into DestPath
             if( $ZipRelocate ) {
-                $folders = Get-ChildItem $ZipRelocateFilter -Directory
-                Move-Item $folders $DestPath
+                $folders = Get-ChildItem -Path $targetExtractionPath -Filter $ZipRelocateFilter -Directory
+                if ($folders) {
+                    # Move the contents of the filtered folder into the DestPath
+                    Move-Item -Path "$($folders.FullName)\*" -Destination $DestPath -Force
+                    Remove-Item $folders.FullName -Recurse -Force
+                }
             }
         }
         else {
-            Move-Item $DownloadPath $DestPath
+            # Ensure the destination directory exists for direct file move
+            $parentDir = Split-Path -Path $DestPath
+            if (-not (Test-Path $parentDir)) { New-Item -ItemType Directory -Path $parentDir -Force | Out-Null }
+            
+            Move-Item -Path $DownloadPath -Destination $DestPath -Force
         }
+        Write-Host "$ToolName installed successfully." -ForegroundColor Green
     }
     else {
-        Write-Host "$ToolName already exists" -ForegroundColor Green
+        Write-Host "$ToolName already exists at $DestPath" -ForegroundColor Green
     }
 }

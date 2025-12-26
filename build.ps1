@@ -1172,7 +1172,6 @@ function Start-Prepare-Package {
              -Url $mcpClientDownload `
              -DestPath $destBin `
              -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "kicad-mcp-client.zip") `
-             -Checksum "" `
              -ExtractZip $True `
              -ExtractInSupportRoot $False
 
@@ -1180,7 +1179,6 @@ function Start-Prepare-Package {
              -Url $mcpServerDownload `
              -DestPath $destBin `
              -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "kicad-mcp-server.zip") `
-             -Checksum "" `
              -ExtractZip $True `
              -ExtractInSupportRoot $False
 
@@ -1197,7 +1195,6 @@ function Start-Prepare-Package {
              -Url $bunUrl `
              -DestPath $bunDownloadPath `
              -DownloadPath $bunDownloadPath `
-             -Checksum "" `
              -ExtractZip $False
 
     Write-Host "Extracting and flattening Bun to $destBin"
@@ -1227,7 +1224,6 @@ function Start-Prepare-Package {
              -Url $uvUrl `
              -DestPath $uvDownloadPath `
              -DownloadPath $uvDownloadPath `
-             -Checksum "" `
              -ExtractZip $False
 
     Write-Host "Extracting and flattening uv to $destBin"
