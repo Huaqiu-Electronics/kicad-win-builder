@@ -52,7 +52,6 @@
 
 #  Copyright (C) 2021-2022 Mark Roszko <mark.roszko@gmail.com>
 #  Copyright (C) 2021-2022 KiCad Developers
-# ... (License header omitted for brevity) ...
 
 param(
     [Parameter(Position = 0, Mandatory=$True, ParameterSetName="config")]
@@ -178,9 +177,6 @@ param(
 
 Import-Module $PSScriptRoot\KiBuild -Force -DisableNameChecking
 
-# ... (Previous variable definitions remain unchanged) ...
-# Copy everything from line 147 to 376 from original file here 
-# (Includes Base setup, Load Config, Aliases, Build-Library-Source, Install-Library, Install-Kicad)
 
 ###
 ## Base setup
@@ -729,10 +725,6 @@ function Start-Build {
     }
 }
 
-# ... (Start-Init to Sign-File functions remain unchanged, copying lines 619 to 934) ...
-# Copy everything from line 619 to 934 from original file here 
-# Includes Start-Init, Get-Vcpkg-Triplet, Get-Build-Name, Build-Vcpkg, Get-KiCad-CommitHash, 
-# Get-KiCad-PackageVersion, Get-KiCad-Version, Get-KiCad-PackageVersion-Msix, Sign-File-HQ, Sign-File
 
 function Start-Init {
     # The progress bar slows down download performance by absurd amounts, turn it off
@@ -1066,6 +1058,14 @@ $searchPluginName = (Get-Source-Ref -sourceKey "search")
 $searchDownload = "https://raw.githubusercontent.com/Huaqiu-Electronics/kicad-hqdfm-zip/refs/heads/master/$searchPluginName.zip"
 $searchChecksum = (Get-Source-Ref -sourceKey "search-sha256")
 
+$mcpClientRef = (Get-Source-Ref -sourceKey "kicad-mcp-client")
+$mcpClientBranch = $mcpClientRef -replace "branch/", ""
+$mcpClientDownload = "https://github.com/Huaqiu-Electronics/kicad-mcp-client/archive/refs/heads/$mcpClientBranch.zip"
+
+$mcpServerRef = (Get-Source-Ref -sourceKey "kicad-mcp-server")
+$mcpServerBranch = $mcpServerRef -replace "branch/", ""
+$mcpServerDownload = "https://github.com/Huaqiu-Electronics/kicad-mcp-server/archive/refs/heads/$mcpServerBranch.zip"
+
 function Start-Prepare-Package {
     [CmdletBinding()]
     param(
@@ -1133,36 +1133,6 @@ function Start-Prepare-Package {
 
     Install-Kicad -arch $arch -buildType $buildType
 
-    # kicad-mcp-client
-    $mcpClientRef = Get-Source-Ref -sourceKey "kicad-mcp-client"
-    if (-not $mcpClientRef) { $mcpClientRef = "branch/main" }
-    
-    $mcpClientDest = Join-Path -Path $destBin -ChildPath "kicad-mcp-client"
-    Get-Source -url "https://github.com/Huaqiu-Electronics/kicad-mcp-client" `
-               -dest $mcpClientDest `
-               -sourceType git `
-               -latest $True `
-               -ref $mcpClientRef
-
-    if( Test-Path (Join-Path $mcpClientDest ".git") ) {
-        Remove-Item (Join-Path $mcpClientDest ".git") -Recurse -Force
-    }
-
-    # kicad-mcp-server
-    $mcpServerRef = Get-Source-Ref -sourceKey "kicad-mcp-server"
-    if (-not $mcpServerRef) { $mcpServerRef = "branch/main" }
-
-    $mcpServerDest = Join-Path -Path $destBin -ChildPath "kicad-mcp-server"
-    Get-Source -url "https://github.com/Huaqiu-Electronics/kicad-mcp-server" `
-               -dest $mcpServerDest `
-               -sourceType git `
-               -latest $True `
-               -ref $mcpServerRef
-
-    if( Test-Path (Join-Path $mcpServerDest ".git") ) {
-        Remove-Item (Join-Path $mcpServerDest ".git") -Recurse -Force
-    }
-
     $desthqPlugin = Join-Path -Path $destShare -ChildPath "kicad\resources\hqplugins\"
 
     Write-Host "desthqPlugin: $desthqPlugin"
@@ -1197,6 +1167,84 @@ function Start-Prepare-Package {
              -Checksum $searchChecksum `
              -ExtractZip $False `
              -ExtractInSupportRoot $False
+
+    Get-Tool -ToolName "MCP-Client" `
+             -Url $mcpClientDownload `
+             -DestPath $destBin `
+             -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "kicad-mcp-client.zip") `
+             -Checksum "" `
+             -ExtractZip $True `
+             -ExtractInSupportRoot $False
+
+    Get-Tool -ToolName "MCP-Server" `
+             -Url $mcpServerDownload `
+             -DestPath $destBin `
+             -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "kicad-mcp-server.zip") `
+             -Checksum "" `
+             -ExtractZip $True `
+             -ExtractInSupportRoot $False
+
+    # -------------------------------------------------------------------------
+    # Install Bun (Flattened)
+    # -------------------------------------------------------------------------
+    $bunVersion = "1.3.1"
+    $bunZip = "bun-windows-x64.zip"
+    $bunUrl = "https://gitcode.com/CherryHQ/bun/releases/download/bun-v$bunVersion/$bunZip"
+    $bunDownloadPath = Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath $bunZip
+
+    # Use Get-Tool to handle download (DestPath set to download path means just download)
+    Get-Tool -ToolName "Bun" `
+             -Url $bunUrl `
+             -DestPath $bunDownloadPath `
+             -DownloadPath $bunDownloadPath `
+             -Checksum "" `
+             -ExtractZip $False
+
+    Write-Host "Extracting and flattening Bun to $destBin"
+    $bunTempDir = Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "bun-temp"
+    if (Test-Path $bunTempDir) { Remove-Item $bunTempDir -Recurse -Force }
+    
+    # Extract using 7za
+    & 7za x $bunDownloadPath -o"$bunTempDir" -y > $null
+
+    # Flatten copy
+    Get-ChildItem -Path $bunTempDir -Recurse -File | ForEach-Object {
+        Copy-Item -Path $_.FullName -Destination $destBin -Force
+    }
+    Remove-Item $bunTempDir -Recurse -Force
+    Write-Host "Bun installed successfully" -ForegroundColor Green
+
+    # -------------------------------------------------------------------------
+    # Install uv (Flattened)
+    # -------------------------------------------------------------------------
+    $uvVersion = "0.9.5"
+    $uvZip = "uv-x86_64-pc-windows-msvc.zip"
+    $uvUrl = "https://gitcode.com/CherryHQ/uv/releases/download/$uvVersion/$uvZip"
+    $uvDownloadPath = Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath $uvZip
+
+    # Use Get-Tool to handle download
+    Get-Tool -ToolName "uv" `
+             -Url $uvUrl `
+             -DestPath $uvDownloadPath `
+             -DownloadPath $uvDownloadPath `
+             -Checksum "" `
+             -ExtractZip $False
+
+    Write-Host "Extracting and flattening uv to $destBin"
+    $uvTempDir = Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "uv-temp"
+    if (Test-Path $uvTempDir) { Remove-Item $uvTempDir -Recurse -Force }
+    
+    # Extract using 7za
+    & 7za x $uvDownloadPath -o"$uvTempDir" -y > $null
+
+    # Flatten copy
+    Get-ChildItem -Path $uvTempDir -Recurse -File | ForEach-Object {
+        Copy-Item -Path $_.FullName -Destination $destBin -Force
+    }
+    Remove-Item $uvTempDir -Recurse -Force
+    Write-Host "uv installed successfully" -ForegroundColor Green
+    # -------------------------------------------------------------------------
+
 
     # Perfect time to create the sentry artifact
     if( $sentryArtifact ) {
