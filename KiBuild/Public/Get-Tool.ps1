@@ -1,4 +1,4 @@
-# Define ExitCodes if not already defined (useful for build automation scripts)
+# Define ExitCodes if not already defined
 if (-not ([System.Management.Automation.PSTypeName]'ExitCodes').Type) {
     enum ExitCodes {
         Success = 0
@@ -26,11 +26,9 @@ function Invoke-WithRetry {
             $attempt++
             Write-Host "Attempt ${attempt}: Downloading ${Url}..." -ForegroundColor Yellow
             
-            # Ensure the download directory exists
             $dir = Split-Path -Path $OutFile
             if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Path $dir -Force | Out-Null }
 
-            # Added -ErrorAction Stop to ensure catch block triggers on HTTP errors
             Invoke-WebRequest -Uri $Url -OutFile $OutFile -UserAgent $UserAgent -ErrorAction Stop
             $success = $true
         } catch {
@@ -46,86 +44,62 @@ function Invoke-WithRetry {
 }
 
 function Get-Tool {
-    <#
-    .SYNOPSIS
-        Fetches a tool dependency and extracts it for use.
-    .DESCRIPTION
-        Handles download, optional checksum verification, and extraction.
-    #>
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$True)]
-        [string]$ToolName,
-        [Parameter(Mandatory=$True)]
-        [string]$Url,
-        [Parameter(Mandatory=$True)]
-        [string]$DestPath,
-        [Parameter(Mandatory=$True)]
-        [string]$DownloadPath,
-        # Checksum is now optional
-        [Parameter(Mandatory=$False)]
-        [string]$Checksum = "",
-        [Parameter(Mandatory=$False)]
+        [Parameter(Mandatory=$True)] [string]$ToolName,
+        [Parameter(Mandatory=$True)] [string]$Url,
+        [Parameter(Mandatory=$True)] [string]$DestPath,
+        [Parameter(Mandatory=$True)] [string]$DownloadPath,
+        [Parameter(Mandatory=$False)] [string]$Checksum = "",
         [bool]$ExtractZip = $False,
-        [Parameter(Mandatory=$False)]
         [bool]$ZipRelocate = $False,
-        [Parameter(Mandatory=$False)]
         [string]$ZipRelocateFilter = "",
-        [Parameter(Mandatory=$False)]
         [bool]$ExtractInSupportRoot = $False
     )
 
-    if( -not (Test-Path $DestPath) ) {
+    if (-not (Test-Path $DestPath)) {
         Write-Host "Downloading $ToolName..." -ForegroundColor Yellow
 
         Invoke-WithRetry -Url $Url -OutFile $DownloadPath
 
-        # Optional Checksum Validation
         if (-not [string]::IsNullOrWhiteSpace($Checksum)) {
             Write-Host "Verifying checksum for $ToolName..." -ForegroundColor Cyan
-            $calculatedChecksum = ( Get-FileHash -Algorithm SHA256 $DownloadPath ).Hash
-            if( $calculatedChecksum -ne $Checksum ) {
+            $calculatedChecksum = (Get-FileHash -Algorithm SHA256 $DownloadPath).Hash
+            if ($calculatedChecksum -ne $Checksum) {
                 Remove-Item -Path $DownloadPath -ErrorAction SilentlyContinue
                 Write-Error "Invalid checksum for $ToolName`nExpected: $Checksum`nActual:   $calculatedChecksum"
-                # Fixed exit code handling
                 exit [int][ExitCodes]::DownloadChecksumFailure
             }
-            Write-Host "Checksum verified." -ForegroundColor Green
         }
 
-        if( $ExtractZip ) {
+        if ($ExtractZip) {
             Write-Host "Extracting $ToolName..." -ForegroundColor Yellow
             
-            # Determine target extraction directory
-            $targetExtractionPath = if( $ExtractInSupportRoot ) { $BuilderPaths.SupportRoot } else { $DestPath }
+            $targetExtractionPath = if ($ExtractInSupportRoot) { $BuilderPaths.SupportRoot } else { $DestPath }
             
             if (-not (Test-Path $targetExtractionPath)) { 
                 New-Item -ItemType Directory -Path $targetExtractionPath -Force | Out-Null 
             }
 
             try {
-                # Note: Expand-Archive is the standard PowerShell cmdlet
                 Expand-Archive -Path $DownloadPath -DestinationPath $targetExtractionPath -Force
             } catch {
-                Write-Error "Unable to extract $ToolName: $($_.Exception.Message)"
+                # FIXED: Wrapped in curly braces to prevent variable reference errors
+                Write-Error "Unable to extract ${ToolName}: $($_.Exception.Message)"
                 exit [int][ExitCodes]::ExtractionFailure
             }
 
-            # If the zip contains a subfolder we want to "flatten" into DestPath
-            if( $ZipRelocate ) {
+            if ($ZipRelocate) {
                 $folders = Get-ChildItem -Path $targetExtractionPath -Filter $ZipRelocateFilter -Directory
                 if ($folders) {
-                    # Move the contents of the filtered folder into the DestPath
                     Move-Item -Path "$($folders.FullName)\*" -Destination $DestPath -Force
                     Remove-Item $folders.FullName -Recurse -Force
                 }
             }
         }
         else {
-            # Ensure the destination directory exists for direct file move
             $parentDir = Split-Path -Path $DestPath
             if (-not (Test-Path $parentDir)) { New-Item -ItemType Directory -Path $parentDir -Force | Out-Null }
-            
             Move-Item -Path $DownloadPath -Destination $DestPath -Force
         }
         Write-Host "$ToolName installed successfully." -ForegroundColor Green
