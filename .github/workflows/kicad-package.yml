@@ -31,7 +31,6 @@ jobs:
           restore-keys: |
             package-downloaded
           path: |
-            .build
             .downloads
             .support
    
@@ -110,7 +109,6 @@ jobs:
           restore-keys: |
             package-downloaded
           path: |
-            .build
             .downloads
             .support
       
