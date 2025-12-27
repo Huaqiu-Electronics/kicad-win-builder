@@ -1133,6 +1133,36 @@ function Start-Prepare-Package {
 
     Install-Kicad -arch $arch -buildType $buildType
 
+    # kicad-mcp-client
+    $mcpClientRef = Get-Source-Ref -sourceKey "kicad-mcp-client"
+    if (-not $mcpClientRef) { $mcpClientRef = "branch/main" }
+    
+    $mcpClientDest = Join-Path -Path $destBin -ChildPath "kicad-mcp-client"
+    Get-Source -url "https://github.com/Huaqiu-Electronics/kicad-mcp-client" `
+               -dest $mcpClientDest `
+               -sourceType git `
+               -latest $True `
+               -ref $mcpClientRef
+
+    if( Test-Path (Join-Path $mcpClientDest ".git") ) {
+        Remove-Item (Join-Path $mcpClientDest ".git") -Recurse -Force
+    }
+
+    # kicad-mcp-server
+    $mcpServerRef = Get-Source-Ref -sourceKey "kicad-mcp-server"
+    if (-not $mcpServerRef) { $mcpServerRef = "branch/main" }
+
+    $mcpServerDest = Join-Path -Path $destBin -ChildPath "kicad-mcp-server"
+    Get-Source -url "https://github.com/Huaqiu-Electronics/kicad-mcp-server" `
+               -dest $mcpServerDest `
+               -sourceType git `
+               -latest $True `
+               -ref $mcpServerRef
+
+    if( Test-Path (Join-Path $mcpServerDest ".git") ) {
+        Remove-Item (Join-Path $mcpServerDest ".git") -Recurse -Force
+    }    
+
     $desthqPlugin = Join-Path -Path $destShare -ChildPath "kicad\resources\hqplugins\"
 
     Write-Host "desthqPlugin: $desthqPlugin"
@@ -1168,26 +1198,13 @@ function Start-Prepare-Package {
              -ExtractZip $False `
              -ExtractInSupportRoot $False
 
-    Get-Tool -ToolName "MCP-Client" `
-             -Url $mcpClientDownload `
-             -DestPath $destBin `
-             -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "kicad-mcp-client.zip") `
-             -ExtractZip $True `
-             -ExtractInSupportRoot $False
-
-    Get-Tool -ToolName "MCP-Server" `
-             -Url $mcpServerDownload `
-             -DestPath $destBin `
-             -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "kicad-mcp-server.zip") `
-             -ExtractZip $True `
-             -ExtractInSupportRoot $False
 
     # -------------------------------------------------------------------------
     # Install Bun (Flattened)
     # -------------------------------------------------------------------------
-    $bunVersion = "1.3.1"
+    $bunVersion = "1.3.5"
     $bunZip = "bun-windows-x64.zip"
-    $bunUrl = "https://gitcode.com/CherryHQ/bun/releases/download/bun-v$bunVersion/$bunZip"
+    $bunUrl = "https://github.com/oven-sh/bun/releases/download/bun-v$bunVersion/$bunZip"
     $bunDownloadPath = Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath $bunZip
 
     # Use Get-Tool to handle download (DestPath set to download path means just download)
@@ -1214,9 +1231,9 @@ function Start-Prepare-Package {
     # -------------------------------------------------------------------------
     # Install uv (Flattened)
     # -------------------------------------------------------------------------
-    $uvVersion = "0.9.5"
+    $uvVersion = "0.9.18"
     $uvZip = "uv-x86_64-pc-windows-msvc.zip"
-    $uvUrl = "https://gitcode.com/CherryHQ/uv/releases/download/$uvVersion/$uvZip"
+    $uvUrl = "https://github.com/astral-sh/uv/releases/download/$uvVersion/$uvZip"
     $uvDownloadPath = Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath $uvZip
 
     # Use Get-Tool to handle download
