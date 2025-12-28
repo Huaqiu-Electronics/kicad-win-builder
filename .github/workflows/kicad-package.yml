@@ -38,8 +38,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
-          key: vcpkg-${{ runner.os }}-${{ hashFiles('**/vcpkg.json') }}
-          restore-keys: vcpkg-${{ runner.os }}-
+          key: vcpkg-${{ runner.os }}
+          restore-keys: vcpkg-${{ runner.os }}
 
       - name: Configure
         run: ./build.ps1 -Config -UseMsvcCmake $False
@@ -116,8 +116,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
-          key: vcpkg-${{ runner.os }}-${{ hashFiles('**/vcpkg.json') }}
-          restore-keys: vcpkg-${{ runner.os }}-
+          key: vcpkg-${{ runner.os }}
+          restore-keys: vcpkg-${{ runner.os }}
 
 
       - name: Configure
