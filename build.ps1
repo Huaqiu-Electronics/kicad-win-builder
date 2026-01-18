@@ -173,7 +173,7 @@ Import-Module $PSScriptRoot\KiBuild -Force -DisableNameChecking
 ## Base setup
 ###
 
-$vcpkgCommit = "ef7dbf94b9198bc58f45951adcf1f041fcbc5ea0";
+$vcpkgCommit = "66c0373dc7fca549e5803087b9487edfe3aca0a1";
 
 $cmakeFolder = 'cmake-3.30.1-windows-x86_64'
 $cmakeDownload = 'https://github.com/Kitware/CMake/releases/download/v3.30.1/cmake-3.30.1-windows-x86_64.zip'
