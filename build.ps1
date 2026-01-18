@@ -190,10 +190,10 @@ $swigwinFolder = "swigwin-4.3.1"
 $swigwinDownload = "https://sourceforge.net/projects/swig/files/swigwin/$swigwinFolder/$swigwinFolder.zip/download?use_mirror=pilotfiber"
 $swigwinChecksum = "7EA5197C557AF20B2F7780FFCFE803BBE0E2009F5846874112AEA37E5F693417"
 
-$nsisVersion = "3.10"
+$nsisVersion = "3.11"
 $nsisFolderName = "nsis-$nsisVersion"
 $nsisDownload = "https://sourceforge.net/projects/nsis/files/NSIS%203/$nsisVersion/$nsisFolderName.zip/download"
-$nsisChecksum = "FCDCE3229717A2A148E7CDA0AB5BDB667F39D8FB33EDE1DA8DABC336BD5AD110"
+$nsisChecksum = "C7D27F780DDB6CFFB4730138CD1591E841F4B7EDB155856901CDF5F214394FA1"
 
 $gettextFolderName = "gettext0.21-iconv1.16-static-64"
 $gettextDownload = "https://github.com/mlocati/gettext-iconv-windows/releases/download/v0.21-v1.16/gettext0.21-iconv1.16-static-64.zip"
