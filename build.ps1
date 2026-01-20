@@ -214,8 +214,8 @@ $sentryCliChecksum = "0D2F372D98F53EA4D4DF26161F1F821D5322B00A0227CE84EC939BF271
 $azureSignToolDownload = 'https://github.com/vcsjones/AzureSignTool/releases/download/v6.0.0/AzureSignTool-x64.exe'
 $azureSignToolChecksum = '012001BB072EE36719AECC570D4566C6407A49AE6E6E85DB8201F58122BCA967'
 
-
-$7zaFolderName = "7z2409-extra"
+$7zaFolderName = "7z2501-extra"
+$7zaArchiveName = "$7zaFolderName.zip"
 
 Init-Paths $PSScriptRoot
 $BuilderPaths = Get-BuilderPaths
@@ -767,7 +767,7 @@ function Start-Init {
              -ZipRelocate $False `
              -ExtractInSupportRoot $False
 
-    $7zaSource = Join-Path -Path $PSScriptRoot -ChildPath "\support\7z2409-extra.zip"
+    $7zaSource = Join-Path -Path $PSScriptRoot -ChildPath "\support\$7zaArchiveName"
     Expand-Tool -ToolName "7za" `
              -SourcePath $7zaSource `
              -DestPath (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "$7zaFolderName/")
