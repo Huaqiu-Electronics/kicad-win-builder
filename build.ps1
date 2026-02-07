@@ -674,10 +674,6 @@ function Start-Build {
                -ref (Get-Source-Ref -sourceKey "templates")
 
     Build-KiCad -arch $arch -buildType $buildType
-    Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-symbols
-    Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-footprints
-    Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-packages3D
-    Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-templates
 }
 
 
@@ -1069,6 +1065,15 @@ function Start-Prepare-Package {
 
     if( -not $lite )
     {
+        # Add the prep bin folder to PATH so kicad-cli is available for library builds
+        $env:Path = $destBin + ";" + $env:Path
+
+        # we "build" libraries here as we need a functioning kicad-cli
+        Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-symbols
+        Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-footprints
+        Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-packages3D
+        Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-templates
+
         Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-symbols
         Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-footprints
         Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-packages3D
