@@ -5,7 +5,6 @@ on:
   #   - cron: "0 0 * * 0" # Sunday
   #   - cron: "0 0 * * 3" # Wednesday
   release:
-    branches: master
     types:
       - published
   workflow_dispatch:
