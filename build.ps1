@@ -420,6 +420,15 @@ function Build-Library-Source {
     }
 
     Write-Host "Configured $libraryFolderName" -ForegroundColor Green
+
+    Write-Host "Invoking cmake build" -ForegroundColor Yellow
+
+    & {
+        $ErrorActionPreference = 'SilentlyContinue'
+        cmake --build $cmakeBuildFolder -j 2>&1 | % ToString
+    }
+
+
     Pop-Location
 }
 
@@ -1063,23 +1072,6 @@ function Start-Prepare-Package {
         7za a -tzip -mm=lzma -bsp0 $sentrySrcOutPath -x!*\ ($bundleOutFolder+"\*") -r0
     }
 
-    if( -not $lite )
-    {
-        # Add the prep bin folder to PATH so kicad-cli is available for library builds
-        $env:Path = $destBin + ";" + $env:Path
-
-        # we "build" libraries here as we need a functioning kicad-cli
-        Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-symbols
-        Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-footprints
-        Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-packages3D
-        Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-templates
-
-        Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-symbols
-        Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-footprints
-        Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-packages3D
-        Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-templates
-    }
-
     if( $buildType -eq 'Debug' )
     {
         $vcpkgInstalledRoot = Join-Path -Path $vcpkgInstalledRoot -ChildPath "debug"
@@ -1201,6 +1193,23 @@ function Start-Prepare-Package {
     if( Test-Path -Path $xsltprocSource ) {
         Write-Host "Copying $xsltprocSource to $destBin"
         Copy-Item $xsltprocSource -Destination $destBin -Recurse  -Force
+    }
+
+    if( -not $lite )
+    {
+        # Add the prep bin folder to PATH so kicad-cli is available for library builds
+        $env:Path = $destBin + ";" + $env:Path
+
+        # we "build" libraries here as we need a functioning kicad-cli
+        Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-symbols
+        Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-footprints
+        Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-packages3D
+        Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-templates
+
+        Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-symbols
+        Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-footprints
+        Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-packages3D
+        Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-templates
     }
 
     if( $sign ) {
