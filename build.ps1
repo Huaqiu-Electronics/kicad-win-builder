@@ -1199,14 +1199,42 @@ function Start-Prepare-Package {
     {
         # Add the prep bin folder to PATH so kicad-cli is available for library builds
         $env:Path = $destBin + ";" + $env:Path
+        $originalEnvPath = $env:Path
+
+        # Detect cross-compilation for arm64: the arm64 python.exe in destBin cannot be
+        # executed on the host amd64 machine, so locate the amd64 Python from the host
+        # vcpkg installed tree and prepend it to PATH for kicad-symbols cmake configure
+        # and install so that cmake-invoked Python scripts run correctly.
+        $hostArch = Get-HostArch
+        $hostPython3Path = $null
+        if( $hostArch -ne $arch ) {
+            $hostTriplet = Get-Vcpkg-Triplet -Arch $hostArch
+            $hostBuildName = Get-Build-Name -Arch $hostArch -BuildType $buildType
+            if($buildConfig.vcpkg.manifest_mode) {
+                $kiPath = Get-Source-Path kicad
+                $hostPython3Path = Join-Path -Path $kiPath -ChildPath "build/$hostBuildName/vcpkg_installed/$hostTriplet/tools/python3"
+            } else {
+                $hostPython3Path = Join-Path -Path $settings["VcpkgPath"] -ChildPath "installed/$hostTriplet/tools/python3"
+            }
+            Write-Host "Cross-compiling for ${arch}: using $hostArch Python from $hostPython3Path for kicad-symbols cmake configure and install" -ForegroundColor Yellow
+            $env:Path = $hostPython3Path + ";" + $env:Path
+        }
 
         # we "build" libraries here as we need a functioning kicad-cli
         Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-symbols
+        $env:Path = $originalEnvPath
+
         Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-footprints
         Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-packages3D
         Build-Library-Source -arch $arch -buildType $buildType -libraryFolderName kicad-templates
 
+        if( $hostPython3Path )
+        {
+            $env:Path = $hostPython3Path + ";" + $env:Path
+        }
         Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-symbols
+        $env:Path = $originalEnvPath
+
         Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-footprints
         Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-packages3D
         Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-templates
