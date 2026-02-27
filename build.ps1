@@ -217,6 +217,11 @@ $azureSignToolChecksum = '012001BB072EE36719AECC570D4566C6407A49AE6E6E85DB8201F5
 $7zaFolderName = "7z2501-extra"
 $7zaArchiveName = "$7zaFolderName.zip"
 
+$pythonEmbedVersion = "3.13.2"
+$pythonEmbedAmd64FolderName = "python-$pythonEmbedVersion-embed-amd64"
+$pythonEmbedAmd64Download = "https://www.python.org/ftp/python/$pythonEmbedVersion/python-$pythonEmbedVersion-embeddable-amd64.zip"
+$pythonEmbedAmd64Checksum = "5E47BD2733E351C337463976C9B36764C790FB28C6E5ADF0984D451D3AFFD737"
+
 Init-Paths $PSScriptRoot
 $BuilderPaths = Get-BuilderPaths
 
@@ -777,6 +782,14 @@ function Start-Init {
              -SourcePath $7zaSource `
              -DestPath (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "$7zaFolderName/")
 
+    Get-Tool -ToolName "Python Embedded (amd64)" `
+             -Url $pythonEmbedAmd64Download `
+             -DestPath (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $pythonEmbedAmd64FolderName) `
+             -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "python-embed-amd64.zip") `
+             -Checksum $pythonEmbedAmd64Checksum `
+             -ExtractZip $true `
+             -ExtractInSupportRoot $False
+
     # Restore progress bar
     $ProgressPreference = 'Continue'
 }
@@ -1201,22 +1214,13 @@ function Start-Prepare-Package {
         $env:Path = $destBin + ";" + $env:Path
         $originalEnvPath = $env:Path
 
-        # Detect cross-compilation for arm64: the arm64 python.exe in destBin cannot be
-        # executed on the host amd64 machine, so locate the amd64 Python from the host
-        # vcpkg installed tree and prepend it to PATH for kicad-symbols cmake configure
-        # and install so that cmake-invoked Python scripts run correctly.
+        # When cross-compiling, the target Python in destBin cannot run on the host.
+        # Use the host-arch Python embedded package downloaded during init instead.
         $hostArch = Get-HostArch
         $hostPython3Path = $null
         if( $hostArch -ne $arch ) {
-            $hostTriplet = Get-Vcpkg-Triplet -Arch $hostArch
-            $hostBuildName = Get-Build-Name -Arch $hostArch -BuildType $buildType
-            if($buildConfig.vcpkg.manifest_mode) {
-                $kiPath = Get-Source-Path kicad
-                $hostPython3Path = Join-Path -Path $kiPath -ChildPath "build/$hostBuildName/vcpkg_installed/$hostTriplet/tools/python3"
-            } else {
-                $hostPython3Path = Join-Path -Path $settings["VcpkgPath"] -ChildPath "installed/$hostTriplet/tools/python3"
-            }
-            Write-Host "Cross-compiling for ${arch}: using $hostArch Python from $hostPython3Path for kicad-symbols cmake configure and install" -ForegroundColor Yellow
+            $hostPython3Path = Join-Path -Path $BuilderPaths.SupportRoot -ChildPath $pythonEmbedAmd64FolderName
+            Write-Host "Cross-compiling for ${arch}: using $hostArch embedded Python from $hostPython3Path for kicad-symbols cmake configure and install" -ForegroundColor Yellow
             $env:Path = $hostPython3Path + ";" + $env:Path
         }
 
