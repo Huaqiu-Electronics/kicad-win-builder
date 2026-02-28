@@ -1214,6 +1214,9 @@ function Start-Prepare-Package {
         $env:Path = $destBin + ";" + $env:Path
         $originalEnvPath = $env:Path
 
+        # we need this for packing scripts to work
+        $env:PYTHONUTF8=1
+
         # When cross-compiling, the target Python in destBin cannot run on the host.
         # Use the host-arch Python embedded package downloaded during init instead.
         $hostArch = Get-HostArch
@@ -1242,6 +1245,9 @@ function Start-Prepare-Package {
         Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-footprints
         Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-packages3D
         Install-Library -arch $arch -buildType $buildType -libraryFolderName kicad-templates
+
+        # unset this so we dont find something weird out later
+        $env:PYTHONUTF8=$null
     }
 
     if( $sign ) {
