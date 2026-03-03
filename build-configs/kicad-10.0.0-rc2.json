@@ -1,0 +1,30 @@
+{
+    "name:": "KiCad 10.0.0-rc2",
+    "output_prefix": "kicad-",
+    "package_version": "10.0.0-rc2",
+    "train": "stable",
+    "build_mode": "Release",
+    "nsis": {
+        "file": "install.nsi"
+    },
+    "sources": {
+        "kicad": {
+            "ref": "tag/10.0.0-rc2.1"
+        },
+        "symbols": {
+            "ref": "tag/10.0.0-rc2"
+        },
+        "footprints": {
+            "ref": "tag/10.0.0-rc2"
+        },
+        "3dmodels": {
+            "ref": "tag/10.0.0-rc2"
+        },
+        "templates": {
+            "ref": "tag/10.0.0-rc2"
+        }
+    }, 
+    "vcpkg": {
+        "manifest_mode": true
+    }
+}
