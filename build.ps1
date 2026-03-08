@@ -219,7 +219,7 @@ $sentryCliDownload = 'https://github.com/getsentry/sentry-cli/releases/download/
 $sentryCliChecksum = "0D2F372D98F53EA4D4DF26161F1F821D5322B00A0227CE84EC939BF271C720AD"
 
 
-$7zaFolderName = "7z2201-extra"
+$7zaFolderName = "7z2501-extra"
 
 $pythonEmbedVersion = "3.13.2"
 $pythonEmbedAmd64FolderName = "python-$pythonEmbedVersion-embed-amd64"
