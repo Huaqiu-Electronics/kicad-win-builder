@@ -459,6 +459,14 @@ function Install-Library {
     Write-Host "Installing $libraryFolderName to output" -ForegroundColor Yellow
     & {
         $ErrorActionPreference = 'SilentlyContinue'
+        
+        # Only build explicitly for kicad-symbols
+        if ($libraryFolderName -eq "kicad-symbols") {
+            Write-Host "Running cmake build for $libraryFolderName" -ForegroundColor Cyan
+            cmake --build $cmakeBuildFolder > $null
+            if ($LastExitCode -ne 0) { return }
+        }
+
         cmake --install $cmakeBuildFolder > $null
     }
 
@@ -1009,18 +1017,6 @@ function Get-KiCad-PackageVersion-Msix {
     return "${base}.${revCount}.0"
 }
 
-function Sign-File-HQ {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$True)]
-        [string]$File
-    )
-
-$pfxFilePath = Join-Path -Path $PSScriptRoot -ChildPath "\sign\huaqiu.pfx"
-
-signtool sign /f $pfxFilePath /p 123456 /fd sha256 /t http://timestamp.comodoca.com /v $File
-
-}
 
 function Sign-File {
     [CmdletBinding()]
@@ -1650,7 +1646,6 @@ function Start-Package-Nsis {
         Remove-Item $nsisFolder -Recurse -Force
     }
 
-    Sign-File-HQ -File (Join-Path -Path $BuilderPaths.OutRoot -ChildPath $outFileName)
 
     if ($LastExitCode -ne 0) {
         Write-Error "Error building nsis package"
