@@ -220,6 +220,7 @@ $sentryCliChecksum = "0D2F372D98F53EA4D4DF26161F1F821D5322B00A0227CE84EC939BF271
 
 
 $7zaFolderName = "7z2501-extra"
+$7zaArchiveName = "$7zaFolderName.zip"
 
 $pythonEmbedVersion = "3.13.2"
 $pythonEmbedAmd64FolderName = "python-$pythonEmbedVersion-embed-amd64"
