@@ -812,7 +812,8 @@ function Start-Init {
         }
     }
 
-    $7zaSource = Join-Path -Path $PSScriptRoot -ChildPath "\support\7z2201-extra.zip"
+    $7zaSource = Join-Path -Path $PSScriptRoot -ChildPath "\support\$7zaArchiveName"
+
     Expand-Tool -ToolName "7za" `
              -SourcePath $7zaSource `
              -DestPath (Join-Path -Path $BuilderPaths.SupportRoot -ChildPath "$7zaFolderName/")
