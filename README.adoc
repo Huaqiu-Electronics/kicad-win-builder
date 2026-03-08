@@ -1,4 +1,7 @@
 == Readme
+
+![GitHub CI](https://github.com/Huaqiu-Electronics/kicad-win-builder/blob/master/.github/workflows/kicad-package.yml/badge.svg)
+
 This repo contains all the tooling to build and package KiCad for releases.
 
 The builder is composed of PowerShell scripting that allows us to build native Windows logic to handle the build process
@@ -35,7 +38,7 @@ but they will not build due to dependency issues.
 ===== Initialize the builder
 This fetches any additional dependency tools we require for building that will be stored within the builder package structure
 
-`.\build.ps1 -Init`
+`\build.ps1 -Init`
 
 ===== Build Vcpkg
 This initializes vcpkg if required and builds the latest required dependencies for KiCad

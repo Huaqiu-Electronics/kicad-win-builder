@@ -4,13 +4,13 @@
 LicenseLangString MUILicense ${LANG_SIMPCHINESE} "..\COPYRIGHT.txt"
 
 ;Welcome page
-LangString WELCOME_PAGE_TEXT ${LANG_SIMPCHINESE} "此安装程序将指导您完成 KiCad ${PACKAGE_VERSION} 的安装。$\r$\n$\r$\n\
+LangString WELCOME_PAGE_TEXT ${LANG_SIMPCHINESE} "此安装程序将指导您完成 KiCad 华秋 ${PACKAGE_VERSION} 的安装。$\r$\n$\r$\n\
 在启动安装程序之前，不需要关闭任何其他应用程序，也不需要重新启动计算机。$\r$\n$\r$\n\
 这是在 GPL 下获得许可的免费开源软件。$\r$\n$\r$\n\
 单击“下一步”继续。"
 
 ;Error messages
-LangString ERROR_WIN_MIN    ${LANG_SIMPCHINESE} "要使用此安装程序安装 KiCad，至少需要 Windows 8.1"
+LangString ERROR_WIN_MIN    ${LANG_SIMPCHINESE} "要使用此安装程序安装 KiCad 华秋，至少需要 Windows 8.1"
 LangString ERROR_WRONG_ARCH         ${LANG_SIMPCHINESE} "该安装程序适用于不同的处理器架构 (${ARCH})，请使用正确的安装程序"
 
 ;Other languages
@@ -34,7 +34,6 @@ LangString TITLE_SEC_DEMOS ${LANG_SIMPCHINESE} "示范工程"
 LangString TITLE_SEC_DOCS ${LANG_SIMPCHINESE} "帮助文件"
 LangString TITLE_SEC_FILE_ASSOC ${LANG_SIMPCHINESE} "文件关联"
 LangString TITLE_SEC_START_MENU ${LANG_SIMPCHINESE} "开始菜单快捷方式"
-LangString TITLE_SEC_DESKTOP_SHORTCUT  ${LANG_SIMPCHINESE} "桌面快捷方式"
 
 ;Component option descriptions
 LangString DESC_SEC_MAIN ${LANG_SIMPCHINESE} "主要应用程序文件。"
@@ -55,9 +54,8 @@ LangString DESC_SEC_DOCS_JA ${LANG_SIMPCHINESE} "$(LANGUAGE_NAME_JA) $(TITLE_SEC
 LangString DESC_SEC_DOCS_NL ${LANG_SIMPCHINESE} "$(LANGUAGE_NAME_NL) $(TITLE_SEC_DOCS)"
 LangString DESC_SEC_DOCS_PL ${LANG_SIMPCHINESE} "$(LANGUAGE_NAME_PL) $(TITLE_SEC_DOCS)"
 LangString DESC_SEC_DOCS_ZH ${LANG_SIMPCHINESE} "$(LANGUAGE_NAME_ZH) $(TITLE_SEC_DOCS)"
-LangString DESC_SEC_FILE_ASSOC ${LANG_SIMPCHINESE} "为 KiCad 相关文件创建文件关联"
+LangString DESC_SEC_FILE_ASSOC ${LANG_SIMPCHINESE} "为 KiCad 华秋 相关文件创建文件关联"
 LangString DESC_SEC_START_MENU ${LANG_SIMPCHINESE} "创建开始菜单快捷方式"
-LangString DESC_SEC_DESKTOP_SHORTCUTS ${LANG_SIMPCHINESE} "创建桌面快捷方式"
 
 ;File association descriptions (show in Windows Explorer)
 LangString FILE_DESC_KICAD_PCB ${LANG_SIMPCHINESE} "KiCad PCB 板"
@@ -68,13 +66,13 @@ LangString FILE_DESC_SYM ${LANG_SIMPCHINESE} "KiCad 符号"
 LangString FILE_DESC_FP ${LANG_SIMPCHINESE} "KiCad 封装"
 
 ;Application Friendly Names (for windows explorer hook)
-LangString APP_FRIENDLY_KICAD ${LANG_SIMPCHINESE} "KiCad"
+LangString APP_FRIENDLY_KICAD ${LANG_SIMPCHINESE} "KiCad 华秋"
 LangString APP_FRIENDLY_PCBNEW ${LANG_SIMPCHINESE} "KiCad - PCB 编辑器"
 LangString APP_FRIENDLY_EESCHEMA ${LANG_SIMPCHINESE} "KiCad - 原理图编辑器"
 LangString APP_FRIENDLY_PLEDITOR ${LANG_SIMPCHINESE} "KiCad - 图框编辑器"
 
 ;Application names
-LangString APP_NAME_KICAD ${LANG_SIMPCHINESE} "KiCad"
+LangString APP_NAME_KICAD ${LANG_SIMPCHINESE} "KiCad 华秋"
 LangString APP_NAME_PCBNEW ${LANG_SIMPCHINESE} "PCB 编辑器 (pcbnew.exe)"
 LangString APP_NAME_EESCHEMA ${LANG_SIMPCHINESE} "原理图编辑器 (eeschema.exe)"
 LangString APP_NAME_PLEDITOR ${LANG_SIMPCHINESE} "图框编辑器 (pl_editor.exe)"
@@ -83,6 +81,7 @@ LangString APP_NAME_BITMAP2COMPONENT ${LANG_SIMPCHINESE} "BMP 到元件 (bitmap2
 LangString APP_NAME_GERBVIEW ${LANG_SIMPCHINESE} "Gerber 查看器 (gerbview.exe)"
 
 ;Shortcut names
+LangString SHORTCUT_NAME_KICAD ${LANG_SIMPCHINESE} "KiCad 华秋"
 LangString SHORTCUT_NAME_EESCHEMA ${LANG_SIMPCHINESE} "原理图编辑器 ${KICAD_VERSION} (单机版)"
 LangString SHORTCUT_NAME_PCBNEW ${LANG_SIMPCHINESE} "PCB 编辑器 ${KICAD_VERSION} (单机版)"
 LangString SHORTCUT_NAME_GERBVIEW ${LANG_SIMPCHINESE} "Gerber 查看器 ${KICAD_VERSION}"

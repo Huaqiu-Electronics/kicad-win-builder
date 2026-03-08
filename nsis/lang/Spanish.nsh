@@ -34,7 +34,6 @@ LangString TITLE_SEC_DEMOS ${LANG_SPANISH} "Proyectos de demostración"
 LangString TITLE_SEC_DOCS ${LANG_SPANISH} "Archivos de ayuda"
 LangString TITLE_SEC_FILE_ASSOC ${LANG_SPANISH} "File associations"
 LangString TITLE_SEC_START_MENU ${LANG_SPANISH} "Start menu shortcuts"
-LangString TITLE_SEC_DESKTOP_SHORTCUT  ${LANG_SPANISH} "Desktop shortcut"
 
 ;Component option descriptions
 LangString DESC_SEC_MAIN ${LANG_SPANISH} "Archivos de la aplicación principal."
@@ -57,7 +56,6 @@ LangString DESC_SEC_DOCS_PL ${LANG_SPANISH} "$(LANGUAGE_NAME_PL) $(TITLE_SEC_DOC
 LangString DESC_SEC_DOCS_ZH ${LANG_SPANISH} "$(LANGUAGE_NAME_ZH) $(TITLE_SEC_DOCS)"
 LangString DESC_SEC_FILE_ASSOC ${LANG_SPANISH} "Creates file associations for KiCad related files"
 LangString DESC_SEC_START_MENU ${LANG_SPANISH} "Creates start menu shortcuts"
-LangString DESC_SEC_DESKTOP_SHORTCUTS ${LANG_SPANISH} "Creates desktop shortcuts"
 
 ;File association descriptions (show in Windows Explorer)
 LangString FILE_DESC_KICAD_PCB ${LANG_SPANISH} "KiCad Board"
@@ -83,6 +81,7 @@ LangString APP_NAME_BITMAP2COMPONENT ${LANG_SPANISH} "Image Converter (bitmap2co
 LangString APP_NAME_GERBVIEW ${LANG_SPANISH} "Gerber Viewer (gerbview.exe)"
 
 ;Shortcut names
+LangString SHORTCUT_NAME_KICAD ${LANG_SPANISH} "KiCad Huaqiu"
 LangString SHORTCUT_NAME_EESCHEMA ${LANG_SPANISH} "Schematic Editor ${KICAD_VERSION} (standalone)"
 LangString SHORTCUT_NAME_PCBNEW ${LANG_SPANISH} "PCB Editor ${KICAD_VERSION} (standalone)"
 LangString SHORTCUT_NAME_GERBVIEW ${LANG_SPANISH} "Gerber Viewer ${KICAD_VERSION}"

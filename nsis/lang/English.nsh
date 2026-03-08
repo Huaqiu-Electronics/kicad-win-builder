@@ -4,7 +4,7 @@
 LicenseLangString MUILicense ${LANG_ENGLISH} "..\COPYRIGHT.txt"
 
 ;Welcome page
-LangString WELCOME_PAGE_TEXT ${LANG_ENGLISH} "This installer will guide you through the installation of KiCad ${PACKAGE_VERSION}.$\r$\n$\r$\n\
+LangString WELCOME_PAGE_TEXT ${LANG_ENGLISH} "This installer will guide you through the installation of KiCadHQ ${PACKAGE_VERSION}.$\r$\n$\r$\n\
 It is not required to close any other applications before starting the installer, neither is it necessary to reboot your computer.$\r$\n$\r$\n\
 This is free open source software licensed under the GPL.$\r$\n$\r$\n\
 Click Next to continue."
@@ -34,7 +34,6 @@ LangString TITLE_SEC_DEMOS ${LANG_ENGLISH} "Demonstration projects"
 LangString TITLE_SEC_DOCS ${LANG_ENGLISH} "Help files"
 LangString TITLE_SEC_FILE_ASSOC ${LANG_ENGLISH} "File associations"
 LangString TITLE_SEC_START_MENU ${LANG_ENGLISH} "Start menu shortcuts"
-LangString TITLE_SEC_DESKTOP_SHORTCUT  ${LANG_ENGLISH} "Desktop shortcut"
 
 ;Component option descriptions
 LangString DESC_SEC_MAIN ${LANG_ENGLISH} "Main application files."
@@ -57,7 +56,6 @@ LangString DESC_SEC_DOCS_PL ${LANG_ENGLISH} "$(LANGUAGE_NAME_PL) $(TITLE_SEC_DOC
 LangString DESC_SEC_DOCS_ZH ${LANG_ENGLISH} "$(LANGUAGE_NAME_ZH) $(TITLE_SEC_DOCS)"
 LangString DESC_SEC_FILE_ASSOC ${LANG_ENGLISH} "Creates file associations for KiCad related files"
 LangString DESC_SEC_START_MENU ${LANG_ENGLISH} "Creates start menu shortcuts"
-LangString DESC_SEC_DESKTOP_SHORTCUTS ${LANG_ENGLISH} "Creates desktop shortcuts"
 
 ;File association descriptions (show in Windows Explorer)
 LangString FILE_DESC_KICAD_PCB ${LANG_ENGLISH} "KiCad Board"
@@ -83,6 +81,7 @@ LangString APP_NAME_BITMAP2COMPONENT ${LANG_ENGLISH} "Image Converter (bitmap2co
 LangString APP_NAME_GERBVIEW ${LANG_ENGLISH} "Gerber Viewer (gerbview.exe)"
 
 ;Shortcut names
+LangString SHORTCUT_NAME_KICAD ${LANG_ENGLISH} "KiCad Huaqiu"
 LangString SHORTCUT_NAME_EESCHEMA ${LANG_ENGLISH} "Schematic Editor ${KICAD_VERSION} (standalone)"
 LangString SHORTCUT_NAME_PCBNEW ${LANG_ENGLISH} "PCB Editor ${KICAD_VERSION} (standalone)"
 LangString SHORTCUT_NAME_GERBVIEW ${LANG_ENGLISH} "Gerber Viewer ${KICAD_VERSION}"
@@ -96,8 +95,8 @@ LangString PROGRAM_IS_OPEN_ERROR ${LANG_ENGLISH} "$R1 is currently running! You 
 
 LangString CLEANUP_PROMPT ${LANG_ENGLISH} "Remove downloaded files after installation?"
 LangString UNINST_PROMPT ${LANG_ENGLISH} "Are you sure you want to completely remove $(^Name) and all of its components? $\n\
-This will also remove all files, symbols and footprints in the KiCad installation directory. Any of your KiCad files located outside the installation\
-directory will remain untouched."
+This will also remove all modified and new files, symbols and footprints in the program directory \
+(including python modules installed by user)!"
 
 LangString UNINST_SUCCESS ${LANG_ENGLISH} "$(^Name) was successfully removed from your computer."
 LangString INSTALLER_RUNNING ${LANG_ENGLISH} "The installer is already running."

@@ -40,7 +40,7 @@
 !include "Sections.nsh"
 
 ; General Product Description Definitions
-!define PRODUCT_NAME "KiCad"
+!define PRODUCT_NAME "KiCad Huaqiu"
 !define KICAD_MAIN_SITE "www.kicad.org/"
 !define COMPANY_NAME "KiCad"
 !define TRADE_MARKS ""
@@ -349,12 +349,12 @@ SectionEnd
 Section $(TITLE_SEC_MAIN) SEC01
   SectionIn RO
   SetOverwrite try
-
+  
   !insertmacro ExclusiveDetailPrint $(INSTALLING_APPS)
   ; delete contents of \bin\ itself to avoid any weird conflicts between versions
   ; not a foolproof solution for all conflicts that could occur
   Delete "$INSTDIR\bin\*.*"
-
+  
   ; clean contents of python because otherwise out of date things can remain and get loaded
   RMDir /r "$INSTDIR\bin\DLLs\"
   RMDir /r "$INSTDIR\bin\Lib\"
@@ -375,7 +375,7 @@ Section $(TITLE_SEC_MAIN) SEC01
 
   SetOutPath "$INSTDIR\lib"
   File /r "..\lib\*"
-
+  
   SetOutPath "$INSTDIR\etc"
   File /r "..\etc\*"
 
@@ -387,7 +387,7 @@ Section $(TITLE_SEC_MAIN) SEC01
 
   SetOutPath "$INSTDIR\share\kicad\template"
   File /nonfatal /r "..\share\kicad\template\*"
-
+  
   SetOutPath "$INSTDIR\share\kicad\resources"
   File /nonfatal /r "..\share\kicad\resources\*"
 
@@ -438,7 +438,7 @@ SectionGroup /e $(TITLE_SEC_LIBRARIES) SEC03
     !insertmacro ExclusiveDetailPrint $(INSTALLING_SCH_LIBS)
     SetOutPath "$INSTDIR\share\kicad\symbols"
     File /nonfatal /r "..\share\kicad\symbols\*"
-
+  
     !insertmacro RecursiveReadOnlyFlagFiles "$INSTDIR\share\kicad\symbols\"
   SectionEnd
   !else
@@ -474,7 +474,7 @@ SectionGroup /e $(TITLE_SEC_LIBRARIES) SEC03
     !insertmacro ExclusiveDetailPrint $(INSTALLING_3D_MODELS)
     SetOutPath "$INSTDIR\share\kicad\3dmodels"
     File /nonfatal /r "..\share\kicad\3dmodels\*"
-
+    
     !insertmacro RecursiveReadOnlyFlagFiles "$INSTDIR\share\kicad\3dmodels\"
   SectionEnd
   !else
@@ -496,56 +496,56 @@ Section $(TITLE_SEC_DEMOS) SEC05
   File /nonfatal /r "..\share\doc\kicad\tutorials\*"
 SectionEnd
 
-SectionGroup -$(TITLE_SEC_DOCS) SEC06
-  Section -$(LANGUAGE_NAME_EN) SEC06_EN
+SectionGroup $(TITLE_SEC_DOCS) SEC06
+  Section $(LANGUAGE_NAME_EN) SEC06_EN
 	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\en"
     File /nonfatal /r "..\share\doc\kicad\help\en\*"
   SectionEnd
-  Section -$(LANGUAGE_NAME_DE) SEC06_DE
+  Section $(LANGUAGE_NAME_DE) SEC06_DE
 	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\de"
     File /nonfatal /r "..\share\doc\kicad\help\de\*"
   SectionEnd
-  Section -$(LANGUAGE_NAME_ES) SEC06_ES
+  Section $(LANGUAGE_NAME_ES) SEC06_ES
 	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\es"
     File /nonfatal /r "..\share\doc\kicad\help\es\*"
   SectionEnd
-  Section -$(LANGUAGE_NAME_FR) SEC06_FR
+  Section $(LANGUAGE_NAME_FR) SEC06_FR
 	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\fr"
     File /nonfatal /r "..\share\doc\kicad\help\fr\*"
   SectionEnd
-  Section -$(LANGUAGE_NAME_IT) SEC06_IT
+  Section $(LANGUAGE_NAME_IT) SEC06_IT
 	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\it"
     File /nonfatal /r "..\share\doc\kicad\help\it\*"
   SectionEnd
-  Section -$(LANGUAGE_NAME_JA) SEC06_JA
+  Section $(LANGUAGE_NAME_JA) SEC06_JA
 	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\ja"
     File /nonfatal /r "..\share\doc\kicad\help\ja\*"
   SectionEnd
-  Section -$(LANGUAGE_NAME_NL) SEC06_NL
+  Section $(LANGUAGE_NAME_NL) SEC06_NL
 	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\nl"
     File /nonfatal /r "..\share\doc\kicad\help\nl\*"
   SectionEnd
-  Section -$(LANGUAGE_NAME_PL) SEC06_PL
+  Section $(LANGUAGE_NAME_PL) SEC06_PL
 	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\pl"
     File /nonfatal /r "..\share\doc\kicad\help\pl\*"
   SectionEnd
-  Section -$(LANGUAGE_NAME_ZH) SEC06_ZH
+  Section $(LANGUAGE_NAME_ZH) SEC06_ZH
 	!insertmacro ExclusiveDetailPrint $(INSTALLING_DOCUMENTATION)
     SetOverwrite try
     SetOutPath "$INSTDIR\share\doc\kicad\help\zh"
@@ -574,9 +574,9 @@ Section $(TITLE_SEC_START_MENU) SEC08
 
   RMDir /r "${SMPATH}"
   CreateDirectory "${SMPATH}"
-  CreateShortCut "${SMPATH}\KiCad ${KICAD_VERSION}.lnk" "$INSTDIR\bin\kicad.exe"
+  CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_KICAD) ${KICAD_VERSION}.lnk" "$INSTDIR\bin\kicad.exe"
 
-  ShellLink::SetAppModelId "${SMPATH}\KiCad ${KICAD_VERSION}.lnk" "Kicad.Kicad.kicad.${KICAD_VERSION}"
+  ShellLink::SetAppModelId "${SMPATH}\$(SHORTCUT_NAME_KICAD) ${KICAD_VERSION}.lnk" "Kicad.Kicad.kicad.${KICAD_VERSION}"
 
   CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_EESCHEMA).lnk" "$INSTDIR\bin\eeschema.exe"
   CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_PCBNEW).lnk" "$INSTDIR\bin\pcbnew.exe"
@@ -585,12 +585,12 @@ Section $(TITLE_SEC_START_MENU) SEC08
   CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_PCBCALCULATOR).lnk" "$INSTDIR\bin\pcb_calculator.exe"
   CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_PLEDITOR).lnk" "$INSTDIR\bin\pl_editor.exe"
   CreateShortCut "${SMPATH}\$(SHORTCUT_NAME_CMD).lnk" "%comspec%" '/k "$INSTDIR\bin\kicad-cmd.bat"'
-
+  
 SectionEnd
 
-Section $(TITLE_SEC_DESKTOP_SHORTCUT) SEC09
+Section -CreateDesktopShortcut
   !insertmacro ExclusiveDetailPrint $(CREATING_SHORTCUTS)
-  CreateShortCut "$DESKTOP\KiCad ${KICAD_VERSION}.lnk" "$INSTDIR\bin\kicad.exe"
+  CreateShortCut "$DESKTOP\$(SHORTCUT_NAME_KICAD) ${KICAD_VERSION}.lnk" "$INSTDIR\bin\kicad.exe"
 SectionEnd
 
 Section -CreateAddRemoveEntry
@@ -606,13 +606,13 @@ Section -PostInstall
   ${Else}
   WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionSymbols" "0"
   ${EndIf}
-
+  
   ${If} ${SectionIsSelected} ${SEC03_FOOTPRINTS}
   WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionFootprints" "1"
   ${Else}
   WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionFootprints" "0"
   ${EndIf}
-
+  
   ${If} ${SectionIsSelected} ${SEC03_PACKAGES3D}
   WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "Section3DModels" "1"
   ${Else}
@@ -630,18 +630,13 @@ Section -PostInstall
   ${Else}
   WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionStartMenuShortcuts" "0"
   ${EndIf}
-
+  
   ${If} ${SectionIsSelected} ${SEC07}
   WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionFileAssoc" "1"
   ${Else}
   WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionFileAssoc" "0"
   ${EndIf}
 
-  ${If} ${SectionIsSelected} ${SEC09}
-  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionDesktopShortcut" "1"
-  ${Else}
-  WriteRegDWORD ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionDesktopShortcut" "0"
-  ${EndIf}
 SectionEnd
 
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
@@ -668,7 +663,6 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC06_ZH} $(DESC_SEC_DOCS_ZH)
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC07} $(DESC_SEC_FILE_ASSOC)
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC08} $(DESC_SEC_START_MENU)
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC09} $(DESC_SEC_DESKTOP_SHORTCUTS)
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 
@@ -715,21 +709,14 @@ Function .onInit
       !insertmacro UnselectSection ${SEC08}
     ${EndIf}
   ${EndIf}
-
-  ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionDesktopShortcut"
-  ${IfNot} ${Errors}
-    ${If} $1 = 0
-      !insertmacro UnselectSection ${SEC09}
-    ${EndIf}
-  ${EndIf}
-
+  
   ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionFileAssoc"
   ${IfNot} ${Errors}
     ${If} $1 = 0
       !insertmacro UnselectSection ${SEC07}
     ${EndIf}
   ${EndIf}
-
+  
   !ifndef LIBRARIES_TAG
   ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionSymbols"
   ${IfNot} ${Errors}
@@ -737,14 +724,14 @@ Function .onInit
       !insertmacro UnselectSection ${SEC03_SCHLIB}
     ${EndIf}
   ${EndIf}
-
+  
   ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "SectionFootprints"
   ${IfNot} ${Errors}
     ${If} $1 = 0
       !insertmacro UnselectSection ${SEC03_FOOTPRINTS}
     ${EndIf}
   ${EndIf}
-
+  
   ReadRegDWORD $1 ${UNINST_ROOT} "${PRODUCT_UNINST_KEY}" "Section3DModels"
   ${IfNot} ${Errors}
     ${If} $1 = 0
@@ -779,7 +766,7 @@ Var RunningAsShellUser ; uninstaller restarted itself under the user of the runn
 
 Function un.onInit
 	${GetParameters} $R0
-
+  
 	${GetOptions} $R0 "/uninstall" $R1
 	${ifnot} ${errors}
 		StrCpy $RunningFromInstaller 1
@@ -887,7 +874,7 @@ Section Uninstall
   RMDir /r "$INSTDIR\ssl"
   RMDir /r "$INSTDIR\share\locale"
   RMDir /r "$INSTDIR\etc"
-
+  
   !insertmacro ExclusiveDetailPrint $(REMOVING_LIBRARIES)
   RMDir /r "$INSTDIR\share\symbols"
   RMDir /r "$INSTDIR\share\footprints"
@@ -895,7 +882,7 @@ Section Uninstall
   RMDir /r "$INSTDIR\share\kicad\template"
   RMDir /r "$INSTDIR\share\kicad\internat"
   RMDir /r "$INSTDIR\share\kicad\demos"
-
+  
   !insertmacro ExclusiveDetailPrint $(REMOVING_DOCS)
   RMDir /r "$INSTDIR\share\doc\kicad\tutorials"
   RMDir /r "$INSTDIR\share\doc\kicad\help"
