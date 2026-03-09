@@ -1570,9 +1570,6 @@ function Start-Package-Nsis {
 
     Copy-Item $env:VCToolsRedistDir\x64\Microsoft.VC143.CRT\*.dll  -Destination $destBin
 
-    ## default
-    $redistVersion = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$env:VCToolsRedistDir\vc_redist.x64.exe")
-    $vcredistBuild = $redistVersion.FileBuildPart
     ## HACKFIX
     ## Last minute commit to 9.0 introduced path limit breaking file
     $badFile = Join-Path -Path $destRoot -ChildPath "share\kicad\demos\kit-dev-coldfire-xilinx_5213\kit-dev-coldfire.pretty\DSUB-9_Female_Horizontal_P2.77x2.84mm_EdgePinOffset7.70mm_Housed_MountingHolesOffset9.12mm.kicad_mod"
@@ -1626,7 +1623,6 @@ function Start-Package-Nsis {
             /DOUTFILE="..\..\$outFileName" `
             /DARCH="$nsisArch" `
             /DLIBRARIES_TAG="$libRefName" `
-            /DVCRUNTIME_MINIMUM_BLD="$vcredistBuild" `
             /DMSVC `
             "$nsisScript"
     }
@@ -1636,7 +1632,6 @@ function Start-Package-Nsis {
             /DKICAD_VERSION=$kicadVersion `
             /DOUTFILE="..\..\$outFileName" `
             /DARCH="$nsisArch" `
-            /DVCRUNTIME_MINIMUM_BLD="$vcredistBuild" `
             /DMSVC `
             "$nsisScript"
     }

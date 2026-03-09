@@ -311,40 +311,6 @@ Function onDirectoryPageLeave
   ${nsProcess::Unload}
 FunctionEnd
 
-!ifdef MSVC
-Section -Prerequisites
-!ifdef VCRUNTIME_MINIMUM_BLD
-  !if "${VCRUNTIME_MINIMUM_BLD}" != ""
-    !if ${ARCH} == 'x86_64'
-      ReadRegDword $R1 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Installed"
-      ReadRegDword $R2 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x64" "Bld"
-      !define VC_REDIST "VC_redist.x64.exe"
-    !else if ${ARCH} == 'arm64'
-      ReadRegDword $R1 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\ARM64" "Installed"
-      ReadRegDword $R2 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\ARM64" "Bld"
-      !define VC_REDIST "VC_redist.arm64.exe"
-    !else
-      ReadRegDword $R1 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x86" "Installed"
-      ReadRegDword $R2 HKLM "SOFTWARE\Wow6432Node\Microsoft\VisualStudio\14.0\VC\Runtimes\x86" "Bld"
-      !define VC_REDIST "VC_redist.x86.exe"
-    !endif
-
-    SetOutPath "$INSTDIR"
-
-    ${If} $R1 <> 1
-      ${OrIf} $R2 u< ${VCRUNTIME_MINIMUM_BLD}
-        File "vcredist\${VC_REDIST}"
-        ${If} ${Silent}
-        ExecWait '"$INSTDIR\${VC_REDIST}" /install /quiet /norestart'
-        ${Else}
-        ExecWait '"$INSTDIR\${VC_REDIST}" /install /passive /norestart'
-        ${EndIf}
-        Delete "$INSTDIR\${VC_REDIST}"
-    ${EndIf}
-  !endif
-!endif
-SectionEnd
-!endif
 
 Section $(TITLE_SEC_MAIN) SEC01
   SectionIn RO
