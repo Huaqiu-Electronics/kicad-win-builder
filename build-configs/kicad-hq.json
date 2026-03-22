@@ -9,7 +9,7 @@
     },
     "sources": {
         "kicad": {
-            "ref": "release/10.0"
+            "ref": "branch/release/10.0"
         },
         "symbols": {
             "ref": "tag/10.0.0"
