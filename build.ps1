@@ -1407,33 +1407,7 @@ function Start-Prepare-Package {
         if ($LastExitCode -ne 0) {
             Write-Error "Error installing mcp requirements"
             Exit [ExitCodes]::McpRequirements
-        }
-
-        # -------------------------------------------------------------------------
-        # uv sync for kicad-mcp-server (IMPORTANT)
-        # -------------------------------------------------------------------------
-        Write-Host "Running uv sync for kicad-mcp-server" -ForegroundColor Yellow
-
-        $uvExe = Join-Path -Path $destBin -ChildPath "uv.exe"
-        $pythonExe = Join-Path -Path $destBin -ChildPath "python.exe"
-        $mcpServerDir = $mcpServerDest
-
-        # Ensure venv is created inside the project (portable-friendly)
-        $env:UV_PROJECT_ENVIRONMENT = ".venv"
-
-        # Force uv to use bundled python
-        & $uvExe sync `
-            --directory $mcpServerDir `
-            --python $pythonExe
-
-        if ($LastExitCode -ne 0) {
-            Write-Error "uv sync failed for kicad-mcp-server"
-            Exit 1
-        }
-
-        Write-Host "uv sync completed for kicad-mcp-server" -ForegroundColor Green
-        # -------------------------------------------------------------------------
-
+        }        
     }
 
     ### patch python manifest
