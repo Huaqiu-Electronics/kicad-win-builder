@@ -30,10 +30,10 @@
             "ref": "bfc60abb24835c1177dd73cd09e05fcea5bb1984805dc053b7a61822ec8b8ff0"
         },
         "hqdfm": {
-            "ref": "KICAD-HQDFM-2.0.4"
+            "ref": "KICAD-HQDFM-2.0.7"
         },
         "hqdfm-sha256": {
-            "ref": "a318166f6e319b73d51465407595620544e8805ca5bd40ddb549ca839a018877"
+            "ref": "625868137090665cba613afea884f792d218033d6ab51057de7d4db6382b7fd5"
         },
         "search": {
             "ref": "KiCAD-HQSearch-1.0.2"
