@@ -1,17 +1,29 @@
 name: KiCAD client packaging
+
 on:
-  # # Github will remove the cache if not used in 7 days
-  # schedule:
-  #   - cron: "0 0 * * 0" # Sunday
-  #   - cron: "0 0 * * 3" # Wednesday
   release:
-    types:
-      - published
+    types: [published]
   workflow_dispatch:
 
 jobs:
+  # ------------------------------------------------------------
+  # Shared cache key generator (prevents race conditions)
+  # ------------------------------------------------------------
+  warm_cache:
+    runs-on: windows-2022
+    outputs:
+      cache-key: ${{ steps.set.outputs.cache_key }}
+    steps:
+      - id: set
+        run: echo "cache_key=package-downloaded-${{ github.run_id }}" >> $env:GITHUB_OUTPUT
+
+  # ------------------------------------------------------------
+  # FULL INSTALLER PACKAGE
+  # ------------------------------------------------------------
   create_full_package:
     runs-on: windows-2022
+    needs: warm_cache
+
     steps:
       - name: Get latest tag
         uses: oprypin/find-latest-tag@v1
@@ -23,45 +35,66 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Try load downloaded cache
-        uses: actions/cache@v3
+      # ---------------- CACHE (RESTORE) ----------------
+      - name: Restore downloaded cache
+        uses: actions/cache/restore@v4
         with:
-          key: package-downloaded
+          key: ${{ needs.warm_cache.outputs.cache-key }}
           restore-keys: |
-            package-downloaded
+            package-downloaded-
           path: |
             .downloads
             .support
-   
-      - name: Cache vcpkg
-        uses: actions/cache@v4
+
+      - name: Restore vcpkg cache
+        uses: actions/cache/restore@v4
         with:
           path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
           key: vcpkg-${{ runner.os }}
-          restore-keys: vcpkg-${{ runner.os }}
+          restore-keys: |
+            vcpkg-${{ runner.os }}-
 
+      # ---------------- BUILD ----------------
       - name: Configure
         run: ./build.ps1 -Config -UseMsvcCmake $False
 
-      - name: Checkout any required tools
+      - name: Init tools
         run: ./build.ps1 -Init
 
-      - name: Checkout any required tools, setup build environment variables
+      - name: Setup env
         run: ./build.ps1 -Env -Arch x64
 
-      - name: Rebuilds vcpkg dependencies
+      - name: Build vcpkg deps
         run: ./build.ps1 -Vcpkg -Latest -Arch x64
 
-      - name: Triggers a build
+      - name: Build
         run: ./build.ps1 -Build -Latest -Arch x64 -BuildType Release
 
-      - name: Triggers a package operation
-        run: ./build.ps1 -PreparePackage  -Arch x64 -BuildType Release
+      - name: Prepare package
+        run: ./build.ps1 -PreparePackage -Arch x64 -BuildType Release
 
-      - name: Triggers a package operation Nsis
-        run: ./build.ps1 -Package  -PackType Nsis -Arch x64   -BuildType Release -DebugSymbols
+      - name: Package (NSIS)
+        run: ./build.ps1 -Package -PackType Nsis -Arch x64 -BuildType Release -DebugSymbols
 
-      - name: Upload installer as asset to release
+      # ---------------- CACHE (SAVE) ----------------
+      - name: Save downloaded cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ needs.warm_cache.outputs.cache-key }}
+          path: |
+            .downloads
+            .support
+
+      - name: Save vcpkg cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          key: vcpkg-${{ runner.os }}
+          path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
+
+      # ---------------- UPLOAD ----------------
+      - name: Upload installer
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.HUAQIU_ELECTRONICS_TOKEN }}
@@ -70,7 +103,7 @@ jobs:
           overwrite: true
           tag: ${{ steps.latest-release.outputs.tag }}
 
-      - name: Upload pdbs as asset to release
+      - name: Upload pdbs
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.HUAQIU_ELECTRONICS_TOKEN }}
@@ -79,7 +112,7 @@ jobs:
           overwrite: true
           tag: ${{ steps.latest-release.outputs.tag }}
 
-      - name: Upload vcpkg pdbs as asset to release
+      - name: Upload vcpkg pdbs
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.HUAQIU_ELECTRONICS_TOKEN }}
@@ -88,8 +121,13 @@ jobs:
           overwrite: true
           tag: ${{ steps.latest-release.outputs.tag }}
 
+  # ------------------------------------------------------------
+  # PORTABLE PACKAGE
+  # ------------------------------------------------------------
   create_portable_package:
     runs-on: windows-2022
+    needs: warm_cache
+
     steps:
       - name: Get latest tag
         uses: oprypin/find-latest-tag@v1
@@ -101,46 +139,66 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Try load downloaded cache
-        uses: actions/cache@v3
+      # ---------------- CACHE (RESTORE) ----------------
+      - name: Restore downloaded cache
+        uses: actions/cache/restore@v4
         with:
-          key: package-downloaded
+          key: ${{ needs.warm_cache.outputs.cache-key }}
           restore-keys: |
-            package-downloaded
+            package-downloaded-
           path: |
             .downloads
             .support
-      
-      - name: Cache vcpkg
-        uses: actions/cache@v4
+
+      - name: Restore vcpkg cache
+        uses: actions/cache/restore@v4
         with:
           path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
           key: vcpkg-${{ runner.os }}
-          restore-keys: vcpkg-${{ runner.os }}
+          restore-keys: |
+            vcpkg-${{ runner.os }}-
 
-
+      # ---------------- BUILD ----------------
       - name: Configure
         run: ./build.ps1 -Config -UseMsvcCmake $False
 
-      - name: Checkout any required tools
+      - name: Init tools
         run: ./build.ps1 -Init
 
-      - name: Checkout any required tools, setup build environment variables
+      - name: Setup env
         run: ./build.ps1 -Env -Arch x64
 
-      - name: Rebuilds vcpkg dependencies
+      - name: Build vcpkg deps
         run: ./build.ps1 -Vcpkg -Latest -Arch x64
 
-      - name: Triggers a build
+      - name: Build (portable)
         run: ./build.ps1 -Build -Latest -Arch x64 -BuildType Release -Portable
 
-      - name: Triggers a package operation
-        run: ./build.ps1 -PreparePackage  -Arch x64 -BuildType Release -Portable
+      - name: Prepare package
+        run: ./build.ps1 -PreparePackage -Arch x64 -BuildType Release -Portable
 
-      - name: Triggers a package operation Zip
+      - name: Package (ZIP)
         run: ./build.ps1 -Package -Arch x64 -BuildType Release -Portable
 
-      - name: Upload portable zip as asset to release
+      # ---------------- CACHE (SAVE) ----------------
+      - name: Save downloaded cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          key: ${{ needs.warm_cache.outputs.cache-key }}
+          path: |
+            .downloads
+            .support
+
+      - name: Save vcpkg cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          key: vcpkg-${{ runner.os }}
+          path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
+
+      # ---------------- UPLOAD ----------------
+      - name: Upload portable zip
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.HUAQIU_ELECTRONICS_TOKEN }}
