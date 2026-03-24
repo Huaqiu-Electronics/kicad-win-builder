@@ -369,30 +369,10 @@ Section $(TITLE_SEC_MAIN) SEC01
   StrCpy $R0 "$INSTDIR\bin";
   System::Call '${SetEnvironmentVariable}("PYTHONHOME", "$R0").r0'
 
-  # Run pip install to upgrade pip
   nsExec::Exec '"$INSTDIR\bin\python.exe" -m pip install --upgrade --force-reinstall pip'
   Pop $0 # return value/error/timeout
   Pop $1 # printed text, up to ${NSIS_MAX_STRLEN}
   DetailPrint "$1"
-  
-  # Run `uv sync` after pip installation using the `python.exe` in the bin directory
-  DetailPrint "Running uv sync..."
-  nsExec::ExecWait '"$INSTDIR\bin\uv.exe" sync --directory "$INSTDIR\bin\kicad-mcp-server" --python "$INSTDIR\bin\python.exe"'
-  
-  # Check if `uv sync` failed but do not abort
-  IfErrors SyncFailed
-
-  DetailPrint "UV sync completed (or failed). Continuing installation..."
-
-  # Continue with the rest of the installation process...
-  # Your additional installation steps can go here...
-
-  Goto End
-
-SyncFailed:
-  DetailPrint "UV sync failed, but continuing installation."
-
-End:
 !endif
 
   SetOutPath "$INSTDIR\share\kicad\scripting\kicad_pyshell"
