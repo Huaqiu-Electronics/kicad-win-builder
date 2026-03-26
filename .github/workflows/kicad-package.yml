@@ -35,17 +35,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v3
 
-      # ---------------- CACHE (RESTORE) ----------------
-      - name: Restore downloaded cache
-        uses: actions/cache/restore@v4
-        with:
-          key: ${{ needs.warm_cache.outputs.cache-key }}
-          restore-keys: |
-            package-downloaded-
-          path: |
-            .downloads
-            .support
-
       - name: Restore vcpkg cache
         uses: actions/cache/restore@v4
         with:
@@ -138,17 +127,6 @@ jobs:
 
       - name: Checkout repo
         uses: actions/checkout@v3
-
-      # ---------------- CACHE (RESTORE) ----------------
-      - name: Restore downloaded cache
-        uses: actions/cache/restore@v4
-        with:
-          key: ${{ needs.warm_cache.outputs.cache-key }}
-          restore-keys: |
-            package-downloaded-
-          path: |
-            .downloads
-            .support
 
       - name: Restore vcpkg cache
         uses: actions/cache/restore@v4
