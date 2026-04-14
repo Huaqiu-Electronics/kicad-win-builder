@@ -1062,9 +1062,9 @@ $searchPluginName = (Get-Source-Ref -sourceKey "search")
 $searchDownload = "https://raw.githubusercontent.com/Huaqiu-Electronics/kicad-hqdfm-zip/refs/heads/master/$searchPluginName.zip"
 $searchChecksum = (Get-Source-Ref -sourceKey "search-sha256")
 
-$mcpClientRef = (Get-Source-Ref -sourceKey "kicad-mcp")
+$mcpClientRef = (Get-Source-Ref -sourceKey "kicad-mcp-client")
 $mcpClientBranch = $mcpClientRef -replace "branch/", ""
-$mcpClientDownload = "https://github.com/Huaqiu-Electronics/kicad-mcp/archive/refs/heads/$mcpClientBranch.zip"
+$mcpClientDownload = "https://github.com/Huaqiu-Electronics/kicad-mcp-client/archive/refs/heads/$mcpClientBranch.zip"
 
 $mcpServerRef = (Get-Source-Ref -sourceKey "kicad-mcp-server")
 $mcpServerBranch = $mcpServerRef -replace "branch/", ""
@@ -1137,12 +1137,12 @@ function Start-Prepare-Package {
 
     Install-Kicad -arch $arch -buildType $buildType
 
-    # kicad-mcp
-    $mcpClientRef = Get-Source-Ref -sourceKey "kicad-mcp"
+    # kicad-mcp-client
+    $mcpClientRef = Get-Source-Ref -sourceKey "kicad-mcp-client"
     if (-not $mcpClientRef) { $mcpClientRef = "branch/main" }
     
-    $mcpClientDest = Join-Path -Path $destBin -ChildPath "kicad-mcp"
-    Get-Source -url "https://github.com/Huaqiu-Electronics/kicad-mcp" `
+    $mcpClientDest = Join-Path -Path $destBin -ChildPath "kicad-mcp-client"
+    Get-Source -url "https://github.com/Huaqiu-Electronics/kicad-mcp-client" `
                -dest $mcpClientDest `
                -sourceType git `
                -latest $True `
