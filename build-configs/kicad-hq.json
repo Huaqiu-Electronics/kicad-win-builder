@@ -33,7 +33,7 @@
             "ref": "KICAD-HQDFM-2.0.9"
         },
         "hqdfm-sha256": {
-            "ref": "f0dc8a20314529e2233636c7c5773483c38f4e0e79e902fe9a62940862841fbd"
+            "ref": "ab564f5c7c5d547dcdf71fcec0b31eb0bce57c5e7882f92456c866bf010e8812"
         },
         "search": {
             "ref": "KiCAD-HQSearch-1.0.2"
@@ -44,7 +44,7 @@
         "kicad-mcp-client": {
             "ref": "branch/main"
         },
-        "kicad-mcp-server": {
+        "kicad-mcp": {
             "ref": "branch/main"
         }
     },

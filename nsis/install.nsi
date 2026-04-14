@@ -376,7 +376,7 @@ Section $(TITLE_SEC_MAIN) SEC01
 
   # uv sync
   DetailPrint "Running uv sync..."
-  nsExec::ExecToLog '"$INSTDIR\bin\uv.exe" sync --directory "$INSTDIR\bin\kicad-mcp-server" --python "$INSTDIR\bin\python.exe"'
+  nsExec::ExecToLog '"$INSTDIR\bin\uv.exe" sync --directory "$INSTDIR\bin\kicad-mcp" --python "$INSTDIR\bin\python.exe"'
 
   Pop $0
   Pop $1
