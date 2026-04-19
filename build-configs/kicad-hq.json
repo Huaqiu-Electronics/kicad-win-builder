@@ -43,6 +43,9 @@
         },
         "kicad-mcp-client": {
             "ref": "branch/main"
+        },
+        "kicad-mcp": {
+            "ref": "branch/main"
         }
     },
     "vcpkg": {

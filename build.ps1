@@ -1067,6 +1067,9 @@ $mcpClientRef = (Get-Source-Ref -sourceKey "kicad-mcp-client")
 $mcpClientBranch = $mcpClientRef -replace "branch/", ""
 $mcpClientDownload = "https://github.com/Huaqiu-Electronics/kicad-mcp-client/archive/refs/heads/$mcpClientBranch.zip"
 
+$mcpServerRef = (Get-Source-Ref -sourceKey "kicad-mcp")
+$mcpServerBranch = $mcpServerRef -replace "branch/", ""
+$mcpServerDownload = "https://github.com/Huaqiu-Electronics/kicad-mcp/archive/refs/heads/$mcpServerBranch.zip"
 
 function Start-Prepare-Package {
     [CmdletBinding()]
@@ -1149,6 +1152,21 @@ function Start-Prepare-Package {
     if( Test-Path (Join-Path $mcpClientDest ".git") ) {
         Remove-Item (Join-Path $mcpClientDest ".git") -Recurse -Force
     }
+
+    # kicad-mcp
+    $mcpServerRef = Get-Source-Ref -sourceKey "kicad-mcp"
+    if (-not $mcpServerRef) { $mcpServerRef = "branch/main" }
+
+    $mcpServerDest = Join-Path -Path $destBin -ChildPath "kicad-mcp"
+    Get-Source -url "https://github.com/Huaqiu-Electronics/kicad-mcp" `
+               -dest $mcpServerDest `
+               -sourceType git `
+               -latest $True `
+               -ref $mcpServerRef
+
+    if( Test-Path (Join-Path $mcpServerDest ".git") ) {
+        Remove-Item (Join-Path $mcpServerDest ".git") -Recurse -Force
+    }    
 
     $desthqPlugin = Join-Path -Path $destShare -ChildPath "kicad\resources\hqplugins\"
 

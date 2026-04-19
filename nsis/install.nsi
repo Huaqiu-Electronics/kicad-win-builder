@@ -373,6 +373,16 @@ Section $(TITLE_SEC_MAIN) SEC01
   Pop $0 # return value/error/timeout
   Pop $1 # printed text, up to ${NSIS_MAX_STRLEN}
   DetailPrint "$1"
+
+  # uv sync
+  DetailPrint "Running uv sync..."
+  nsExec::ExecToLog '"$INSTDIR\bin\uv.exe" sync --directory "$INSTDIR\bin\kicad-mcp" --python "$INSTDIR\bin\python.exe"'
+
+  Pop $0
+  Pop $1
+  DetailPrint "$1"
+
+  DetailPrint "UV sync completed (or failed). Continuing installation..."
 !endif
 
   SetOutPath "$INSTDIR\share\kicad\scripting\kicad_pyshell"
