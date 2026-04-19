@@ -874,7 +874,8 @@ function Build-Vcpkg {
         [bool]$latest = $True
     )
     
-
+    Set-MSVCEnvironment -Arch $arch -VersionMin $settings.VsVersionMin -VersionMax $settings.VsVersionMax
+    
     $vcpkgPath = $settings["VcpkgPath"]
     if( $vcpkgPath -eq "" ) {
         Write-Host "No vcpkg path provided" -ForegroundColor DarkYellow

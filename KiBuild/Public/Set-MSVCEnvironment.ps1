@@ -32,7 +32,7 @@ function Set-MSVCEnvironment() {
     $msvcHostArch = Get-MSVCArch -Arch $HostArch
 
     # prepare the arguments array with the arch info
-    $Arguments = @("-arch=$msvcArch") + @("-host_arch=$msvcHostArch") + $Arguments
+    $Arguments = @("-arch=$msvcArch") + @("-host_arch=$msvcHostArch") + @("-winsdk=10.0.22621.0") + $Arguments
 
     $installDir = vswhere -version "[$VersionMin,$VersionMax]" -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
 

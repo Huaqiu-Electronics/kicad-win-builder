@@ -7,22 +7,10 @@ on:
 
 jobs:
   # ------------------------------------------------------------
-  # Shared cache key generator (prevents race conditions)
-  # ------------------------------------------------------------
-  warm_cache:
-    runs-on: windows-2022
-    outputs:
-      cache-key: ${{ steps.set.outputs.cache_key }}
-    steps:
-      - id: set
-        run: echo "cache_key=package-downloaded-${{ github.run_id }}" >> $env:GITHUB_OUTPUT
-
-  # ------------------------------------------------------------
   # FULL INSTALLER PACKAGE
   # ------------------------------------------------------------
   create_full_package:
     runs-on: windows-2022
-    needs: warm_cache
 
     steps:
       - name: Get latest tag
@@ -39,7 +27,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
-          key: vcpkg-${{ runner.os }}
+          key: vcpkg-${{ runner.os }}-${{ github.run_id }}
           restore-keys: |
             vcpkg-${{ runner.os }}-
 
@@ -66,20 +54,12 @@ jobs:
         run: ./build.ps1 -Package -PackType Nsis -Arch x64 -BuildType Release -DebugSymbols
 
       # ---------------- CACHE (SAVE) ----------------
-      - name: Save downloaded cache
-        if: always()
-        uses: actions/cache/save@v4
-        with:
-          key: ${{ needs.warm_cache.outputs.cache-key }}
-          path: |
-            .downloads
-            .support
 
       - name: Save vcpkg cache
         if: always()
         uses: actions/cache/save@v4
         with:
-          key: vcpkg-${{ runner.os }}
+          key: vcpkg-${{ runner.os }}-${{ github.run_id }}
           path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
 
       # ---------------- UPLOAD ----------------
@@ -115,7 +95,6 @@ jobs:
   # ------------------------------------------------------------
   create_portable_package:
     runs-on: windows-2022
-    needs: warm_cache
 
     steps:
       - name: Get latest tag
@@ -132,7 +111,7 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
-          key: vcpkg-${{ runner.os }}
+          key: vcpkg-${{ runner.os }}-${{ github.run_id }}
           restore-keys: |
             vcpkg-${{ runner.os }}-
 
@@ -159,20 +138,12 @@ jobs:
         run: ./build.ps1 -Package -Arch x64 -BuildType Release -Portable
 
       # ---------------- CACHE (SAVE) ----------------
-      - name: Save downloaded cache
-        if: always()
-        uses: actions/cache/save@v4
-        with:
-          key: ${{ needs.warm_cache.outputs.cache-key }}
-          path: |
-            .downloads
-            .support
 
       - name: Save vcpkg cache
         if: always()
         uses: actions/cache/save@v4
         with:
-          key: vcpkg-${{ runner.os }}
+          key: vcpkg-${{ runner.os }}-${{ github.run_id }}
           path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
 
       # ---------------- UPLOAD ----------------
