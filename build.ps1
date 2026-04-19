@@ -1154,6 +1154,7 @@ function Start-Prepare-Package {
     }
 
     # kicad-mcp
+    # NOTE: we'd ship the uv.lock file so that cn users can install from the mirror of the deps , while uvx kicad-mcp will not apply to the uv.lock file
     $mcpServerRef = Get-Source-Ref -sourceKey "kicad-mcp"
     if (-not $mcpServerRef) { $mcpServerRef = "branch/main" }
 
