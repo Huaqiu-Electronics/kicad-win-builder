@@ -1,7 +1,7 @@
 {
-    "name:": "KiCad Huaqiu 10.0.2 ",
+    "name:": "KiCad Huaqiu 10.0.3 ",
     "output_prefix": "kicad-huaqiu-",
-    "package_version": "10.0.2",
+    "package_version": "10.0.3",
     "train": "stable",
     "build_mode": "Release",
     "nsis": {
@@ -12,22 +12,16 @@
             "ref": "branch/release/10.0"
         },
         "symbols": {
-            "ref": "tag/10.0.2"
+            "ref": "tag/10.0.3"
         },
         "footprints": {
-            "ref": "tag/10.0.2"
+            "ref": "tag/10.0.3"
         },
         "3dmodels": {
-            "ref": "tag/10.0.2"
+            "ref": "tag/10.0.3"
         },
         "templates": {
-            "ref": "tag/10.0.2"
-        },
-        "hqpcb": {
-            "ref": "KiCAD-HQPCB-2.0.8"
-        },
-        "hqpcb-sha256": {
-            "ref": "bfc60abb24835c1177dd73cd09e05fcea5bb1984805dc053b7a61822ec8b8ff0"
+            "ref": "tag/10.0.3"
         },
         "hqdfm": {
             "ref": "KICAD-HQDFM-2.0.9"

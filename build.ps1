@@ -1051,10 +1051,6 @@ function Sign-File {
 }
 
 
-$hqpcbPluginName = (Get-Source-Ref -sourceKey "hqpcb")
-$hqpcbDownload = "https://raw.githubusercontent.com/Huaqiu-Electronics/kicad-hqpcb-zip/refs/heads/master/$hqpcbPluginName.zip"
-$hqpcbChecksum = (Get-Source-Ref -sourceKey "hqpcb-sha256")
-
 $hqdfmPluginName = (Get-Source-Ref -sourceKey "hqdfm")
 $hqdfmDownload = "https://raw.githubusercontent.com/Huaqiu-Electronics/kicad-hqdfm-zip/refs/heads/master/$hqdfmPluginName.zip"
 $hqdfmChecksum = (Get-Source-Ref -sourceKey "hqdfm-sha256")
@@ -1178,14 +1174,6 @@ function Start-Prepare-Package {
         Write-Host "Destination directory $desthqPlugin does not exist. Creating it..."
         New-Item -ItemType "directory" -Path $desthqPlugin -Force
     }
-
-    Get-Tool -ToolName "HQPCB" `
-             -Url $hqpcbDownload `
-             -DestPath (Join-Path -Path $desthqPlugin -ChildPath "$hqpcbPluginName.zip") `
-             -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "$hqpcbPluginName.zip") `
-             -Checksum $hqpcbChecksum `
-             -ExtractZip $False `
-             -ExtractInSupportRoot $False
 
     Get-Tool -ToolName "HQDFM" `
              -Url $hqdfmDownload `
