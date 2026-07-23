@@ -1,7 +1,7 @@
 {
-    "name:": "KiCad Huaqiu 10.0.4 ",
+    "name:": "KiCad Huaqiu 10.0.5 ",
     "output_prefix": "kicad-huaqiu-",
-    "package_version": "10.0.4",
+    "package_version": "10.0.5",
     "train": "stable",
     "build_mode": "Release",
     "nsis": {
@@ -12,16 +12,16 @@
             "ref": "branch/release/10.0"
         },
         "symbols": {
-            "ref": "tag/10.0.4"
+            "ref": "tag/10.0.5"
         },
         "footprints": {
-            "ref": "tag/10.0.4"
+            "ref": "tag/10.0.5"
         },
         "3dmodels": {
-            "ref": "tag/10.0.4"
+            "ref": "tag/10.0.5"
         },
         "templates": {
-            "ref": "tag/10.0.4"
+            "ref": "tag/10.0.5"
         },
         "hqdfm": {
             "ref": "KICAD-HQDFM-2.0.9"
