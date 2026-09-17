@@ -62,6 +62,17 @@
 !define PROGEXE "bin/kicad.exe"     ; used by the plugin
 !define VERSION "${PACKAGE_VERSION}" ; used by the plugin
 
+; HQ Edge / DSH CLI integration
+; The edge-headless runtime is staged/installed beside kicad.exe
+; ($INSTDIR\bin\edge-headless) and a stable `dsh` shim is placed outside the
+; versioned install dir (see support\dsh.cmd for the resolution contract).
+!define EDGE_HEADLESS_REL "bin\edge-headless"
+!define EDGE_HEADLESS_BIN_REL "${EDGE_HEADLESS_REL}\bin"
+!define DSH_REG_KEY "SOFTWARE\KiCad\DSH"
+!define DSH_REG_VALUE "EdgeHeadlessBin"
+!define DSH_SHIM_DIR_ALLUSERS "$COMMONFILES64\KiCad\bin"
+!define DSH_SHIM_DIR_CURRENTUSER "$LOCALAPPDATA\KiCad\bin"
+
 !define FILE_ASSOC_PREFIX	"KiCad"
 !define SOFTWARE_CLASSES_ROOT_KEY 'SHCTX'
 
@@ -204,6 +215,177 @@ VIAddVersionKey "FileVersion" "${PACKAGE_VERSION}"
 ;--------------------------------
 
 !define SetEnvironmentVariable "Kernel32::SetEnvironmentVariable(t, t)i"
+
+
+;=============================================================================
+; PATH helpers for the stable DSH shim directory
+;=============================================================================
+; SHCTX is set by the NsisMultiUser plugin and resolves to HKLM for
+; machine-wide installs and HKCU for per-user installs (in both the installer
+; and the uninstaller), matching how the rest of this script registers itself.
+!include "StrFunc.nsh"
+${StrStr}
+
+; ${AddPathEntry} "<dir>"
+; Adds <dir> to the PATH of the current install scope (HKLM or HKCU per SHCTX)
+; if not already present. The existing PATH is never rewritten when <dir> is
+; already listed (no duplicates on upgrade/reinstall) and unrelated entries
+; are left untouched.
+!macro _AddPathEntry Dir
+  Push "${Dir}"
+  Call AddPathEntryImpl
+!macroend
+!define AddPathEntry `!insertmacro _AddPathEntry`
+
+Function AddPathEntryImpl
+  Pop $0          ; Dir
+  Push $2         ; environment registry key
+  Push $3         ; current PATH
+  Push $4         ; haystack copy
+  Push $5         ; needle
+  Push $6         ; search result
+
+  ${If} $MultiUser.InstallMode == "AllUsers"
+    StrCpy $2 "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
+  ${Else}
+    StrCpy $2 "Environment"
+  ${EndIf}
+
+  ReadRegStr $3 SHCTX "$2" "Path"
+  ${If} $3 == ""
+    WriteRegExpandStr SHCTX "$2" "Path" "$0"
+    Goto AddPathEntryImpl_Done
+  ${EndIf}
+
+  ; Membership check: is "<dir>;" already present in "<PATH>;"?
+  StrCpy $4 "$3;"
+  StrCpy $5 "$0;"
+  ${StrStr} $6 $4 $5
+  ${If} $6 != ""
+    Goto AddPathEntryImpl_Done
+  ${EndIf}
+
+  ; Append
+  StrCpy $4 "$3;$0"
+  WriteRegExpandStr SHCTX "$2" "Path" "$4"
+
+AddPathEntryImpl_Done:
+  Pop $6
+  Pop $5
+  Pop $4
+  Pop $3
+  Pop $2
+  Pop $0
+FunctionEnd
+
+; ${RemovePathEntry} "<dir>"     -> installer
+; ${un.RemovePathEntry} "<dir>"  -> uninstaller
+; Removes <dir> (and its trailing separator) from the PATH of the current
+; install scope (HKLM or HKCU per SHCTX). Leaves all unrelated entries
+; untouched.
+!macro _RemovePathEntry Dir
+  Push "${Dir}"
+  Call RemovePathEntryImpl
+!macroend
+!define RemovePathEntry `!insertmacro _RemovePathEntry`
+
+!macro _unRemovePathEntry Dir
+  Push "${Dir}"
+  Call un.RemovePathEntryImpl
+!macroend
+!define un.RemovePathEntry `!insertmacro _unRemovePathEntry`
+
+; Shared function body, instantiated for the installer (UN="") and for the
+; uninstaller (UN="un."). Uses only plain instructions so it is portable
+; between the two.
+!macro RemovePathEntryFunc UN
+Function ${UN}RemovePathEntryImpl
+  Pop $0          ; Dir
+  Push $2         ; environment registry key
+  Push $3         ; remaining input
+  Push $4         ; result
+  Push $5         ; scratch: char
+  Push $6         ; scratch: token
+  Push $7         ; scratch: total length
+  Push $8         ; scratch: scan index
+  Push $9         ; scratch: position
+
+  ${If} $MultiUser.InstallMode == "AllUsers"
+    StrCpy $2 "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
+  ${Else}
+    StrCpy $2 "Environment"
+  ${EndIf}
+
+  ReadRegStr $3 SHCTX "$2" "Path"
+  ${If} $3 == ""
+    Goto RemovePathEntryImpl_Done
+  ${EndIf}
+
+  StrCpy $4 ""   ; rebuilt PATH
+  ${Do}
+    ${If} $3 == ""
+      ${ExitDo}
+    ${EndIf}
+
+    ; Locate the first ';' separator (if any) by scanning
+    StrLen $7 $3
+    StrCpy $8 0
+    ${Do}
+      ${If} $8 >= $7
+        ; No separator: the remainder is the final token
+        StrCpy $6 $3
+        StrCpy $3 ""
+        ${ExitDo}
+      ${EndIf}
+      StrCpy $5 $3 1 $8
+      ${If} $5 == ";"
+        ; Token = chars before the separator; remaining starts after it
+        StrCpy $6 $3 $8
+        IntOp $9 $8 + 1
+        StrCpy $3 $3 "" $9
+        ${ExitDo}
+      ${EndIf}
+      IntOp $8 $8 + 1
+    ${Loop}
+
+    ; Keep the token unless it is the entry being removed
+    ${If} $6 != $0
+      StrCpy $4 "$4$6;"
+    ${EndIf}
+  ${Loop}
+
+  ; Trim trailing ';' (keep the stored PATH tidy)
+  ${Do}
+    ${If} $4 == ""
+      ${ExitDo}
+    ${EndIf}
+    StrCpy $7 $4 1 -1
+    ${If} $7 != ";"
+      ${ExitDo}
+    ${EndIf}
+    StrCpy $4 $4 -1
+  ${Loop}
+
+  ${If} $4 == ""
+    DeleteRegValue SHCTX "$2" "Path"
+  ${Else}
+    WriteRegExpandStr SHCTX "$2" "Path" "$4"
+  ${EndIf}
+
+RemovePathEntryImpl_Done:
+  Pop $9
+  Pop $8
+  Pop $7
+  Pop $6
+  Pop $5
+  Pop $4
+  Pop $3
+  Pop $2
+  Pop $0
+FunctionEnd
+!macroend
+!insertmacro RemovePathEntryFunc ""
+!insertmacro RemovePathEntryFunc "un."
 
 
 ; This handles skipping the welcome/license pages when UAC escalates to the inner installer
@@ -569,6 +751,36 @@ Section -CreateDesktopShortcut
   CreateShortCut "$DESKTOP\$(SHORTCUT_NAME_KICAD) ${KICAD_VERSION}.lnk" "$INSTDIR\bin\kicad.exe"
 SectionEnd
 
+; Installs the stable `dsh` CLI shim (outside the versioned install dir) and
+; registers it on PATH. The actual edge-headless runtime stays inside the
+; KiCad installation ($INSTDIR\bin\edge-headless) and is resolved by the shim
+; via the DSH_REG_KEY registry value written below ("last install wins").
+Section -InstallDshShim
+  !insertmacro ExclusiveDetailPrint $(INSTALLING_DSH_CLI)
+
+  ; Select the stable shim location for this install mode (registry scope is
+  ; handled via SHCTX below)
+  ${If} $MultiUser.InstallMode == "AllUsers"
+    StrCpy $R5 "${DSH_SHIM_DIR_ALLUSERS}"
+  ${Else}
+    StrCpy $R5 "${DSH_SHIM_DIR_CURRENTUSER}"
+  ${EndIf}
+
+  ; Install the shim into the stable public location
+  CreateDirectory "$R5"
+  SetOutPath "$R5"
+  File "support\dsh.cmd"
+
+  ; Record which installed runtime the shim must resolve
+  WriteRegStr SHCTX "${DSH_REG_KEY}" "${DSH_REG_VALUE}" "$INSTDIR\${EDGE_HEADLESS_BIN_REL}"
+
+  ; Register the shim directory on PATH (machine-wide for AllUsers via SHCTX)
+  ${AddPathEntry} "$R5"
+
+  ; Notify the shell of the environment change
+  SendMessage ${HWND_BROADCAST} ${WM_SETTINGCHANGE} 0 "STR:Environment" /TIMEOUT=5000
+SectionEnd
+
 Section -CreateAddRemoveEntry
 	SetOutPath $INSTDIR
   WriteUninstaller "${UNINSTALL_FILENAME}"
@@ -869,6 +1081,55 @@ Section Uninstall
   ;c:\program files as this would attempt to delete a lot more than just this package
   Delete "$INSTDIR\*.txt"
   RMDir "$INSTDIR"
+
+  ; --------- HQ Edge / DSH CLI cleanup ---------
+  ; The shim directory + PATH entry are shared across KiCad versions: only
+  ; remove them when no other installed KiCad version still bundles an
+  ; edge-headless runtime.
+  !insertmacro ExclusiveDetailPrint $(REMOVING_DSH_CLI)
+
+  StrCpy $R0 "0" ; 1 = another KiCad install still has an edge-headless runtime
+  ${If} $MultiUser.InstallMode == "AllUsers"
+    StrCpy $R4 "$PROGRAMFILES64\KiCad"
+  ${Else}
+    StrCpy $R4 "$LOCALAPPDATA\Programs\KiCad"
+  ${EndIf}
+
+  FindFirst $R1 $R2 "$R4\*"
+  ${DoWhile} $R2 != ""
+    ${If} ${FileExists} "$R4\$R2\bin\edge-headless\bin\dsh.cmd"
+    ${AndIf} "$R4\$R2" != "$INSTDIR"
+      StrCpy $R0 "1"
+      ${Break}
+    ${EndIf}
+    FindNext $R1 $R2
+  ${Loop}
+  FindClose $R1
+
+  ; Remove the runtime pointer only when it points at this installation
+  ReadRegStr $R3 SHCTX "${DSH_REG_KEY}" "${DSH_REG_VALUE}"
+  ${If} $R3 == "$INSTDIR\${EDGE_HEADLESS_BIN_REL}"
+    DeleteRegValue SHCTX "${DSH_REG_KEY}" "${DSH_REG_VALUE}"
+  ${EndIf}
+
+  ; Shared shim file, directory and PATH entry: keep them while another
+  ; KiCad version still needs them, remove them otherwise.
+  ${If} $R0 == "0"
+    ${If} $MultiUser.InstallMode == "AllUsers"
+      Delete "${DSH_SHIM_DIR_ALLUSERS}\dsh.cmd"
+      RMDir "${DSH_SHIM_DIR_ALLUSERS}"
+      RMDir "$COMMONFILES64\KiCad"
+      ${un.RemovePathEntry} "${DSH_SHIM_DIR_ALLUSERS}"
+    ${Else}
+      Delete "${DSH_SHIM_DIR_CURRENTUSER}\dsh.cmd"
+      RMDir "${DSH_SHIM_DIR_CURRENTUSER}"
+      RMDir "$LOCALAPPDATA\KiCad"
+      ${un.RemovePathEntry} "${DSH_SHIM_DIR_CURRENTUSER}"
+    ${EndIf}
+
+    ; Notify the shell of the environment change
+    SendMessage ${HWND_BROADCAST} ${WM_SETTINGCHANGE} 0 "STR:Environment" /TIMEOUT=5000
+  ${EndIf}
 
   ;remove file association only if it was installed
   ClearErrors

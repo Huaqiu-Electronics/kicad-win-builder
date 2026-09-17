@@ -119,6 +119,8 @@ LangString REMOVING_LIBRARIES ${LANG_GREEK} "Removing libraries..."
 LangString REMOVING_DOCS ${LANG_GREEK} "Removing documentation..."
 LangString REMOVING_ENV_VARS ${LANG_GREEK} "Removing environment variables..."
 LangString REMOVING_FILE_ASSOC ${LANG_GREEK} "Removing file associations..."
+LangString INSTALLING_DSH_CLI ${LANG_GREEK} "Εγκατάσταση εργαλείου γραμμής εντολών DSH..."
+LangString REMOVING_DSH_CLI ${LANG_GREEK} "Κατάργηση εργαλείου γραμμής εντολών DSH..."
 
 LangString UNINSTALL_OPTIONS_TITLE ${LANG_GREEK} "Uninstall Options"
 LangString UNINSTALL_OPTIONS_SUBTITLE ${LANG_GREEK} "Additional options for a uninstall"

@@ -35,6 +35,12 @@
         "search-sha256": {
             "ref": "2b660bf97fafdf25f32a89c3c3d664cc615559fb994a03fbfa146966b5799e45"
         },
+        "edge-headless": {
+            "ref": "0.1.3"
+        },
+        "edge-headless-sha256": {
+            "ref": "e8436850f40466bc8f1117b6682ad10834fd8ac5d26b1b37ebd2595faa18ba98"
+        },
         "kicad-mcp-client": {
             "ref": "branch/main"
         },

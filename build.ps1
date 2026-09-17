@@ -1059,6 +1059,14 @@ $searchPluginName = (Get-Source-Ref -sourceKey "search")
 $searchDownload = "https://raw.githubusercontent.com/Huaqiu-Electronics/kicad-hqdfm-zip/refs/heads/master/$searchPluginName.zip"
 $searchChecksum = (Get-Source-Ref -sourceKey "search-sha256")
 
+# edge-headless (HQ Edge runtime): pinned release artifact, bundled beside kicad.exe.
+# Version + SHA-256 live in build-configs (kicad-hq.json -> sources.edge-headless*);
+# the asset name is fixed by the upstream release layout.
+$edgeHeadlessVersion = (Get-Source-Ref -sourceKey "edge-headless")
+$edgeHeadlessAsset = "edge-headless-win-x64.zip"
+$edgeHeadlessDownload = "https://github.com/Huaqiu-Electronics/edge-headless/releases/download/$edgeHeadlessVersion/$edgeHeadlessAsset"
+$edgeHeadlessChecksum = (Get-Source-Ref -sourceKey "edge-headless-sha256")
+
 $mcpClientRef = (Get-Source-Ref -sourceKey "kicad-mcp-client")
 $mcpClientBranch = $mcpClientRef -replace "branch/", ""
 $mcpClientDownload = "https://github.com/Huaqiu-Electronics/kicad-mcp-client/archive/refs/heads/$mcpClientBranch.zip"
@@ -1250,6 +1258,58 @@ function Start-Prepare-Package {
     }
     Remove-Item $uvTempDir -Recurse -Force
     Write-Host "uv installed successfully" -ForegroundColor Green
+    # -------------------------------------------------------------------------
+
+    # -------------------------------------------------------------------------
+    # Install edge-headless (HQ Edge runtime) beside kicad.exe
+    # -------------------------------------------------------------------------
+    # The HQ_EDGE_LAUNCHER resolves edge-headless relative to the kicad.exe
+    # directory, so the staged layout must be exactly:
+    #   <kicad.exe dir>\edge-headless\bin\node.exe
+    #   <kicad.exe dir>\edge-headless\bin\hq-edge-server.cjs
+    #   <kicad.exe dir>\edge-headless\bin\dsh.cmd
+    Write-Host "Installing edge-headless $edgeHeadlessVersion..." -ForegroundColor Yellow
+
+    $edgeHeadlessZipPath = Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath $edgeHeadlessAsset
+
+    Get-Tool -ToolName "edge-headless" `
+             -Url $edgeHeadlessDownload `
+             -DestPath $edgeHeadlessZipPath `
+             -DownloadPath $edgeHeadlessZipPath `
+             -Checksum $edgeHeadlessChecksum `
+             -ExtractZip $False
+
+    $edgeHeadlessTempDir = Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "edge-headless-temp"
+    if (Test-Path $edgeHeadlessTempDir) { Remove-Item $edgeHeadlessTempDir -Recurse -Force }
+
+    # Extract using 7za (same path as bun/uv above)
+    & 7za x $edgeHeadlessZipPath -o"$edgeHeadlessTempDir" -y > $null
+    if ($LastExitCode -ne 0) {
+        Write-Error "Failed to extract edge-headless"
+        Exit [ExitCodes]::ExtractionFailure
+    }
+
+    # The release ZIP root contains a single `edge-headless/` folder
+    $edgeHeadlessZipRoot = Join-Path -Path $edgeHeadlessTempDir -ChildPath "edge-headless"
+    if( -not (Test-Path $edgeHeadlessZipRoot) ) {
+        Write-Error "edge-headless ZIP does not contain the expected edge-headless/ root folder"
+        Exit [ExitCodes]::ExtractionFailure
+    }
+
+    $edgeHeadlessDest = Join-Path -Path $destBin -ChildPath "edge-headless"
+    if( Test-Path $edgeHeadlessDest ) { Remove-Item $edgeHeadlessDest -Recurse -Force }
+    Move-Item -Path $edgeHeadlessZipRoot -Destination $edgeHeadlessDest
+    Remove-Item $edgeHeadlessTempDir -Recurse -Force
+
+    # Integrity gate: never ship a partially extracted runtime
+    foreach( $edgeHeadlessRequiredFile in @("bin\node.exe", "bin\hq-edge-server.cjs", "bin\dsh.cmd") ) {
+        if( -not (Test-Path (Join-Path $edgeHeadlessDest $edgeHeadlessRequiredFile)) ) {
+            Write-Error "edge-headless staging is missing expected file: $edgeHeadlessRequiredFile"
+            Exit [ExitCodes]::ExtractionFailure
+        }
+    }
+
+    Write-Host "edge-headless $edgeHeadlessVersion installed successfully" -ForegroundColor Green
     # -------------------------------------------------------------------------
 
 

@@ -119,6 +119,8 @@ LangString REMOVING_LIBRARIES ${LANG_ENGLISH} "Removing libraries..."
 LangString REMOVING_DOCS ${LANG_ENGLISH} "Removing documentation..."
 LangString REMOVING_ENV_VARS ${LANG_ENGLISH} "Removing environment variables..."
 LangString REMOVING_FILE_ASSOC ${LANG_ENGLISH} "Removing file associations..."
+LangString INSTALLING_DSH_CLI ${LANG_ENGLISH} "Installing DSH command line tool..."
+LangString REMOVING_DSH_CLI ${LANG_ENGLISH} "Removing DSH command line tool..."
 
 LangString UNINSTALL_OPTIONS_TITLE ${LANG_ENGLISH} "Uninstall Options"
 LangString UNINSTALL_OPTIONS_SUBTITLE ${LANG_ENGLISH} "Additional options for a uninstall"
