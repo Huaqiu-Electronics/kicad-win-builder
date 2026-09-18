@@ -28,11 +28,12 @@
 1. `Get-Tool` 下载到 `$BuilderPaths.DownloadsRoot\edge-headless-win-x64.zip`（`-ExtractZip $False`，由本块自行解压）；
 2. `7za x` 解压到 `$BuilderPaths.DownloadsRoot\edge-headless-temp\`；
 3. 校验 ZIP 根为单一 `edge-headless\` 目录；
-4. `Move-Item` 到 `$destBin\edge-headless`（即 `<stage>\bin\edge-headless`）；
-5. 删除临时目录；
-6. 完整性校验：`bin\node.exe`、`bin\hq-edge-server.cjs`、`bin\dsh.cmd` 任一缺失 → `Exit [ExitCodes]::ExtractionFailure`。
+4. **剔除 DSH 用户数据缓存 `dsh\.dsh`**（上游资产自带：约 3 万个 node_modules 文件、约 205MB，含机器专属 `.credentials.yaml` 与 >260 字符的深层路径；CLI 首次运行会自动重建，绝不能随安装器下发。删除走 `Remove-Item`，失败则回退 `\\?\` 扩展路径前缀删除，兼容未开启长路径策略的机器）；
+5. `Move-Item` 到 `$destBin\edge-headless`（即 `<stage>\bin\edge-headless`）；
+6. 删除临时目录；
+7. 完整性校验：`bin\node.exe`、`bin\hq-edge-server.cjs`、`bin\dsh.cmd` 任一缺失 → `Exit [ExitCodes]::ExtractionFailure`。
 
-staging 树随后整体交给 NSIS 编译（NSIS 以 `<stage>\nsis` 为 cwd、`File "..\bin\..."` 相对引用，与现有其它运行时一致）。
+staging 树随后整体交给 NSIS 编译（NSIS 以 `<stage>\nsis` 为 cwd、`File "..\bin\..."` 相对引用，与现有其它运行时一致）。剔除 `.dsh` 后剩余最长路径在 CI 深度下实测 250 字符（<260），NSIS 3.08 可完整打包；`kicad-package.yml` 仍在 NSIS 打包前开启 `LongPathsEnabled`（CI runner 默认关闭，作为深度余量与未来资产变动的保险）。
 
 ## 安装位置（NSIS `install.nsi`）
 
@@ -89,6 +90,6 @@ shim 不硬编码任何版本号；回退语义为“最新安装的版本优先
 
 ## 未做（有意保持）
 
-- 未修改 `.github/workflows/kicad-package.yml`（CI 已调用同一 `build.ps1 -PreparePackage`，下载归属 build.ps1，无需第二处下载步骤）。
+- `.github/workflows/kicad-package.yml` 仅新增一步在打包前开启 `LongPathsEnabled`（CI runner 默认关闭；不是第二处下载，下载仍只归属 build.ps1）。
 - 未修改 `HQ_EDGE_LAUNCHER` 契约。
 - 未把 `edge-headless\bin` 加入 PATH；未用 `latest`；未用 npm。

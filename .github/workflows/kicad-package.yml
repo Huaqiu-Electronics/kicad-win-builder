@@ -47,6 +47,12 @@ jobs:
       - name: Build
         run: ./build.ps1 -Build -Latest -Arch x64 -BuildType Release
 
+      # The edge-headless release tree contains node_modules paths >260 chars
+      # under the CI stage root; enable the OS long-path policy before staging
+      # (PreparePackage strips the per-user .dsh cache) and NSIS compilation.
+      - name: Enable Windows long paths
+        run: Set-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' -Name LongPathsEnabled -Value 1
+
       - name: Prepare package
         run: ./build.ps1 -PreparePackage -Arch x64 -BuildType Release
 

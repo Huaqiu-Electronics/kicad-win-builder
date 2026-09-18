@@ -1296,6 +1296,25 @@ function Start-Prepare-Package {
         Exit [ExitCodes]::ExtractionFailure
     }
 
+    # Drop the DSH per-user profile cache (dsh/.dsh). The upstream release asset
+    # bundles a machine-specific profile: tens of thousands of node_modules
+    # files with >260-char paths (which NSIS cannot package under the stage
+    # root) plus a .credentials.yaml. It is recreated by the CLI on first use
+    # and must never be shipped to end users. (Targeted path, no recursive
+    # scan: the tree itself contains >260-char paths.)
+    $edgeHeadlessDshCache = Join-Path -Path $edgeHeadlessZipRoot -ChildPath "dsh\.dsh"
+    if( Test-Path $edgeHeadlessDshCache ) {
+        Write-Host "Removing edge-headless per-user cache: $edgeHeadlessDshCache"
+        try {
+            Remove-Item $edgeHeadlessDshCache -Recurse -Force -ErrorAction Stop
+        } catch {
+            # Some files inside the cache exceed MAX_PATH; bypass the length
+            # limit via the extended-path prefix (works with or without the
+            # LongPathsEnabled OS policy).
+            [System.IO.Directory]::Delete("\\?\" + $edgeHeadlessDshCache, $true)
+        }
+    }
+
     $edgeHeadlessDest = Join-Path -Path $destBin -ChildPath "edge-headless"
     if( Test-Path $edgeHeadlessDest ) { Remove-Item $edgeHeadlessDest -Recurse -Force }
     Move-Item -Path $edgeHeadlessZipRoot -Destination $edgeHeadlessDest
