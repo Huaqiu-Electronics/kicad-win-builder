@@ -220,17 +220,16 @@ VIAddVersionKey "FileVersion" "${PACKAGE_VERSION}"
 ;=============================================================================
 ; PATH helpers for the stable DSH shim directory
 ;=============================================================================
-; SHCTX is set by the NsisMultiUser plugin and resolves to HKLM for
-; machine-wide installs and HKCU for per-user installs (in both the installer
-; and the uninstaller), matching how the rest of this script registers itself.
-!include "StrFunc.nsh"
-${StrStr}
+; The machine/user PATH routinely exceeds NSIS's 1024-char string buffer:
+; ReadRegStr on an over-long value returns EMPTY, and a subsequent
+; WriteRegExpandStr would silently wipe the whole PATH. The read-modify-write
+; is therefore delegated to support\path.ps1 (PowerShell registry API, no such
+; limit) which preserves every entry, the value kind (REG_EXPAND_SZ) and
+; %VAR% references, and is idempotent.
 
 ; ${AddPathEntry} "<dir>"
-; Adds <dir> to the PATH of the current install scope (HKLM or HKCU per SHCTX)
-; if not already present. The existing PATH is never rewritten when <dir> is
-; already listed (no duplicates on upgrade/reinstall) and unrelated entries
-; are left untouched.
+; Adds <dir> to the PATH of the current install scope (HKLM for AllUsers,
+; HKCU for CurrentUser) if not already present.
 !macro _AddPathEntry Dir
   Push "${Dir}"
   Call AddPathEntryImpl
@@ -239,50 +238,37 @@ ${StrStr}
 
 Function AddPathEntryImpl
   Pop $0          ; Dir
-  Push $2         ; environment registry key
-  Push $3         ; current PATH
-  Push $4         ; haystack copy
-  Push $5         ; needle
-  Push $6         ; search result
+  Push $1         ; scope string (HKLM/HKCU)
+  Push $2         ; nsExec exit code
+  Push $3         ; command line
 
   ${If} $MultiUser.InstallMode == "AllUsers"
-    StrCpy $2 "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
+    StrCpy $1 "HKLM"
   ${Else}
-    StrCpy $2 "Environment"
+    StrCpy $1 "HKCU"
   ${EndIf}
 
-  ReadRegStr $3 SHCTX "$2" "Path"
-  ${If} $3 == ""
-    WriteRegExpandStr SHCTX "$2" "Path" "$0"
-    Goto AddPathEntryImpl_Done
+  InitPluginsDir
+  SetOutPath "$PLUGINSDIR"
+  File "support\path.ps1"
+
+  StrCpy $3 `"$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -File "$PLUGINSDIR\path.ps1" -Action Add -Dir "$0" -Scope "$1"`
+  nsExec::ExecToLog $3
+  Pop $2
+  ${If} $2 != "0"
+    DetailPrint "WARNING: could not add $0 to PATH (exit code $2); the dsh CLI will not be on PATH"
   ${EndIf}
 
-  ; Membership check: is "<dir>;" already present in "<PATH>;"?
-  StrCpy $4 "$3;"
-  StrCpy $5 "$0;"
-  ${StrStr} $6 $4 $5
-  ${If} $6 != ""
-    Goto AddPathEntryImpl_Done
-  ${EndIf}
-
-  ; Append
-  StrCpy $4 "$3;$0"
-  WriteRegExpandStr SHCTX "$2" "Path" "$4"
-
-AddPathEntryImpl_Done:
-  Pop $6
-  Pop $5
-  Pop $4
   Pop $3
   Pop $2
+  Pop $1
   Pop $0
 FunctionEnd
 
 ; ${RemovePathEntry} "<dir>"     -> installer
 ; ${un.RemovePathEntry} "<dir>"  -> uninstaller
-; Removes <dir> (and its trailing separator) from the PATH of the current
-; install scope (HKLM or HKCU per SHCTX). Leaves all unrelated entries
-; untouched.
+; Removes <dir> from the PATH of the current install scope (HKLM for AllUsers,
+; HKCU for CurrentUser). Leaves all unrelated entries untouched.
 !macro _RemovePathEntry Dir
   Push "${Dir}"
   Call RemovePathEntryImpl
@@ -296,91 +282,34 @@ FunctionEnd
 !define un.RemovePathEntry `!insertmacro _unRemovePathEntry`
 
 ; Shared function body, instantiated for the installer (UN="") and for the
-; uninstaller (UN="un."). Uses only plain instructions so it is portable
-; between the two.
+; uninstaller (UN="un.").
 !macro RemovePathEntryFunc UN
 Function ${UN}RemovePathEntryImpl
   Pop $0          ; Dir
-  Push $2         ; environment registry key
-  Push $3         ; remaining input
-  Push $4         ; result
-  Push $5         ; scratch: char
-  Push $6         ; scratch: token
-  Push $7         ; scratch: total length
-  Push $8         ; scratch: scan index
-  Push $9         ; scratch: position
+  Push $1         ; scope string (HKLM/HKCU)
+  Push $2         ; nsExec exit code
+  Push $3         ; command line
 
   ${If} $MultiUser.InstallMode == "AllUsers"
-    StrCpy $2 "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"
+    StrCpy $1 "HKLM"
   ${Else}
-    StrCpy $2 "Environment"
+    StrCpy $1 "HKCU"
   ${EndIf}
 
-  ReadRegStr $3 SHCTX "$2" "Path"
-  ${If} $3 == ""
-    Goto RemovePathEntryImpl_Done
+  InitPluginsDir
+  SetOutPath "$PLUGINSDIR"
+  File "support\path.ps1"
+
+  StrCpy $3 `"$SYSDIR\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -ExecutionPolicy Bypass -File "$PLUGINSDIR\path.ps1" -Action Remove -Dir "$0" -Scope "$1"`
+  nsExec::ExecToLog $3
+  Pop $2
+  ${If} $2 != "0"
+    DetailPrint "WARNING: could not remove $0 from PATH (exit code $2)"
   ${EndIf}
 
-  StrCpy $4 ""   ; rebuilt PATH
-  ${Do}
-    ${If} $3 == ""
-      ${ExitDo}
-    ${EndIf}
-
-    ; Locate the first ';' separator (if any) by scanning
-    StrLen $7 $3
-    StrCpy $8 0
-    ${Do}
-      ${If} $8 >= $7
-        ; No separator: the remainder is the final token
-        StrCpy $6 $3
-        StrCpy $3 ""
-        ${ExitDo}
-      ${EndIf}
-      StrCpy $5 $3 1 $8
-      ${If} $5 == ";"
-        ; Token = chars before the separator; remaining starts after it
-        StrCpy $6 $3 $8
-        IntOp $9 $8 + 1
-        StrCpy $3 $3 "" $9
-        ${ExitDo}
-      ${EndIf}
-      IntOp $8 $8 + 1
-    ${Loop}
-
-    ; Keep the token unless it is the entry being removed
-    ${If} $6 != $0
-      StrCpy $4 "$4$6;"
-    ${EndIf}
-  ${Loop}
-
-  ; Trim trailing ';' (keep the stored PATH tidy)
-  ${Do}
-    ${If} $4 == ""
-      ${ExitDo}
-    ${EndIf}
-    StrCpy $7 $4 1 -1
-    ${If} $7 != ";"
-      ${ExitDo}
-    ${EndIf}
-    StrCpy $4 $4 -1
-  ${Loop}
-
-  ${If} $4 == ""
-    DeleteRegValue SHCTX "$2" "Path"
-  ${Else}
-    WriteRegExpandStr SHCTX "$2" "Path" "$4"
-  ${EndIf}
-
-RemovePathEntryImpl_Done:
-  Pop $9
-  Pop $8
-  Pop $7
-  Pop $6
-  Pop $5
-  Pop $4
   Pop $3
   Pop $2
+  Pop $1
   Pop $0
 FunctionEnd
 !macroend

@@ -60,9 +60,13 @@ shim 不硬编码任何版本号；回退语义为“最新安装的版本优先
 ## PATH 作用域与幂等性
 
 - 加入 PATH 的是 **shim 目录**（`$COMMONFILES64\KiCad\bin` 或 `$LOCALAPPDATA\KiCad\bin`），**不是** `edge-headless\bin`。
-- AllUsers 写 `SYSTEM\CurrentControlSet\Control\Session Manager\Environment`（REG_EXPAND_SZ，原文读写，`%SystemRoot%` 等不被展开）；CurrentUser 写 `HKCU\Environment`。
-- 安装：先判重（`${StrStr}` 检查 `<dir>;` 是否已在 `<PATH>;` 中），不重复追加。
-- 卸载：纯指令手写扫描删除该 token，不碰无关条目，收尾去尾分号；PATH 为空则 `DeleteRegValue`。
+- AllUsers 写 `HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment`，CurrentUser 写 `HKCU\Environment`。
+- **不在 NSIS 内读写 PATH**：NSIS 3.08 的运行时字符串缓冲为 1024 字符，`ReadRegStr` 读超过 1024 字符的 PATH 返回**空串**，随后一次 `WriteRegExpandStr` 会把整条 PATH 覆写成只剩新增目录（AllUsers 安装即触发，本机 HKLM PATH 1519 字符可复现）。PATH 增删全部委托给随安装器打包的 `nsis\support\path.ps1`，经 `nsExec::ExecToLog` 调用 PowerShell（.NET 注册表 API，无长度限制）：
+  - 读值用 `DoNotExpandEnvironmentNames`，`%SystemRoot%` 等引用原样保留不展开；
+  - 保留原值类型（REG_EXPAND_SZ 保持 EXPAND_SZ、REG_SZ 保持 String），新建值默认 EXPAND_SZ；
+  - 大小写不敏感判重 / 删除（`-ieq` / `-ine`），条目文本原样保留；
+  - Add 幂等（已存在则不改写）；Remove 删空后 `DeleteValue`，否则重写剩余条目；
+  - 出错向 stderr 打印并以非零退出；NSIS 侧只打 WARNING，不中断安装。
 - 增删后均 `SendMessage HWND_BROADCAST WM_SETTINGCHANGE` 通知环境刷新。
 - 重复安装幂等：PATH 只出现一次。
 
@@ -85,7 +89,8 @@ shim 不硬编码任何版本号；回退语义为“最新安装的版本优先
 - ZIP 结构：单一根 `edge-headless\`；`bin\` 含 `node.exe`（≈93.5MB）、`hq-edge-server.cjs`（≈3.25MB）、`dsh.cmd`（162B）、`dsh-cli.cjs`（≈17.9KB）、`dsh`（POSIX 启动器，非 Windows 入口）。
 - 真实链路：shim → 注册表 `EdgeHeadlessBin` → `dsh --help` 完整输出、`--version` = `0.1.5-rc.2`、exit 0。
 - 回退扫描：无注册表 / 注册表指向失效路径时，均按最新目录正确回退。
-- PATH 增删往返字节一致；重复 add 幂等。
+- PATH 修复端到端验证（真实安装器 + 卸载器二进制）：临时把 HKCU PATH 注入为 1519 字符（同本机 HKLM 实测长度，复现 AllUsers 故障画像）后静默安装 `/S /CurrentUser` → PATH 变为 1559 字符、前缀逐字节一致、shim 目录正确追加；静默卸载 `/S /currentuser` → PATH 恢复 1519 字符逐字节一致、值类型保留；HKLM PATH 全程未动；`path.ps1` 已随安装器与卸载器各自打入 `$PLUGINSDIR`（7z 解包验证）。
+- `path.ps1` 独立测试：长 PATH 增删往返逐字节一致；REG_SZ / EXPAND_SZ 保类；`%VAR%` 不展开；空值 Add → 只剩目标目录、Remove → 删除值；缺键 exit 1；大小写幂等。
 - 卸载扫描循环：实测终止（迭代含 `.`/`..`，均无害）；检测到其它版本含运行时即 `R0=1`；排除 `$INSTDIR` 自身正确。
 
 ## 未做（有意保持）
