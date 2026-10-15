@@ -1,6 +1,8 @@
 name: KiCAD client packaging
 
 on:
+  release:
+    types: [published]
   workflow_dispatch:
 
 jobs:
