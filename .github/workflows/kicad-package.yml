@@ -1,9 +1,10 @@
 name: KiCAD client packaging
 
 on:
-  release:
-    types: [published]
   workflow_dispatch:
+  schedule:
+    # Keep the vcpkg cache alive every 5 days.
+    - cron: "17 3 */5 * *"
 
 jobs:
   # ------------------------------------------------------------
