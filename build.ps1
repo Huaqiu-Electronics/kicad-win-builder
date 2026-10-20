@@ -1638,6 +1638,25 @@ function Start-Package-Nsis {
         Remove-Item -Path $badFile
     }
 
+    ## HACKFIX
+    ## makensis (NSIS) cannot open files whose absolute path exceeds its internal
+    ## path buffer (~250 chars), even below the 260 MAX_PATH limit. The staged
+    ## edge-headless runtime ships node_modules with very long DevTools doc
+    ## filenames (e.g. dsh-experimental-inspector/.../descriptions/*.md). 7-Zip
+    ## (used by the portable package) tolerates them; makensis aborts on the first
+    ## one (observed: "File: failed opening file ... -- aborting creation process").
+    ## Prune any such file from the staged output so the installer build succeeds.
+    ## $file.FullName is exactly the absolute path makensis will try to open.
+    ## Walking $destRoot (not just bin) also guards lib/etc/share against future
+    ## over-long files. Only the full-installer path runs this; portable (7-Zip)
+    ## is unaffected.
+    $nsisTooLongFiles = Get-ChildItem -Path $destRoot -Recurse -File -ErrorAction SilentlyContinue |
+        Where-Object { $_.FullName.Length -gt 240 }
+    foreach( $nsisBadFile in $nsisTooLongFiles ) {
+        Write-Host ("Removing NSIS-incompatible over-long path ({0} chars): {1}" -f $nsisBadFile.FullName.Length, $nsisBadFile.FullName)
+        Remove-Item -LiteralPath $nsisBadFile.FullName -Force
+    }
+
 
     ## Run NSIS
     $nsisScript = Join-Path -Path $destRoot -ChildPath "nsis\$($buildConfig.nsis.file)"
