@@ -1067,6 +1067,15 @@ $edgeHeadlessAsset = "edge-headless-win-x64.zip"
 $edgeHeadlessDownload = "https://github.com/Huaqiu-Electronics/edge-headless/releases/download/$edgeHeadlessVersion/$edgeHeadlessAsset"
 $edgeHeadlessChecksum = (Get-Source-Ref -sourceKey "edge-headless-sha256")
 
+# freerouting (HQ Freerouting integration): pinned release artifact, placed
+# directly in the kicad bin directory beside kicad.exe.
+# Version + SHA-256 live in build-configs (kicad-hq.json -> sources.freerouting*);
+# the asset name is fixed by the upstream release layout.
+$freeroutingVersion = (Get-Source-Ref -sourceKey "freerouting")
+$freeroutingAsset = "freerouting.exe"
+$freeroutingDownload = "https://github.com/Huaqiu-Electronics/dsh-tool-freerouting/releases/download/$freeroutingVersion/$freeroutingAsset"
+$freeroutingChecksum = (Get-Source-Ref -sourceKey "freerouting-sha256")
+
 $mcpClientRef = (Get-Source-Ref -sourceKey "kicad-mcp-client")
 $mcpClientBranch = $mcpClientRef -replace "branch/", ""
 $mcpClientDownload = "https://github.com/Huaqiu-Electronics/kicad-mcp-client/archive/refs/heads/$mcpClientBranch.zip"
@@ -1329,6 +1338,34 @@ function Start-Prepare-Package {
     }
 
     Write-Host "edge-headless $edgeHeadlessVersion installed successfully" -ForegroundColor Green
+    # -------------------------------------------------------------------------
+
+    # -------------------------------------------------------------------------
+    # Install freerouting (HQ Freerouting integration) beside kicad.exe
+    # -------------------------------------------------------------------------
+    # The standalone freerouting.exe is placed directly in the kicad bin
+    # directory (e.g. ...\bin\freerouting.exe), next to kicad.exe and
+    # edge-headless, matching the expected layout
+    # C:\code\kicad-hq-dev\build\out\bin\freerouting.exe after install.
+    Write-Host "Installing freerouting $freeroutingVersion..." -ForegroundColor Yellow
+
+    $freeroutingDownloadPath = Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath $freeroutingAsset
+    $freeroutingDest = Join-Path -Path $destBin -ChildPath $freeroutingAsset
+
+    Get-Tool -ToolName "freerouting" `
+             -Url $freeroutingDownload `
+             -DestPath $freeroutingDest `
+             -DownloadPath $freeroutingDownloadPath `
+             -Checksum $freeroutingChecksum `
+             -ExtractZip $False
+
+    # Integrity gate: never ship a partially downloaded tool
+    if( -not (Test-Path $freeroutingDest) ) {
+        Write-Error "freerouting staging is missing expected file: $freeroutingDest"
+        Exit [ExitCodes]::ExtractionFailure
+    }
+
+    Write-Host "freerouting $freeroutingVersion installed successfully" -ForegroundColor Green
     # -------------------------------------------------------------------------
 
 

@@ -41,6 +41,12 @@
         "edge-headless-sha256": {
             "ref": "3c9029edec37a54827ce0ff306e8174f2b833872cc0169d86039602b5e95dc45"
         },
+        "freerouting": {
+            "ref": "0.0.1"
+        },
+        "freerouting-sha256": {
+            "ref": "20371fc2069a771a4769c13a821822e68309233ed8de264dcf4ac7e41c943723"
+        },
         "kicad-mcp-client": {
             "ref": "branch/main"
         },
