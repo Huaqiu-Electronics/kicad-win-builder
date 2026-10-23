@@ -57,6 +57,34 @@ jobs:
       - name: Prepare package
         run: ./build.ps1 -PreparePackage -Arch x64 -BuildType Release
 
+      # KiCad upstream does not publish the latest Python SDK to PyPI, so the
+      # kicad-python package is intentionally NOT listed in
+      # support/extrarequirements.txt. Instead, install the kicad-python wheel
+      # generated from the latest KiCad source (Huaqiu build) into the bundled
+      # Python staged by PreparePackage at .out/x64-windows-Release/bin/.
+      - name: Install kicad-python SDK wheel
+        shell: pwsh
+        run: |
+          $wheelUrl    = 'https://github.com/Huaqiu-Electronics/kicad-python/releases/download/10.0.7/kicad_python.whl'
+          $expectedHash = 'db09d735e65735aac92805d2f5cc7662acc50a6f14322e4dbdd448e82087dcd3'
+          $wheelPath    = Join-Path $env:RUNNER_TEMP 'kicad_python.whl'
+          $pythonBin    = '.\.out\x64-windows-Release\bin\python.exe'
+
+          if (-not (Test-Path -LiteralPath $pythonBin)) {
+            Write-Error "Bundled Python not found: $pythonBin"
+            exit 1
+          }
+
+          Invoke-WebRequest -Uri $wheelUrl -OutFile $wheelPath
+          $actualHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $wheelPath).Hash.ToLower()
+          if ($actualHash -ne $expectedHash) {
+            Write-Error "kicad_python.whl checksum mismatch. Expected $expectedHash, got $actualHash"
+            exit 1
+          }
+
+          & $pythonBin -m pip install $wheelPath
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
       - name: Package (NSIS)
         run: ./build.ps1 -Package -PackType Nsis -Arch x64 -BuildType Release -DebugSymbols
 
@@ -140,6 +168,32 @@ jobs:
 
       - name: Prepare package
         run: ./build.ps1 -PreparePackage -Arch x64 -BuildType Release -Portable
+
+      # Install the kicad-python SDK wheel (generated from the latest KiCad
+      # source, not published on PyPI) into the bundled Python staged by
+      # PreparePackage at .out/x64-windows-Release/bin/.
+      - name: Install kicad-python SDK wheel
+        shell: pwsh
+        run: |
+          $wheelUrl    = 'https://github.com/Huaqiu-Electronics/kicad-python/releases/download/10.0.7/kicad_python.whl'
+          $expectedHash = 'db09d735e65735aac92805d2f5cc7662acc50a6f14322e4dbdd448e82087dcd3'
+          $wheelPath    = Join-Path $env:RUNNER_TEMP 'kicad_python.whl'
+          $pythonBin    = '.\.out\x64-windows-Release\bin\python.exe'
+
+          if (-not (Test-Path -LiteralPath $pythonBin)) {
+            Write-Error "Bundled Python not found: $pythonBin"
+            exit 1
+          }
+
+          Invoke-WebRequest -Uri $wheelUrl -OutFile $wheelPath
+          $actualHash = (Get-FileHash -Algorithm SHA256 -LiteralPath $wheelPath).Hash.ToLower()
+          if ($actualHash -ne $expectedHash) {
+            Write-Error "kicad_python.whl checksum mismatch. Expected $expectedHash, got $actualHash"
+            exit 1
+          }
+
+          & $pythonBin -m pip install $wheelPath
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Package (ZIP)
         run: ./build.ps1 -Package -Arch x64 -BuildType Release -Portable
