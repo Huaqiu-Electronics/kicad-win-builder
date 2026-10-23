@@ -23,17 +23,11 @@
         "templates": {
             "ref": "tag/10.0.7"
         },
-        "hqdfm": {
-            "ref": "KICAD-HQDFM-2.0.9"
+        "dfm": {
+            "ref": "2.0.0"
         },
-        "hqdfm-sha256": {
-            "ref": "ab564f5c7c5d547dcdf71fcec0b31eb0bce57c5e7882f92456c866bf010e8812"
-        },
-        "search": {
-            "ref": "KiCAD-HQSearch-1.0.2"
-        },
-        "search-sha256": {
-            "ref": "2b660bf97fafdf25f32a89c3c3d664cc615559fb994a03fbfa146966b5799e45"
+        "dfm-sha256": {
+            "ref": "6f8e12760e88ac51bd51ada47e3f5939fc37d5eb19124d660c13a940464b1c0b"
         },
         "edge-headless": {
             "ref": "0.3.11"

@@ -1051,13 +1051,13 @@ function Sign-File {
 }
 
 
-$hqdfmPluginName = (Get-Source-Ref -sourceKey "hqdfm")
-$hqdfmDownload = "https://raw.githubusercontent.com/Huaqiu-Electronics/kicad-hqdfm-zip/refs/heads/master/$hqdfmPluginName.zip"
-$hqdfmChecksum = (Get-Source-Ref -sourceKey "hqdfm-sha256")
-
-$searchPluginName = (Get-Source-Ref -sourceKey "search")
-$searchDownload = "https://raw.githubusercontent.com/Huaqiu-Electronics/kicad-hqdfm-zip/refs/heads/master/$searchPluginName.zip"
-$searchChecksum = (Get-Source-Ref -sourceKey "search-sha256")
+# HQ DFM plugin (kicad-hqdfm-plugin): pinned release asset, bundled as zip into hqplugins.
+# Version + SHA-256 live in build-configs (kicad-hq.json -> sources.dfm*);
+# the asset name is fixed by the upstream release layout.
+$dfmPluginVersion = (Get-Source-Ref -sourceKey "dfm")
+$dfmPluginAsset = "HQ_DFM_kicad_plugin.zip"
+$dfmDownload = "https://github.com/Huaqiu-Electronics/kicad-hqdfm-plugin/releases/download/$dfmPluginVersion/$dfmPluginAsset"
+$dfmChecksum = (Get-Source-Ref -sourceKey "dfm-sha256")
 
 # edge-headless (HQ Edge runtime): pinned release artifact, bundled beside kicad.exe.
 # Version + SHA-256 live in build-configs (kicad-hq.json -> sources.edge-headless*);
@@ -1192,20 +1192,11 @@ function Start-Prepare-Package {
         New-Item -ItemType "directory" -Path $desthqPlugin -Force
     }
 
-    Get-Tool -ToolName "HQDFM" `
-             -Url $hqdfmDownload `
-             -DestPath (Join-Path -Path $desthqPlugin -ChildPath "$hqdfmPluginName.zip") `
-             -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "$hqdfmPluginName.zip") `
-             -Checksum $hqdfmChecksum `
-             -ExtractZip $False `
-             -ExtractInSupportRoot $False
-
-
-    Get-Tool -ToolName "SEARCH" `
-             -Url $searchDownload `
-             -DestPath (Join-Path -Path $desthqPlugin -ChildPath "$searchPluginName.zip") `
-             -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath "$searchluginName.zip") `
-             -Checksum $searchChecksum `
+    Get-Tool -ToolName "DFM" `
+             -Url $dfmDownload `
+             -DestPath (Join-Path -Path $desthqPlugin -ChildPath $dfmPluginAsset) `
+             -DownloadPath (Join-Path -Path $BuilderPaths.DownloadsRoot -ChildPath $dfmPluginAsset) `
+             -Checksum $dfmChecksum `
              -ExtractZip $False `
              -ExtractInSupportRoot $False
 

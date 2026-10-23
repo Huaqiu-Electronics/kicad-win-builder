@@ -38,17 +38,11 @@ const gen_config = (version, branch = "release/9.0") => (`{
         "hqpcb-sha256": {
             "ref": "bfc60abb24835c1177dd73cd09e05fcea5bb1984805dc053b7a61822ec8b8ff0"
         },
-        "hqdfm": {
-            "ref": "KICAD-HQDFM-2.0.4"
+        "dfm": {
+            "ref": "2.0.0"
         },
-        "hqdfm-sha256": {
-            "ref": "a318166f6e319b73d51465407595620544e8805ca5bd40ddb549ca839a018877"
-        },
-        "search": {
-            "ref": "KiCAD-HQSearch-1.0.2"
-        },
-        "search-sha256": {
-            "ref": "2b660bf97fafdf25f32a89c3c3d664cc615559fb994a03fbfa146966b5799e45"
+        "dfm-sha256": {
+            "ref": "6f8e12760e88ac51bd51ada47e3f5939fc37d5eb19124d660c13a940464b1c0b"
         }
     },
     "vcpkg": {
