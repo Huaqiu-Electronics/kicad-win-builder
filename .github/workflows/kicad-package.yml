@@ -42,8 +42,31 @@ jobs:
       - name: Setup env
         run: ./build.ps1 -Env -Arch x64
 
+      - name: Inspect restored vcpkg binary cache
+        shell: pwsh
+        run: |
+          $cachePath = 'C:\Users\runneradmin\AppData\Local\vcpkg\archives'
+          if (-not (Test-Path -LiteralPath $cachePath)) {
+            Write-Host "vcpkg binary cache directory does not exist: $cachePath"
+            exit 0
+          }
+
+          $archives = @(Get-ChildItem -LiteralPath $cachePath -Recurse -File -ErrorAction SilentlyContinue)
+          $totalBytes = ($archives | Measure-Object -Property Length -Sum).Sum
+          if ($null -eq $totalBytes) { $totalBytes = 0 }
+          Write-Host ("Restored vcpkg cache: {0} archive files, {1:N2} GiB" -f $archives.Count, ($totalBytes / 1GB))
+
       - name: Build vcpkg deps
         run: ./build.ps1 -Vcpkg -Latest -Arch x64
+
+      # Save only from the full-installer job, immediately after vcpkg succeeds.
+      # This avoids cache-save races and partial caches from cancelled builds.
+      - name: Save vcpkg cache
+        if: success()
+        uses: actions/cache/save@v4
+        with:
+          key: vcpkg-${{ runner.os }}-${{ github.run_id }}
+          path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
 
       - name: Build
         run: ./build.ps1 -Build -Latest -Arch x64 -BuildType Release
@@ -87,15 +110,6 @@ jobs:
 
       - name: Package (NSIS)
         run: ./build.ps1 -Package -PackType Nsis -Arch x64 -BuildType Release -DebugSymbols
-
-      # ---------------- CACHE (SAVE) ----------------
-
-      - name: Save vcpkg cache
-        if: always()
-        uses: actions/cache/save@v4
-        with:
-          key: vcpkg-${{ runner.os }}-${{ github.run_id }}
-          path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
 
       # ---------------- UPLOAD ----------------
       - name: Upload installer
@@ -197,15 +211,6 @@ jobs:
 
       - name: Package (ZIP)
         run: ./build.ps1 -Package -Arch x64 -BuildType Release -Portable
-
-      # ---------------- CACHE (SAVE) ----------------
-
-      - name: Save vcpkg cache
-        if: always()
-        uses: actions/cache/save@v4
-        with:
-          key: vcpkg-${{ runner.os }}-${{ github.run_id }}
-          path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
 
       # ---------------- UPLOAD ----------------
       - name: Upload portable zip
