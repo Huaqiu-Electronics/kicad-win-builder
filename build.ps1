@@ -918,8 +918,16 @@ function Build-Vcpkg {
             git reset --hard origin/kicad
         }
     }
-    Write-Host "start git pull vcpkg port"
-    git pull
+    if ($buildConfig.vcpkg.manifest_mode) {
+        # Manifest mode intentionally pins the vcpkg source tree to $vcpkgCommit.
+        # Pulling after git reset --hard would fast-forward master and invalidate
+        # binary-cache ABIs whenever upstream ports change.
+        Write-Host "Keeping vcpkg at pinned commit $vcpkgCommit; skipping git pull"
+    } else {
+        Write-Host "Updating vcpkg kicad port branch"
+        git pull
+    }
+    Write-Host "Using vcpkg commit: $(git rev-parse HEAD)"
     .\bootstrap-vcpkg.bat
     Set-Aliases
     & vcpkg upgrade
