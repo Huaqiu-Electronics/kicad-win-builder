@@ -30,10 +30,10 @@
             "ref": "6f8e12760e88ac51bd51ada47e3f5939fc37d5eb19124d660c13a940464b1c0b"
         },
         "edge-headless": {
-            "ref": "0.3.16"
+            "ref": "0.3.17"
         },
         "edge-headless-sha256": {
-            "ref": "94fde739b5287b9a62a216d3c8122d26e2f88178e70ebf76c97997fd087c7051"
+            "ref": "2e55ae8bdb5977f44b8b692701867f40a124cba0b3f787d7cabfb666ebbdfbbb"
         },
         "freerouting": {
             "ref": "0.0.1"
