@@ -109,7 +109,10 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Package (NSIS)
-        run: ./build.ps1 -Package -PackType Nsis -Arch x64 -BuildType Release -DebugSymbols
+        # -Prepare:$False prevents packaging from re-running Start-Prepare-Package,
+        # which would re-copy the bundled Python over the staged directory and drop
+        # the kicad-python SDK wheel installed in the step above.
+        run: ./build.ps1 -Package -PackType Nsis -Arch x64 -BuildType Release -DebugSymbols -Prepare:$False
 
       # ---------------- UPLOAD ----------------
       - name: Upload installer
@@ -210,7 +213,10 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Package (ZIP)
-        run: ./build.ps1 -Package -Arch x64 -BuildType Release -Portable
+        # -Prepare:$False prevents packaging from re-running Start-Prepare-Package,
+        # which would re-copy the bundled Python over the staged directory and drop
+        # the kicad-python SDK wheel installed in the step above.
+        run: ./build.ps1 -Package -Arch x64 -BuildType Release -Portable -Prepare:$False
 
       # ---------------- UPLOAD ----------------
       - name: Upload portable zip
