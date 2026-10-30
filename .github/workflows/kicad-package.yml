@@ -42,35 +42,11 @@ jobs:
       - name: Setup env
         run: ./build.ps1 -Env -Arch x64
 
-      - name: Inspect restored vcpkg binary cache
-        shell: pwsh
-        run: |
-          $cachePath = 'C:\Users\runneradmin\AppData\Local\vcpkg\archives'
-          if (-not (Test-Path -LiteralPath $cachePath)) {
-            Write-Host "vcpkg binary cache directory does not exist: $cachePath"
-            exit 0
-          }
-
-          $archives = @(Get-ChildItem -LiteralPath $cachePath -Recurse -File -ErrorAction SilentlyContinue)
-          $totalBytes = ($archives | Measure-Object -Property Length -Sum).Sum
-          if ($null -eq $totalBytes) { $totalBytes = 0 }
-          Write-Host ("Restored vcpkg cache: {0} archive files, {1:N2} GiB" -f $archives.Count, ($totalBytes / 1GB))
-
-      # In manifest mode this bootstraps/pins vcpkg; CMake installs the actual dependencies.
       - name: Prepare vcpkg
         run: ./build.ps1 -Vcpkg -Latest -Arch x64
 
       - name: Build
         run: ./build.ps1 -Build -Latest -Arch x64 -BuildType Release
-
-      # Save after the KiCad CMake configure has performed the vcpkg manifest install.
-      # Keep this in the full-installer job only to avoid concurrent cache-save races.
-      - name: Save vcpkg cache
-        if: success()
-        uses: actions/cache/save@v4
-        with:
-          key: vcpkg-${{ runner.os }}-${{ github.run_id }}
-          path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
 
       # The edge-headless release tree contains node_modules paths >260 chars
       # under the CI stage root; enable the OS long-path policy before staging
@@ -110,10 +86,16 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Package (NSIS)
-        # -Prepare:$False prevents packaging from re-running Start-Prepare-Package,
-        # which would re-copy the bundled Python over the staged directory and drop
-        # the kicad-python SDK wheel installed in the step above.
         run: ./build.ps1 -Package -PackType Nsis -Arch x64 -BuildType Release -DebugSymbols -Prepare:$False
+
+      # ---------------- CACHE (SAVE) ----------------
+
+      - name: Save vcpkg cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          key: vcpkg-${{ runner.os }}-${{ github.run_id }}
+          path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
 
       # ---------------- UPLOAD ----------------
       - name: Upload installer
@@ -178,7 +160,6 @@ jobs:
       - name: Setup env
         run: ./build.ps1 -Env -Arch x64
 
-      # In manifest mode this bootstraps/pins vcpkg; CMake installs the actual dependencies.
       - name: Prepare vcpkg
         run: ./build.ps1 -Vcpkg -Latest -Arch x64
 
@@ -215,10 +196,16 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Package (ZIP)
-        # -Prepare:$False prevents packaging from re-running Start-Prepare-Package,
-        # which would re-copy the bundled Python over the staged directory and drop
-        # the kicad-python SDK wheel installed in the step above.
         run: ./build.ps1 -Package -Arch x64 -BuildType Release -Portable -Prepare:$False
+
+      # ---------------- CACHE (SAVE) ----------------
+
+      - name: Save vcpkg cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          key: vcpkg-${{ runner.os }}-${{ github.run_id }}
+          path: C:\Users\runneradmin\AppData\Local\vcpkg\archives
 
       # ---------------- UPLOAD ----------------
       - name: Upload portable zip
