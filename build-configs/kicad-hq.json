@@ -33,7 +33,7 @@
             "ref": "0.4.12"
         },
         "edge-headless-sha256": {
-            "ref": "5338e27a272ff651cda4440b2c3fba16b121c911e22778b1cb915a5ccd754b0c"
+            "ref": "de948d8f424bf014764bef0c3604897be0f047629adac7208da05803b8913103"
         },
         "freerouting": {
             "ref": "0.0.1"
